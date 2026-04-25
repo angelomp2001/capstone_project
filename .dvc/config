@@ -1,0 +1,4 @@
+[core]
+    remote = capstone_project
+['remote "capstone_project"']
+    url = ../data/.dvc_storage
