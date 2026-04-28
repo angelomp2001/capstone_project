@@ -1,15 +1,24 @@
 import streamlit as st
 import pandas as pd
 
-from generate_sample_df import generate_sample_df
+from src.generate_sample_df import generate_sample_df
 from src.cleaning_operations import apply_operations
 from src.llm_cleaning import parse_instruction_to_ops
+from src.llm_utils import is_ollama_available
+
+
+def create_initial_df() -> pd.DataFrame:
+    """Generate display-friendly starter data for the app."""
+    df = generate_sample_df()
+    for col in df.select_dtypes(include=["datetime64[ns]", "datetime64"]).columns:
+        df[col] = df[col].astype(str)
+    return df
 
 
 def init_session_state():
     """Initialize Streamlit session state variables."""
     if "df" not in st.session_state:
-        st.session_state.df = generate_sample_df()
+        st.session_state.df = create_initial_df()
     if "operations" not in st.session_state:
         st.session_state.operations = []
     if "chat_history" not in st.session_state:
@@ -21,10 +30,15 @@ def main():
     st.title("LLM-Driven Data Cleaning (POC)")
 
     init_session_state()
+    if is_ollama_available():
+        st.success("Connected to Ollama. Natural-language instructions will use the LLM parser.")
+    else:
+        st.info("Ollama was not detected. The app is running in built-in POC mode with simple instruction parsing.")
 
     # --- Data Preview --------------------------------------------------------
     st.subheader("Sample Data (first 15 rows)")
-    st.dataframe(st.session_state.df.head(15))
+    preview_df = st.session_state.df.head(8).copy()
+    st.dataframe(preview_df, use_container_width=True)
 
     st.markdown("**Columns and dtypes:**")
     dtypes = {col: str(dtype) for col, dtype in st.session_state.df.dtypes.items()}
@@ -32,8 +46,8 @@ def main():
 
     st.markdown("---")
 
-    # --- Cleaning Chat -------------------------------------------------------
-    st.subheader("Cleaning Chat")
+    # --- Chat -------------------------------------------------------
+    st.subheader("Chat")
 
     # Show previous messages
     for role, text in st.session_state.chat_history:
@@ -47,36 +61,39 @@ def main():
         "'fill missing age with median', 'drop columns gender and city')."
     )
 
-    if st.button("Apply instruction") and user_input:
-        # Log user message
-        st.session_state.chat_history.append(("user", user_input))
+    apply_clicked = st.button("Apply instruction")
 
-        # Ask LLM to translate instruction into operations
-        ops = parse_instruction_to_ops(user_input, st.session_state.df)
-
-        if not ops:
-            msg = (
-                "I couldn't parse that into valid operations. "
-                "Try being more explicit (e.g., name the column or describe the strategy)."
-            )
-            st.session_state.chat_history.append(("assistant", msg))
+    if apply_clicked:
+        if not user_input:
+            st.warning("Please enter an instruction.")
         else:
-            # Apply operations
-            new_df = apply_operations(st.session_state.df, ops)
+            # Log user message
+            st.session_state.chat_history.append(("user", user_input))
 
-            # Update state
-            st.session_state.df = new_df
-            st.session_state.operations.extend(ops)
+            # Translate instruction into operations
+            ops = parse_instruction_to_ops(user_input, st.session_state.df)
 
-            msg = (
-                f"I applied {len(ops)} operation(s). "
-                "The DataFrame preview has been updated."
-            )
-            st.session_state.chat_history.append(("assistant", msg))
+            if not ops or ops[0].get("op") == "error":
+                msg = (
+                    ops[0]["params"]["message"]
+                    if ops
+                    else "I couldn't map that request to one of the supported POC operations yet."
+                )
+                st.session_state.chat_history.append(("assistant", msg))
+            else:
+                # Apply operations
+                new_df = apply_operations(st.session_state.df, ops)
+
+                # Update state
+                st.session_state.df = new_df
+                st.session_state.operations.extend(ops)
+
+                msg = f"I applied {len(ops)} operation(s):\n{ops}"
+                st.session_state.chat_history.append(("assistant", msg))
 
     # --- Reset button --------------------------------------------------------
     if st.button("Reset data"):
-        st.session_state.df = generate_sample_df()
+        st.session_state.df = create_initial_df()
         st.session_state.operations = []
         st.session_state.chat_history = []
 

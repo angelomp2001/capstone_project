@@ -2,27 +2,34 @@ import logging
 import sys
 import yaml
 from pathlib import Path
-import pandas as pd
-import dvc.api
 import os
 import json
 from typing import List, Dict, Any, Optional
-
+import streamlit as st
 import requests
 
 
-def setup_logging(log_level=logging.INFO, log_file=None):
+def setup_logging(log_level=logging.INFO, log_file='docs/logs/logger.txt'):
     """Set up logging for the project."""
-    handlers = [logging.StreamHandler(sys.stdout)]
-    if log_file:
-        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-        handlers.append(logging.FileHandler(log_file))
 
+    # Create a list to hold the logging handlers.
+    handlers = [logging.StreamHandler(sys.stdout)]  # Log to console
+    
+    # Create the directory for the log file if it does not already exist.
+    log_dir = Path(log_file).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    # Append a FileHandler to log messages to the specified log file.
+    file_handler = logging.FileHandler(log_file)
+    handlers.append(file_handler)
+
+    # Configure the logging system.
     logging.basicConfig(
         level=log_level,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=handlers,
+        handlers=handlers
     )
+
 
 
 def load_config(config_path: str):
@@ -45,7 +52,7 @@ OLLAMA_URL_DEFAULT = "http://localhost:11434"
 
 # Read configuration from environment variables (with defaults)
 OLLAMA_URL = os.getenv("OLLAMA_URL", OLLAMA_URL_DEFAULT)
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")  # change default model if you prefer
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1")  # change default model if you prefer
 OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", "120"))  # seconds
 
 # Basic logger setup (you can customize this in your main app)
@@ -58,6 +65,15 @@ if not logger.handlers:
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
+
+
+def is_ollama_available() -> bool:
+    """Return True when the configured Ollama endpoint responds."""
+    try:
+        response = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
+        return response.status_code == 200
+    except requests.RequestException:
+        return False
 
 
 # -----------------------------------------------------------------------------
@@ -167,6 +183,13 @@ def call_llm(
 # Helper for JSON-structured responses (e.g., cleaning ops)
 # -----------------------------------------------------------------------------
 
+@st.cache_data(show_spinner=False)
+def call_llm_for_json_cached(system_prompt, user_prompt, temperature):
+    return call_llm_for_json(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        temperature=temperature,
+    )
 
 def call_llm_for_json(
     system_prompt: str,
@@ -220,10 +243,7 @@ def call_llm_for_json(
         try:
             return json.loads(stripped)
         except json.JSONDecodeError as e:
-            logger.error(
-                "Failed to parse LLM output as JSON. Raw output (truncated): %s",
-                text[:500],
-            )
+            logger.error("RAW LLM OUTPUT:\n%s", text)
             raise ValueError("LLM output is not valid JSON") from e
 
 
@@ -249,7 +269,7 @@ def _extract_json_from_text(text: str) -> str:
         text = "\n".join(lines).strip()
 
     # Try to locate first '{' or '[' and last '}' or ']'
-    start_candidates = [text.find("{"), text.find("["]
+    start_candidates = [text.find("{"), text.find("[")]
     start_candidates = [i for i in start_candidates if i != -1]
     if not start_candidates:
         return text  # nothing better to do

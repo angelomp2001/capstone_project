@@ -1,15 +1,14 @@
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
-import types
 # config
 n_rows = 1000
 seed = 12345
 
 def generate_sample_df(
-        n_rows: int = 1000,
+        n_rows: int = 5,
         seed: int = 12345,
-) -> types.SimpleNamespace:
+) -> pd.DataFrame:
     """
     Generate a sample dataframe with n rows and 8 columns:
     - index

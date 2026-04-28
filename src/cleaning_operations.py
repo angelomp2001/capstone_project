@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 from typing import Dict, Any, List
 
@@ -36,6 +38,8 @@ from typing import Dict, Any, List
 
 # supported operations:
 # copy_df, validate required, validate unique, validate categorical values, validate bounds, validate date range, drop duplicates, replace value, coerce dtype, dropna, fillna, drop_columns
+logger = logging.getLogger(__name__)
+
 SUPPORTED_OPS = {"dropna", "fillna", "drop_columns"}
 
 
@@ -62,6 +66,7 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
 
     if op_type not in SUPPORTED_OPS:
         # Unsupported operation: no-op (for robustness in POC)
+        logger.warning(f"Unsupported op from LLM: {op_type}")
         return df
 
     df = df.copy()
