@@ -20,6 +20,14 @@ def main() -> None:
     fill_ops = parse_instruction_to_ops("fill missing normal with 0", df)
     assert fill_ops == [{"op": "fillna", "params": {"column": "normal", "strategy": "constant", "value": 0}}]
 
+    replace_ops = parse_instruction_to_ops("replace med category in risk_level with 1", df)
+    assert replace_ops == [{
+        "op": "replace_value",
+        "params": {"column": "risk_level", "old_value": "med", "new_value": 1},
+    }]
+    replaced_df = apply_operations(df, replace_ops)
+    assert "med" not in replaced_df["risk_level"].astype(str).tolist()
+
     print("Smoke test passed.")
 
 

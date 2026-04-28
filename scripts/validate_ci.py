@@ -28,7 +28,9 @@ def wait_for_streamlit(url: str, timeout_seconds: int = 20) -> None:
 
 
 def main() -> None:
+    print("Running smoke test...")
     run_command([PYTHON, "scripts/smoke_test.py"])
+    print("Starting Streamlit app for validation...")
 
     process = subprocess.Popen(
         [

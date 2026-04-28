@@ -5,30 +5,61 @@ from pathlib import Path
 import os
 import json
 from typing import List, Dict, Any, Optional
+from datetime import datetime
 import streamlit as st
 import requests
 
 
-def setup_logging(log_level=logging.INFO, log_file='docs/logs/logger.txt'):
-    """Set up logging for the project."""
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+LOG_DIR = PROJECT_ROOT / "docs" / "logs"
+APP_LOG_FILE = LOG_DIR / "app.log"
+TRACE_LOG_FILE = LOG_DIR / "trace.log"
 
-    # Create a list to hold the logging handlers.
-    handlers = [logging.StreamHandler(sys.stdout)]  # Log to console
-    
-    # Create the directory for the log file if it does not already exist.
-    log_dir = Path(log_file).parent
-    log_dir.mkdir(parents=True, exist_ok=True)
 
-    # Append a FileHandler to log messages to the specified log file.
-    file_handler = logging.FileHandler(log_file)
-    handlers.append(file_handler)
+def ensure_log_dir() -> Path:
+    LOG_DIR.mkdir(parents=True, exist_ok=True)
+    return LOG_DIR
 
-    # Configure the logging system.
+
+def setup_logging(log_level: int = logging.INFO) -> None:
+    """Set up console and file logging for the project."""
+    ensure_log_dir()
+
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    )
+
+    stream_handler = logging.StreamHandler(sys.stdout)
+    stream_handler.setFormatter(formatter)
+
+    app_file_handler = logging.FileHandler(APP_LOG_FILE, encoding="utf-8")
+    app_file_handler.setFormatter(formatter)
+
     logging.basicConfig(
         level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=handlers
+        handlers=[stream_handler, app_file_handler],
+        force=True,
     )
+
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("watchdog").setLevel(logging.WARNING)
+    logging.getLogger(__name__).info("Logging initialized. Main log file: %s", APP_LOG_FILE)
+
+
+def append_trace(message: str) -> None:
+    """Append verbose trace text to a plain text trace file."""
+    ensure_log_dir()
+    timestamp = datetime.now().isoformat(timespec="seconds")
+    with TRACE_LOG_FILE.open("a", encoding="utf-8") as trace_file:
+        trace_file.write(f"[{timestamp}] {message}\n")
+
+
+def get_log_locations() -> Dict[str, str]:
+    ensure_log_dir()
+    return {
+        "app_log": str(APP_LOG_FILE),
+        "trace_log": str(TRACE_LOG_FILE),
+    }
 
 
 
@@ -39,7 +70,7 @@ def load_config(config_path: str):
 
 def get_project_root() -> Path:
     """Returns project root path."""
-    return Path(__file__).parent.parent
+    return PROJECT_ROOT
 
 
 
@@ -55,24 +86,17 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", OLLAMA_URL_DEFAULT)
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1")  # change default model if you prefer
 OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", "120"))  # seconds
 
-# Basic logger setup (you can customize this in your main app)
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
 
 def is_ollama_available() -> bool:
     """Return True when the configured Ollama endpoint responds."""
     try:
         response = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
+        logger.info("Ollama availability check returned status %s from %s", response.status_code, OLLAMA_URL)
         return response.status_code == 200
     except requests.RequestException:
+        logger.info("Ollama availability check failed for %s", OLLAMA_URL)
         return False
 
 
@@ -138,6 +162,7 @@ def call_llm(
 
     try:
         logger.debug("Sending request to Ollama at %s with model '%s'", OLLAMA_URL, model)
+        append_trace(f"LLM REQUEST model={model} temperature={temperature} system={system_prompt!r} user={user_prompt!r}")
         response = requests.post(
             url,
             json=payload,
@@ -176,6 +201,7 @@ def call_llm(
         logger.error(msg)
         raise RuntimeError(msg)
 
+    append_trace(f"LLM RESPONSE content={content!r}")
     return content
 
 
@@ -185,6 +211,7 @@ def call_llm(
 
 @st.cache_data(show_spinner=False)
 def call_llm_for_json_cached(system_prompt, user_prompt, temperature):
+    logger.info("Using cached JSON LLM wrapper.")
     return call_llm_for_json(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
@@ -236,14 +263,19 @@ def call_llm_for_json(
 
     # Try direct JSON parsing first
     try:
-        return json.loads(text)
+        parsed = json.loads(text)
+        append_trace(f"LLM JSON PARSED direct={parsed!r}")
+        return parsed
     except json.JSONDecodeError:
         # Some models wrap JSON in markdown fences; try to extract.
         stripped = _extract_json_from_text(text)
         try:
-            return json.loads(stripped)
+            parsed = json.loads(stripped)
+            append_trace(f"LLM JSON PARSED extracted={parsed!r}")
+            return parsed
         except json.JSONDecodeError as e:
             logger.error("RAW LLM OUTPUT:\n%s", text)
+            append_trace(f"LLM JSON PARSE ERROR raw={text!r}")
             raise ValueError("LLM output is not valid JSON") from e
 
 
