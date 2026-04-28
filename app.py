@@ -38,7 +38,7 @@ def main():
     # --- Data Preview --------------------------------------------------------
     st.subheader("Sample Data (first 15 rows)")
     preview_df = st.session_state.df.head(8).copy()
-    st.dataframe(preview_df, use_container_width=True)
+    st.dataframe(preview_df, width='stretch')
 
     st.markdown("**Columns and dtypes:**")
     dtypes = {col: str(dtype) for col, dtype in st.session_state.df.dtypes.items()}

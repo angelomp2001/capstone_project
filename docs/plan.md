@@ -21,3 +21,8 @@ dropna
 fillna
 drop_columns
 
+# POC
+1. chat converts instructions into function and applies to data
+
+# MVP
+works via github. 

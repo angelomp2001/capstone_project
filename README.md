@@ -47,9 +47,14 @@ Then open `http://localhost:8501`.
 
 The workflow in [.github/workflows/poc.yml](/C:/Users/Angelo/Documents/github/capstone_project/.github/workflows/poc.yml) does two things on every push and pull request:
 
-- installs dependencies and runs a smoke test
-- starts the Streamlit app briefly to confirm it serves HTTP
+- installs dependencies and runs [scripts/validate_ci.py](/C:/Users/Angelo/Documents/github/capstone_project/scripts/validate_ci.py)
 - builds the Docker image to confirm containerization stays healthy
+
+You can run the same non-Docker validation locally with:
+
+```bash
+python scripts/validate_ci.py
+```
 
 ## Notes
 

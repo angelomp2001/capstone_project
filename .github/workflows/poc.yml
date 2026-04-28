@@ -24,14 +24,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run parser smoke test
-        run: python scripts/smoke_test.py
-
-      - name: Start Streamlit app
-        run: |
-          streamlit run app.py --server.headless true --server.port 8501 &
-          sleep 10
-          curl --fail http://127.0.0.1:8501/
+      - name: Run local-equivalent CI validation
+        run: python scripts/validate_ci.py
 
   docker-build:
     runs-on: ubuntu-latest
