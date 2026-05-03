@@ -3,8 +3,8 @@ import pandas as pd
 import logging
 
 from src.generate_sample_df import generate_sample_df
-from operations import apply_operations
-from text_parser import llm_parses_to_ops
+from src.operations import apply_operations
+from src.text_parser import llm_parses_to_ops
 from src.llm_utils import (
     is_ollama_available,
     setup_logging,
