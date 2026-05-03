@@ -2,7 +2,6 @@ import logging
 
 import pandas as pd
 from typing import Dict, Any, List
-from .llm_utils import append_trace
 
 # -----------------------------------------------------------------------------
 # Supported operations and their parameter schemas
@@ -40,6 +39,7 @@ from .llm_utils import append_trace
 # supported operations:
 # copy_df, validate required, validate unique, validate categorical values, validate bounds, validate date range, drop duplicates, replace value, coerce dtype, dropna, fillna, drop_columns
 logger = logging.getLogger(__name__)
+trace = logging.getLogger("trace")
 
 SUPPORTED_OPS = {"dropna", "fillna", "drop_columns", "replace_value"}
 
@@ -65,15 +65,18 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
     op_type = op.get("op")
     params = op.get("params", {})
     logger.info("Applying operation %s with params %s", op_type, params)
-    append_trace(
-        f"APPLY START op={op_type!r} params={params!r} "
-        f"shape_before={df.shape!r} columns_before={df.columns.tolist()!r}"
+    trace.info(
+        "APPLY START op=%r params=%r shape_before=%r columns_before=%r",
+        op_type,
+        params,
+        df.shape,
+        df.columns.tolist(),
     )
 
     if op_type not in SUPPORTED_OPS:
         # Unsupported operation: no-op (for robustness in POC)
         logger.warning(f"Unsupported op from LLM: {op_type}")
-        append_trace(f"APPLY UNSUPPORTED op={op_type!r}")
+        trace.info("APPLY UNSUPPORTED op=%r", op_type)
         return df
 
     df = df.copy()
@@ -102,7 +105,7 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
         if column not in df.columns:
             # Invalid column: ignore for POC
             logger.warning("fillna skipped because column does not exist: %s", column)
-            append_trace(f"APPLY fillna skipped missing_column={column!r}")
+            trace.info("APPLY fillna skipped missing_column=%r", column)
             return df
 
         if strategy == "mean":
@@ -136,7 +139,7 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
 
         if column not in df.columns:
             logger.warning("replace_value skipped because column does not exist: %s", column)
-            append_trace(f"APPLY replace_value skipped missing_column={column!r}")
+            trace.info("APPLY replace_value skipped missing_column=%r", column)
             return df
 
         replacement_count = int((df[column].astype(str) == str(old_value)).sum())
@@ -155,9 +158,12 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
             replacement_count,
         )
 
-    append_trace(
-        f"APPLY END op={op_type!r} shape_after={df.shape!r} "
-        f"columns_after={df.columns.tolist()!r} preview_after={df.head(3).to_dict(orient='records')!r}"
+    trace.info(
+        "APPLY END op=%r shape_after=%r columns_after=%r preview_after=%r",
+        op_type,
+        df.shape,
+        df.columns.tolist(),
+        df.head(3).to_dict(orient="records"),
     )
     return df
 

@@ -3,27 +3,30 @@ import pandas as pd
 import logging
 
 from src.generate_sample_df import generate_sample_df
-from src.cleaning_operations import apply_operations
-from src.llm_cleaning import parse_instruction_to_ops
+from operations import apply_operations
+from text_parser import llm_parses_to_ops
 from src.llm_utils import (
     is_ollama_available,
     setup_logging,
     get_log_locations,
-    append_trace,
 )
 
-
+# setup logging
 setup_logging()
 logger = logging.getLogger(__name__)
+trace = logging.getLogger("trace")
 
 
 def create_initial_df() -> pd.DataFrame:
     """Generate display-friendly starter data for the app."""
+    # wrapper for this function
     df = generate_sample_df()
+    # clean df
     for col in df.select_dtypes(include=["datetime64[ns]", "datetime64"]).columns:
         df[col] = df[col].astype(str)
+    # log 
     logger.info("Created initial DataFrame with shape %s", df.shape)
-    append_trace(f"DATAFRAME INIT shape={df.shape!r} preview={df.head(3).to_dict(orient='records')!r}")
+    trace.info("DATAFRAME INIT shape=%r preview=%r", df.shape, df.head(3).to_dict(orient="records"))
     return df
 
 
@@ -38,69 +41,70 @@ def init_session_state():
     if "session_log_started" not in st.session_state:
         st.session_state.session_log_started = True
         logger.info("Started new Streamlit session.")
-        append_trace("SESSION START")
+        trace.info("SESSION START")
 
 
 def main():
     st.set_page_config(page_title="LLM Data Cleaning POC", layout="wide")
-    st.title("LLM-Driven Data Cleaning (POC)")
+    st.title("LLM-Driven Data Cleaning (POC)") # ui component
 
     init_session_state()
     log_locations = get_log_locations()
+    # log status
     logger.info("App rendered. Current DataFrame shape=%s", st.session_state.df.shape)
     if is_ollama_available():
-        st.success("Connected to Ollama. Natural-language instructions will use the LLM parser.")
+        st.success("Connected to Ollama. Natural-language instructions will use the LLM parser.")  # ui component
     else:
-        st.info("Ollama was not detected. The app is running in built-in POC mode with simple instruction parsing.")
+        st.info("Ollama was not detected. The app is running in built-in POC mode with simple instruction parsing.")  # ui component
 
-    with st.expander("Where the logs are saved"):
-        st.code(
-            f"App log:   {log_locations['app_log']}\n"
-            f"Trace log: {log_locations['trace_log']}",
-            language="text",
-        )
+    # with st.expander("Where the logs are saved"): # ui component
+    #     st.code( # ui component
+    #         f"App log:   {log_locations['app_log']}\n"
+    #         f"Trace log: {log_locations['trace_log']}",
+    #         language="text",
+    #     )
 
     # --- Data Preview --------------------------------------------------------
-    st.subheader("Sample Data (first 15 rows)")
+    st.subheader("Sample Data (first 15 rows)") # ui component
     preview_df = st.session_state.df.head(8).copy()
-    st.dataframe(preview_df, width='stretch')
+    st.dataframe(preview_df, width='stretch') # ui component
 
-    st.markdown("**Columns and dtypes:**")
+    st.markdown("**Columns and dtypes:**") # ui component
     dtypes = {col: str(dtype) for col, dtype in st.session_state.df.dtypes.items()}
-    st.json(dtypes)
+    st.json(dtypes) # ui component
 
-    st.markdown("---")
+    st.markdown("---") # ui component (divider)
 
     # --- Chat -------------------------------------------------------
-    st.subheader("Chat")
+    st.subheader("Chat") # ui component
 
     # Show previous messages
-    for role, text in st.session_state.chat_history:
+    for role, text in st.session_state.chat_history: # ui component
         if role == "user":
             st.markdown(f"**You:** {text}")
         else:
             st.markdown(f"**Assistant:** {text}")
 
-    user_input = st.text_input(
+    user_input = st.text_input( # ui component
         "Describe a cleaning action (e.g., 'drop rows with any missing values', "
         "'fill missing age with median', 'drop columns gender and city')."
     )
 
-    apply_clicked = st.button("Apply instruction")
+    apply_clicked = st.button("Apply instruction") # ui component
 
     if apply_clicked:
         if not user_input:
             logger.warning("User clicked apply with empty input.")
-            append_trace("USER INPUT empty")
+            trace.info("USER INPUT empty")
             st.warning("Please enter an instruction.")
         else:
             # Log user message
             st.session_state.chat_history.append(("user", user_input))
             logger.info("User instruction received: %s", user_input)
-            append_trace(f"USER INPUT text={user_input!r}")
+            trace.info("USER INPUT text=%r", user_input)
 
             # Translate instruction into operations
-            ops = parse_instruction_to_ops(user_input, st.session_state.df)
+            ops = llm_parses_to_ops(user_input, st.session_state.df)
             logger.info("Parsed operations from instruction: %s", ops)
 
             if not ops or ops[0].get("op") == "error":
@@ -110,7 +114,7 @@ def main():
                     else "I couldn't map that request to one of the supported POC operations yet."
                 )
                 logger.warning("Instruction could not be applied. Message=%s", msg)
-                append_trace(f"USER INPUT FAILED text={user_input!r} message={msg!r}")
+                trace.info("USER INPUT FAILED text=%r message=%r", user_input, msg)
                 st.session_state.chat_history.append(("assistant", msg))
             else:
                 # Apply operations
@@ -122,8 +126,9 @@ def main():
 
                 msg = f"I applied {len(ops)} operation(s):\n{ops}"
                 logger.info("Instruction applied successfully. Operations=%s new_shape=%s", ops, new_df.shape)
-                append_trace(f"USER INPUT SUCCESS ops={ops!r} new_shape={new_df.shape!r}")
+                trace.info("USER INPUT SUCCESS ops=%r new_shape=%r", ops, new_df.shape)
                 st.session_state.chat_history.append(("assistant", msg))
+                st.rerun()
 
     # --- Reset button --------------------------------------------------------
     if st.button("Reset data"):
@@ -131,7 +136,8 @@ def main():
         st.session_state.operations = []
         st.session_state.chat_history = []
         logger.info("User reset the app state.")
-        append_trace("SESSION RESET")
+        trace.info("SESSION RESET")
+        st.rerun()
 
     st.markdown("---")
 

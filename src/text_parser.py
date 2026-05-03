@@ -8,13 +8,15 @@ from difflib import get_close_matches
 import pandas as pd
 
 from .llm_utils import is_ollama_available
-from .llm_utils import call_llm_for_json_cached, append_trace
-from .cleaning_operations import SUPPORTED_OPS
+from .llm_utils import call_llm_for_json_cached
+from .operations import SUPPORTED_OPS
 
 logger = logging.getLogger(__name__)
+trace = logging.getLogger("trace")
 
 
 def _coerce_literal(value: Any) -> Any:
+    '''Try to coerce a string value into a Python literal (number, bool, null). If it fails, return the original string.'''
     if not isinstance(value, str):
         return value
 
@@ -26,10 +28,12 @@ def _coerce_literal(value: Any) -> Any:
 
 
 def _normalize_text(text: str) -> str:
+    '''Normalize text by lowercasing and removing non-alphanumeric characters, to improve matching robustness.'''
     return re.sub(r"[^a-z0-9]+", "", text.lower())
 
 
 def _match_column(candidate: str, columns: List[str]) -> str | None:
+    '''Try to match a candidate string to one of the column names, using normalization and fuzzy matching.'''
     if not candidate:
         return None
 
@@ -53,6 +57,7 @@ def _match_column(candidate: str, columns: List[str]) -> str | None:
 
 
 def _extract_columns_from_text(user_text: str, columns: List[str]) -> List[str]:
+    '''Extract column names mentioned in the user text, using direct matching and fuzzy matching.'''
     found_columns: List[str] = []
     text_lower = user_text.lower()
 
@@ -72,17 +77,21 @@ def _extract_columns_from_text(user_text: str, columns: List[str]) -> List[str]:
     return found_columns
 
 
-def _heuristic_parse_instruction_to_ops(
+def _algo_parses_to_ops(
     user_text: str,
     df: pd.DataFrame,
 ) -> List[Dict[str, Any]]:
+    """
+    quick and simple algo parser for common cleaning instructions, without using the LLM. 
+    This is used as a fallback when LLM parsing fails, and also to handle very simple instructions without needing an LLM call.
+    """
     columns = df.columns.tolist()
     text_lower = user_text.lower().strip()
-    logger.info("Heuristic parser evaluating user text: %s", user_text)
-    append_trace(f"HEURISTIC INPUT columns={columns!r} text={user_text!r}")
+    logger.info("algo parser evaluating user text: %s", user_text)
+    trace.info("ALGO INPUT columns=%r text=%r", columns, user_text)
 
     if not text_lower:
-        logger.info("Heuristic parser received empty input.")
+        logger.info("Algo parser received empty input.")
         return []
 
     replace_match = re.search(
@@ -105,16 +114,16 @@ def _heuristic_parse_instruction_to_ops(
                     "new_value": new_value,
                 },
             }]
-            logger.info("Heuristic parser matched replace_value operation: %s", ops)
-            append_trace(f"HEURISTIC OUTPUT replace_value={ops!r}")
+            logger.info("Algo parser matched replace_value operation: %s", ops)
+            trace.info("ALGO OUTPUT replace_value=%r", ops)
             return ops
 
     if "drop column" in text_lower or "remove column" in text_lower:
         columns_to_drop = _extract_columns_from_text(user_text, columns)
         if columns_to_drop:
             ops = [{"op": "drop_columns", "params": {"columns": columns_to_drop}}]
-            logger.info("Heuristic parser matched drop_columns: %s", ops)
-            append_trace(f"HEURISTIC OUTPUT drop_columns={ops!r}")
+            logger.info("Algo parser matched drop_columns: %s", ops)
+            trace.info("ALGO OUTPUT drop_columns=%r", ops)
             return ops
 
     if "drop rows" in text_lower or "drop missing" in text_lower or "drop null" in text_lower:
@@ -123,8 +132,8 @@ def _heuristic_parse_instruction_to_ops(
             "op": "dropna",
             "params": {"axis": 0, "subset": subset or None},
         }]
-        logger.info("Heuristic parser matched dropna: %s", ops)
-        append_trace(f"HEURISTIC OUTPUT dropna={ops!r}")
+        logger.info("Algo parser matched dropna: %s", ops)
+        trace.info("ALGO OUTPUT dropna=%r", ops)
         return ops
 
     if "fill" in text_lower and ("missing" in text_lower or "null" in text_lower or "na" in text_lower):
@@ -161,15 +170,15 @@ def _heuristic_parse_instruction_to_ops(
                     "value": value,
                 },
             }]
-            logger.info("Heuristic parser matched fillna: %s", ops)
-            append_trace(f"HEURISTIC OUTPUT fillna={ops!r}")
+            logger.info("Algo parser matched fillna: %s", ops)
+            trace.info("ALGO OUTPUT fillna=%r", ops)
             return ops
 
-    logger.warning("Heuristic parser could not map user text to a supported operation: %s", user_text)
-    append_trace(f"HEURISTIC OUTPUT none text={user_text!r}")
+    logger.warning("Algo parser could not map user text to a supported operation: %s", user_text)
+    trace.info("ALGO OUTPUT none text=%r", user_text)
     return []
 
-def parse_instruction_to_ops(
+def llm_parses_to_ops(
     user_text: str,
     df: pd.DataFrame,
     *,
@@ -293,12 +302,14 @@ No additional text or comments.
 
     try:
         logger.info("Parsing instruction into operations. Text: %s", user_text)
-        append_trace(f"PARSER START text={user_text!r} columns={columns!r} dtypes={dtypes!r}")
-        heuristic_result = _heuristic_parse_instruction_to_ops(user_text, df)
-        if heuristic_result:
-            logger.info("Using heuristic parser result without LLM call: %s", heuristic_result)
-            append_trace(f"PARSER USED HEURISTIC ops={heuristic_result!r}")
-            result = heuristic_result
+        trace.info("PARSER START text=%r columns=%r dtypes=%r", user_text, columns, dtypes)
+        algo_result = _algo_parses_to_ops(user_text, df)
+        logger.info("Using algo parser result without LLM call: %s", algo_result)
+        
+        if algo_result:
+            
+            trace.info("PARSER USED ALGO ops=%r", algo_result)
+            result = algo_result
         elif is_ollama_available():
             result = call_llm_for_json_cached(
                 system_prompt,
@@ -307,12 +318,12 @@ No additional text or comments.
             )
             logger.info("LLM parser returned raw result: %s", result)
         else:
-            logger.info("Ollama is unavailable; using heuristic parser for POC mode.")
-            result = heuristic_result
+            logger.info("Ollama is unavailable; using algo parser for POC mode.")
+            result = algo_result
     except Exception as e:
-        logger.error("LLM parsing failed, falling back to heuristic parser: %s", e)
-        append_trace(f"PARSER EXCEPTION error={e!r}")
-        result = _heuristic_parse_instruction_to_ops(user_text, df)
+        logger.error("LLM parsing failed, falling back to algo parser: %s", e)
+        trace.info("PARSER EXCEPTION error=%r", e)
+        result = _algo_parses_to_ops(user_text, df)
 
     # Normalize: ensure we always have a list
     if isinstance(result, dict):
@@ -336,5 +347,5 @@ No additional text or comments.
         cleaned_ops.append({"op": op_type, "params": params})
 
     logger.info("Final parsed operations: %s", cleaned_ops)
-    append_trace(f"PARSER FINAL ops={cleaned_ops!r}")
+    trace.info("PARSER FINAL ops=%r", cleaned_ops)
     return cleaned_ops

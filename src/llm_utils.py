@@ -5,7 +5,6 @@ from pathlib import Path
 import os
 import json
 from typing import List, Dict, Any, Optional
-from datetime import datetime
 import streamlit as st
 import requests
 
@@ -25,33 +24,42 @@ def setup_logging(log_level: int = logging.INFO) -> None:
     """Set up console and file logging for the project."""
     ensure_log_dir()
 
-    formatter = logging.Formatter(
+    # formatters
+    app_formatter = logging.Formatter(
         "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
     )
+    trace_formatter = logging.Formatter("%(asctime)s | %(message)s")
 
+    # Set up a stream handler for logging messages to the console (stdout).
     stream_handler = logging.StreamHandler(sys.stdout)
-    stream_handler.setFormatter(formatter)
+    stream_handler.setFormatter(app_formatter) # Apply the application log formatter to the stream handler.
 
     app_file_handler = logging.FileHandler(APP_LOG_FILE, encoding="utf-8")
-    app_file_handler.setFormatter(formatter)
+    app_file_handler.setFormatter(app_formatter)
 
+    trace_file_handler = logging.FileHandler(TRACE_LOG_FILE, encoding="utf-8")
+    trace_file_handler.setFormatter(trace_formatter)
+
+    # config for root logger, which will be inherited by logger and trace
     logging.basicConfig(
         level=log_level,
         handlers=[stream_handler, app_file_handler],
         force=True,
     )
+    # root logger defaults double as the app logger, so only trace-specific config is needed below
+    trace_logger = logging.getLogger("trace")
+    trace_logger.handlers.clear()
+    trace_logger.addHandler(trace_file_handler)
+    trace_logger.setLevel(logging.INFO)
+    trace_logger.propagate = False
 
+    # Set higher logging levels for specific libraries to minimize log clutter.
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     logging.getLogger("watchdog").setLevel(logging.WARNING)
+
+    # Log an informational message indicating that logging has been initialized.
     logging.getLogger(__name__).info("Logging initialized. Main log file: %s", APP_LOG_FILE)
-
-
-def append_trace(message: str) -> None:
-    """Append verbose trace text to a plain text trace file."""
-    ensure_log_dir()
-    timestamp = datetime.now().isoformat(timespec="seconds")
-    with TRACE_LOG_FILE.open("a", encoding="utf-8") as trace_file:
-        trace_file.write(f"[{timestamp}] {message}\n")
+    trace_logger.info("TRACE LOGGER INITIALIZED file=%s", TRACE_LOG_FILE)
 
 
 def get_log_locations() -> Dict[str, str]:
@@ -60,7 +68,6 @@ def get_log_locations() -> Dict[str, str]:
         "app_log": str(APP_LOG_FILE),
         "trace_log": str(TRACE_LOG_FILE),
     }
-
 
 
 def load_config(config_path: str):
@@ -87,6 +94,7 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1")  # change default model if 
 OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", "120"))  # seconds
 
 logger = logging.getLogger(__name__)
+trace = logging.getLogger("trace")
 
 
 def is_ollama_available() -> bool:
@@ -162,7 +170,7 @@ def call_llm(
 
     try:
         logger.debug("Sending request to Ollama at %s with model '%s'", OLLAMA_URL, model)
-        append_trace(f"LLM REQUEST model={model} temperature={temperature} system={system_prompt!r} user={user_prompt!r}")
+        trace.info("LLM REQUEST model=%r temperature=%r system=%r user=%r", model, temperature, system_prompt, user_prompt)
         response = requests.post(
             url,
             json=payload,
@@ -201,7 +209,7 @@ def call_llm(
         logger.error(msg)
         raise RuntimeError(msg)
 
-    append_trace(f"LLM RESPONSE content={content!r}")
+    trace.info("LLM RESPONSE content=%r", content)
     return content
 
 
@@ -209,14 +217,42 @@ def call_llm(
 # Helper for JSON-structured responses (e.g., cleaning ops)
 # -----------------------------------------------------------------------------
 
-@st.cache_data(show_spinner=False)
-def call_llm_for_json_cached(system_prompt, user_prompt, temperature):
-    logger.info("Using cached JSON LLM wrapper.")
-    return call_llm_for_json(
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        temperature=temperature,
-    )
+def _extract_json_from_text(text: str) -> str:
+    """
+    Extract a JSON substring from text that might contain code fences or extra text.
+
+    This is a best-effort helper. For robust behavior, always instruct the model
+    to return raw JSON with no commentary or code fences.
+    """
+    text = text.strip()
+
+    # Identify and strip common markdown code block wrappers
+    if text.startswith("```"):
+        # Remove leading ```<lang> (if any) and trailing ```
+        lines = text.splitlines()
+        # Remove the first line (``` or ```json etc.)
+        if lines:
+            lines = lines[1:]
+        # Remove final ``` line if present
+        if lines and lines[-1].strip().startswith("```"):
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+
+    # Try to locate first '{' or '[' and last '}' or ']'
+    start_candidates = [text.find("{"), text.find("[")]
+    start_candidates = [i for i in start_candidates if i != -1]
+    if not start_candidates:
+        return text  # nothing better to do
+    start = min(start_candidates)
+
+    end_brace = text.rfind("}")
+    end_bracket = text.rfind("]")
+    end_candidates = [i for i in [end_brace, end_bracket] if i != -1]
+    if not end_candidates:
+        return text
+    end = max(end_candidates) + 1
+
+    return text[start:end]
 
 def call_llm_for_json(
     system_prompt: str,
@@ -264,54 +300,27 @@ def call_llm_for_json(
     # Try direct JSON parsing first
     try:
         parsed = json.loads(text)
-        append_trace(f"LLM JSON PARSED direct={parsed!r}")
+        trace.info("LLM JSON PARSED direct=%r", parsed)
         return parsed
     except json.JSONDecodeError:
         # Some models wrap JSON in markdown fences; try to extract.
         stripped = _extract_json_from_text(text)
         try:
             parsed = json.loads(stripped)
-            append_trace(f"LLM JSON PARSED extracted={parsed!r}")
+            trace.info("LLM JSON PARSED extracted=%r", parsed)
             return parsed
         except json.JSONDecodeError as e:
             logger.error("RAW LLM OUTPUT:\n%s", text)
-            append_trace(f"LLM JSON PARSE ERROR raw={text!r}")
+            trace.info("LLM JSON PARSE ERROR raw=%r", text)
             raise ValueError("LLM output is not valid JSON") from e
 
 
-def _extract_json_from_text(text: str) -> str:
-    """
-    Extract a JSON substring from text that might contain code fences or extra text.
-
-    This is a best-effort helper. For robust behavior, always instruct the model
-    to return raw JSON with no commentary or code fences.
-    """
-    text = text.strip()
-
-    # Identify and strip common markdown code block wrappers
-    if text.startswith("```"):
-        # Remove leading ```<lang> (if any) and trailing ```
-        lines = text.splitlines()
-        # Remove the first line (``` or ```json etc.)
-        if lines:
-            lines = lines[1:]
-        # Remove final ``` line if present
-        if lines and lines[-1].strip().startswith("```"):
-            lines = lines[:-1]
-        text = "\n".join(lines).strip()
-
-    # Try to locate first '{' or '[' and last '}' or ']'
-    start_candidates = [text.find("{"), text.find("[")]
-    start_candidates = [i for i in start_candidates if i != -1]
-    if not start_candidates:
-        return text  # nothing better to do
-    start = min(start_candidates)
-
-    end_brace = text.rfind("}")
-    end_bracket = text.rfind("]")
-    end_candidates = [i for i in [end_brace, end_bracket] if i != -1]
-    if not end_candidates:
-        return text
-    end = max(end_candidates) + 1
-
-    return text[start:end]
+@st.cache_data(show_spinner=False)
+def call_llm_for_json_cached(system_prompt, user_prompt, temperature):
+    '''Cached wrapper around call_llm_for_json to speed up repeated calls with the same prompts.'''
+    logger.info("Using cached JSON LLM wrapper.")
+    return call_llm_for_json(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        temperature=temperature,
+    )
