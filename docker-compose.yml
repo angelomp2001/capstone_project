@@ -14,8 +14,6 @@ services:
       timeout: 5s
       retries: 5
     command: serve
-    profiles:
-      - with-ollama
 
   app:
     build:
