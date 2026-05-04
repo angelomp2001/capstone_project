@@ -1,47 +1,54 @@
+# Multi-stage build: dependencies layer
+FROM python:3.11-slim AS builder
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /tmp
+
+# Copy requirements for dependency installation
+COPY requirements.txt .
+
+# Create virtual environment and install dependencies
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+
+# Final production stage
 FROM python:3.11-slim
 
-# Set non-interactive frontend for apt
-ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH=/opt/venv/bin:$PATH \
+    VIRTUAL_ENV=/opt/venv \
+    STREAMLIT_SERVER_HEADLESS=true \
+    STREAMLIT_BROWSER_GATHER_USAGE_STATS=false \
+    OLLAMA_URL=http://ollama:11434
 
-# Install curl and other required tools
-RUN apt-get update && apt-get install -y curl ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Ollama
-RUN curl -fsSL https://ollama.com/install.sh | sh
-
-# Pull the model at build time (optional but recommended)
-# This makes the image larger but avoids a long initial pull on first run
-RUN ollama pull llama3.1
-
-# Create app directory
 WORKDIR /app
 
-# Python env vars
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Install runtime dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Streamlit env vars
-ENV STREAMLIT_SERVER_HEADLESS=true
-ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+# Copy virtual environment from builder
+COPY --from=builder /opt/venv /opt/venv
 
-# Copy and install Python deps
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Create non-root user
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 
-# Copy app code
-COPY app.py .
-COPY src ./src
+# Copy application code
+COPY --chown=appuser:appuser requirements.txt .
+COPY --chown=appuser:appuser app.py .
+COPY --chown=appuser:appuser src ./src
 
-# Expose Streamlit port
 EXPOSE 8501
 
-# Start both Ollama and Streamlit
-# 1) start ollama in the background
-# 2) wait a bit for ollama to be ready
-# 3) run streamlit
-CMD /bin/sh -c "\
-    ollama serve & \
-    sleep 5 && \
-    streamlit run app.py --server.address=0.0.0.0 --server.port=8501 \
-"
+USER appuser
+
+# Health check for Streamlit
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8501/_stcore/health || exit 1
+
+CMD ["streamlit", "run", "app.py", "--server.address=0.0.0.0", "--server.port=8501"]
