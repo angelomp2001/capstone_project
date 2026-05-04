@@ -1,26 +1,25 @@
 # Multi-stage build: dependencies layer
-FROM python:3.11-slim AS builder
+FROM python:3.13-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 WORKDIR /tmp
 
-# Copy requirements for dependency installation
-COPY requirements.txt .
+# Copy Poetry files
+COPY pyproject.toml poetry.lock .
 
-# Create virtual environment and install dependencies
-RUN python -m venv /opt/venv && \
-    /opt/venv/bin/pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+# Install Poetry and build dependencies into the global Python env
+RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --only main --no-interaction --no-ansi && \
+    python -m streamlit --version
 
 # Final production stage
-FROM python:3.11-slim
+FROM python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PATH=/opt/venv/bin:$PATH \
-    VIRTUAL_ENV=/opt/venv \
     STREAMLIT_SERVER_HEADLESS=true \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false \
     OLLAMA_URL=http://ollama:11434
@@ -32,14 +31,14 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends curl ca-certificates && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Copy virtual environment from builder
-COPY --from=builder /opt/venv /opt/venv
+# Copy installed Python packages and scripts from builder
+COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 
 # Copy application code
-COPY --chown=appuser:appuser requirements.txt .
 COPY --chown=appuser:appuser app.py .
 COPY --chown=appuser:appuser src ./src
 
