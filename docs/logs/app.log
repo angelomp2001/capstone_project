@@ -1,0 +1,535 @@
+2026-04-28 18:24:14,032 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-28 18:24:14,032 | INFO | manual_test | manual app log test
+2026-04-29 15:34:18,723 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:34:19,074 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-04-29 15:34:19,077 | INFO | __main__ | Started new Streamlit session.
+2026-04-29 15:34:19,080 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-04-29 15:34:21,237 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:34:53,419 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:34:53,421 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-04-29 15:34:53,531 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:34:53,533 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-04-29 15:34:55,446 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:34:55,571 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:34:55,577 | INFO | __main__ | User instruction received: replace 'med' in risk_level with 1
+2026-04-29 15:34:55,579 | INFO | src.llm_cleaning | Parsing instruction into operations. Text: replace 'med' in risk_level with 1
+2026-04-29 15:34:55,580 | INFO | src.llm_cleaning | Heuristic parser evaluating user text: replace 'med' in risk_level with 1
+2026-04-29 15:34:55,581 | INFO | src.llm_cleaning | Heuristic parser matched replace_value operation: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}]
+2026-04-29 15:34:55,582 | INFO | src.llm_cleaning | Using heuristic parser result without LLM call: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}]
+2026-04-29 15:34:55,583 | INFO | src.llm_cleaning | Final parsed operations: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}]
+2026-04-29 15:34:55,583 | INFO | __main__ | Parsed operations from instruction: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}]
+2026-04-29 15:34:55,584 | INFO | src.cleaning_operations | Applying 1 operation(s) in sequence.
+2026-04-29 15:34:55,584 | INFO | src.cleaning_operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}
+2026-04-29 15:34:55,587 | INFO | src.cleaning_operations | replace_value is converting categorical column 'risk_level' to object so a new value can be inserted.
+2026-04-29 15:34:55,589 | INFO | src.cleaning_operations | replace_value complete. column=risk_level old_value=med new_value=1 replacements=4
+2026-04-29 15:34:55,591 | INFO | src.cleaning_operations | Finished applying operations. Final shape=(5, 8)
+2026-04-29 15:34:55,591 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}] new_shape=(5, 8)
+2026-04-29 15:45:49,539 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:45:49,619 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-04-29 15:45:49,621 | INFO | __main__ | Started new Streamlit session.
+2026-04-29 15:45:49,622 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-04-29 15:45:51,699 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:46:05,593 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:46:05,595 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-04-29 15:46:05,716 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:46:05,718 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-04-29 15:46:07,695 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:46:07,785 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:46:07,804 | INFO | __main__ | User instruction received: drop uniform
+2026-04-29 15:46:07,805 | INFO | src.llm_cleaning | Parsing instruction into operations. Text: drop uniform
+2026-04-29 15:46:07,806 | INFO | src.llm_cleaning | Heuristic parser evaluating user text: drop uniform
+2026-04-29 15:46:07,808 | WARNING | src.llm_cleaning | Heuristic parser could not map user text to a supported operation: drop uniform
+2026-04-29 15:46:09,887 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:46:09,891 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-04-29 15:46:17,797 | INFO | src.llm_cleaning | LLM parser returned raw result: [{'op': 'drop_columns', 'params': {'columns': ['uniform']}}]
+2026-04-29 15:46:17,797 | INFO | src.llm_cleaning | Final parsed operations: [{'op': 'drop_columns', 'params': {'columns': ['uniform']}}]
+2026-04-29 15:46:17,798 | INFO | __main__ | Parsed operations from instruction: [{'op': 'drop_columns', 'params': {'columns': ['uniform']}}]
+2026-04-29 15:46:17,799 | INFO | src.cleaning_operations | Applying 1 operation(s) in sequence.
+2026-04-29 15:46:17,799 | INFO | src.cleaning_operations | Applying operation drop_columns with params {'columns': ['uniform']}
+2026-04-29 15:46:17,802 | INFO | src.cleaning_operations | drop_columns complete. dropped=['uniform'] shape_after=(5, 7)
+2026-04-29 15:46:17,808 | INFO | src.cleaning_operations | Finished applying operations. Final shape=(5, 7)
+2026-04-29 15:46:17,809 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'drop_columns', 'params': {'columns': ['uniform']}}] new_shape=(5, 7)
+2026-04-29 15:46:17,848 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:46:17,850 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 7)
+2026-04-29 15:46:19,900 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:47:00,501 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:47:00,503 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 7)
+2026-04-29 15:47:02,591 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:47:03,444 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:47:03,447 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 7)
+2026-04-29 15:47:05,494 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:47:05,506 | INFO | __main__ | User instruction received: replace risk_level: low:0, med: 1
+2026-04-29 15:47:05,508 | INFO | src.llm_cleaning | Parsing instruction into operations. Text: replace risk_level: low:0, med: 1
+2026-04-29 15:47:05,509 | INFO | src.llm_cleaning | Heuristic parser evaluating user text: replace risk_level: low:0, med: 1
+2026-04-29 15:47:05,510 | WARNING | src.llm_cleaning | Heuristic parser could not map user text to a supported operation: replace risk_level: low:0, med: 1
+2026-04-29 15:47:07,552 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-04-29 15:47:07,555 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-04-29 15:47:11,317 | INFO | src.llm_cleaning | LLM parser returned raw result: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': '0'}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}}]
+2026-04-29 15:47:11,318 | INFO | src.llm_cleaning | Final parsed operations: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': '0'}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}}]
+2026-04-29 15:47:11,322 | INFO | __main__ | Parsed operations from instruction: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': '0'}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}}]
+2026-04-29 15:47:11,324 | INFO | src.cleaning_operations | Applying 2 operation(s) in sequence.
+2026-04-29 15:47:11,325 | INFO | src.cleaning_operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'low', 'new_value': '0'}
+2026-04-29 15:47:11,332 | INFO | src.cleaning_operations | replace_value is converting categorical column 'risk_level' to object so a new value can be inserted.
+2026-04-29 15:47:11,334 | INFO | src.cleaning_operations | replace_value complete. column=risk_level old_value=low new_value=0 replacements=1
+2026-04-29 15:47:11,336 | INFO | src.cleaning_operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}
+2026-04-29 15:47:11,337 | INFO | src.cleaning_operations | replace_value complete. column=risk_level old_value=med new_value=1 replacements=4
+2026-04-29 15:47:11,339 | INFO | src.cleaning_operations | Finished applying operations. Final shape=(5, 7)
+2026-04-29 15:47:11,339 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': '0'}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}}] new_shape=(5, 7)
+2026-04-29 15:47:11,376 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-04-29 15:47:11,377 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 7)
+2026-04-29 15:47:13,455 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:48:33,145 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:48:33,241 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-03 16:48:33,245 | INFO | __main__ | Started new Streamlit session.
+2026-05-03 16:48:33,246 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:48:35,316 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:49:28,010 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:49:28,013 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:49:30,080 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:49:38,904 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:49:38,906 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:49:40,962 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:49:40,979 | INFO | __main__ | User instruction received: Delete one of the rows and turn the categorical columns into numerical ones. 
+2026-05-03 16:49:40,979 | INFO | src.text_parser | Parsing instruction into operations. Text: Delete one of the rows and turn the categorical columns into numerical ones. 
+2026-05-03 16:49:40,980 | INFO | src.text_parser | algo parser evaluating user text: Delete one of the rows and turn the categorical columns into numerical ones. 
+2026-05-03 16:49:40,980 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Delete one of the rows and turn the categorical columns into numerical ones. 
+2026-05-03 16:49:40,981 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-03 16:49:43,032 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:49:43,033 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-03 16:49:50,804 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'dropna', 'params': {'axis': 0, 'subset': None}}, {'op': 'astype', 'params': {'column': 'risk_level', 'dtype': 'category'}}, {'op': 'astype', 'params': {'column': 'categories', 'dtype': 'category'}}]
+2026-05-03 16:49:50,805 | WARNING | src.text_parser | Unsupported op from LLM: astype
+2026-05-03 16:49:50,805 | WARNING | src.text_parser | Unsupported op from LLM: astype
+2026-05-03 16:49:50,806 | INFO | src.text_parser | Final parsed operations: [{'op': 'dropna', 'params': {'axis': 0, 'subset': None}}]
+2026-05-03 16:49:50,807 | INFO | __main__ | Parsed operations from instruction: [{'op': 'dropna', 'params': {'axis': 0, 'subset': None}}]
+2026-05-03 16:49:50,808 | INFO | src.operations | Applying 1 operation(s) in sequence.
+2026-05-03 16:49:50,809 | INFO | src.operations | Applying operation dropna with params {'axis': 0, 'subset': None}
+2026-05-03 16:49:50,824 | INFO | src.operations | dropna complete. axis=0 subset=None shape_after=(5, 8)
+2026-05-03 16:49:50,825 | INFO | src.operations | Finished applying operations. Final shape=(5, 8)
+2026-05-03 16:49:50,825 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'dropna', 'params': {'axis': 0, 'subset': None}}] new_shape=(5, 8)
+2026-05-03 16:49:50,862 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:49:50,865 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:49:52,906 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:50:31,258 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:50:31,261 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:50:33,327 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:50:51,584 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:50:51,585 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:50:51,675 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:50:51,678 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:50:53,647 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:50:53,749 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:50:53,774 | INFO | __main__ | User instruction received: turn the categorical columns into numerical ones 
+2026-05-03 16:50:53,776 | INFO | src.text_parser | Parsing instruction into operations. Text: turn the categorical columns into numerical ones 
+2026-05-03 16:50:53,776 | INFO | src.text_parser | algo parser evaluating user text: turn the categorical columns into numerical ones 
+2026-05-03 16:50:53,777 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: turn the categorical columns into numerical ones 
+2026-05-03 16:50:53,777 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-03 16:50:55,824 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:50:55,827 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-03 16:50:59,208 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'drop_columns', 'params': {'columns': ['risk_level', 'categories']}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'mode'}}]
+2026-05-03 16:50:59,209 | INFO | src.text_parser | Final parsed operations: [{'op': 'drop_columns', 'params': {'columns': ['risk_level', 'categories']}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'mode'}}]
+2026-05-03 16:50:59,209 | INFO | __main__ | Parsed operations from instruction: [{'op': 'drop_columns', 'params': {'columns': ['risk_level', 'categories']}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'mode'}}]
+2026-05-03 16:50:59,210 | INFO | src.operations | Applying 2 operation(s) in sequence.
+2026-05-03 16:50:59,211 | INFO | src.operations | Applying operation drop_columns with params {'columns': ['risk_level', 'categories']}
+2026-05-03 16:50:59,225 | INFO | src.operations | drop_columns complete. dropped=['risk_level', 'categories'] shape_after=(5, 6)
+2026-05-03 16:50:59,227 | INFO | src.operations | Applying operation fillna with params {'column': 'gender', 'strategy': 'mode'}
+2026-05-03 16:50:59,244 | INFO | src.operations | fillna complete. column=gender strategy=mode value=None
+2026-05-03 16:50:59,245 | INFO | src.operations | Finished applying operations. Final shape=(5, 6)
+2026-05-03 16:50:59,246 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'drop_columns', 'params': {'columns': ['risk_level', 'categories']}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'mode'}}] new_shape=(5, 6)
+2026-05-03 16:50:59,279 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:50:59,281 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 6)
+2026-05-03 16:51:01,366 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:51:52,993 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:51:52,996 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 6)
+2026-05-03 16:51:53,069 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:51:53,072 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 6)
+2026-05-03 16:51:55,051 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:51:55,129 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:51:55,143 | INFO | __main__ | User instruction received: Turn gender into a binary numerical variable. 
+2026-05-03 16:51:55,144 | INFO | src.text_parser | Parsing instruction into operations. Text: Turn gender into a binary numerical variable. 
+2026-05-03 16:51:55,145 | INFO | src.text_parser | algo parser evaluating user text: Turn gender into a binary numerical variable. 
+2026-05-03 16:51:55,147 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Turn gender into a binary numerical variable. 
+2026-05-03 16:51:55,147 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-03 16:51:57,211 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:51:57,212 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-03 16:52:00,521 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'drop_columns', 'params': {'columns': ['gender']}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'constant', 'value': 0}}]
+2026-05-03 16:52:00,522 | INFO | src.text_parser | Final parsed operations: [{'op': 'drop_columns', 'params': {'columns': ['gender']}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'constant', 'value': 0}}]
+2026-05-03 16:52:00,523 | INFO | __main__ | Parsed operations from instruction: [{'op': 'drop_columns', 'params': {'columns': ['gender']}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'constant', 'value': 0}}]
+2026-05-03 16:52:00,524 | INFO | src.operations | Applying 2 operation(s) in sequence.
+2026-05-03 16:52:00,525 | INFO | src.operations | Applying operation drop_columns with params {'columns': ['gender']}
+2026-05-03 16:52:00,528 | INFO | src.operations | drop_columns complete. dropped=['gender'] shape_after=(5, 5)
+2026-05-03 16:52:00,529 | INFO | src.operations | Applying operation fillna with params {'column': 'gender', 'strategy': 'constant', 'value': 0}
+2026-05-03 16:52:00,530 | WARNING | src.operations | fillna skipped because column does not exist: gender
+2026-05-03 16:52:00,531 | INFO | src.operations | Finished applying operations. Final shape=(5, 5)
+2026-05-03 16:52:00,531 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'drop_columns', 'params': {'columns': ['gender']}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'constant', 'value': 0}}] new_shape=(5, 5)
+2026-05-03 16:52:00,563 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:52:00,565 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 5)
+2026-05-03 16:52:02,605 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:53:21,070 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:53:21,072 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 5)
+2026-05-03 16:53:23,158 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:57:56,378 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:57:56,459 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-03 16:57:56,461 | INFO | __main__ | Started new Streamlit session.
+2026-05-03 16:57:56,462 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:57:58,515 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:58:32,185 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:58:32,188 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:58:34,219 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:58:37,189 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:58:37,192 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 16:58:39,239 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:58:39,246 | INFO | __main__ | User instruction received: delete a column and turn the categorical columns into numerical columns. 
+2026-05-03 16:58:39,247 | INFO | src.text_parser | Parsing instruction into operations. Text: delete a column and turn the categorical columns into numerical columns. 
+2026-05-03 16:58:39,248 | INFO | src.text_parser | algo parser evaluating user text: delete a column and turn the categorical columns into numerical columns. 
+2026-05-03 16:58:39,249 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: delete a column and turn the categorical columns into numerical columns. 
+2026-05-03 16:58:39,249 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-03 16:58:41,321 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 16:58:41,321 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-03 16:58:46,430 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'drop_columns', 'params': {'columns': ['risk_level', 'categories']}}, {'op': 'fillna', 'params': {'column': 'timestamp', 'strategy': 'constant', 'value': ''}}]
+2026-05-03 16:58:46,431 | INFO | src.text_parser | Final parsed operations: [{'op': 'drop_columns', 'params': {'columns': ['risk_level', 'categories']}}, {'op': 'fillna', 'params': {'column': 'timestamp', 'strategy': 'constant', 'value': ''}}]
+2026-05-03 16:58:46,431 | INFO | __main__ | Parsed operations from instruction: [{'op': 'drop_columns', 'params': {'columns': ['risk_level', 'categories']}}, {'op': 'fillna', 'params': {'column': 'timestamp', 'strategy': 'constant', 'value': ''}}]
+2026-05-03 16:58:46,431 | INFO | src.operations | Applying 2 operation(s) in sequence.
+2026-05-03 16:58:46,431 | INFO | src.operations | Applying operation drop_columns with params {'columns': ['risk_level', 'categories']}
+2026-05-03 16:58:46,433 | INFO | src.operations | drop_columns complete. dropped=['risk_level', 'categories'] shape_after=(5, 6)
+2026-05-03 16:58:46,437 | INFO | src.operations | Applying operation fillna with params {'column': 'timestamp', 'strategy': 'constant', 'value': ''}
+2026-05-03 16:58:46,438 | INFO | src.operations | fillna complete. column=timestamp strategy=constant value=
+2026-05-03 16:58:46,439 | INFO | src.operations | Finished applying operations. Final shape=(5, 6)
+2026-05-03 16:58:46,439 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'drop_columns', 'params': {'columns': ['risk_level', 'categories']}}, {'op': 'fillna', 'params': {'column': 'timestamp', 'strategy': 'constant', 'value': ''}}] new_shape=(5, 6)
+2026-05-03 16:58:46,472 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 16:58:46,473 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 6)
+2026-05-03 16:58:48,503 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:06:02,708 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 17:06:02,711 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 6)
+2026-05-03 17:06:02,834 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 17:06:02,837 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 6)
+2026-05-03 17:06:04,864 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:06:04,920 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:06:04,928 | INFO | __main__ | User instruction received: replace male in the gender column with 1.
+2026-05-03 17:06:04,929 | INFO | src.text_parser | Parsing instruction into operations. Text: replace male in the gender column with 1.
+2026-05-03 17:06:04,929 | INFO | src.text_parser | algo parser evaluating user text: replace male in the gender column with 1.
+2026-05-03 17:06:04,929 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: replace male in the gender column with 1.
+2026-05-03 17:06:04,930 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-03 17:06:07,015 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:06:07,015 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-03 17:06:14,697 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}]
+2026-05-03 17:06:14,697 | INFO | src.text_parser | Final parsed operations: [{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}]
+2026-05-03 17:06:14,697 | INFO | __main__ | Parsed operations from instruction: [{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}]
+2026-05-03 17:06:14,697 | INFO | src.operations | Applying 1 operation(s) in sequence.
+2026-05-03 17:06:14,698 | INFO | src.operations | Applying operation replace_value with params {'column': 'gender', 'old_value': 'male', 'new_value': '1'}
+2026-05-03 17:06:14,720 | INFO | src.operations | replace_value complete. column=gender old_value=male new_value=1 replacements=5
+2026-05-03 17:06:14,721 | INFO | src.operations | Finished applying operations. Final shape=(5, 6)
+2026-05-03 17:06:14,721 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}] new_shape=(5, 6)
+2026-05-03 17:06:14,754 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 17:06:14,756 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 6)
+2026-05-03 17:06:16,826 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:28:35,313 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 17:28:35,441 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-03 17:28:35,443 | INFO | __main__ | Started new Streamlit session.
+2026-05-03 17:28:35,443 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 17:28:37,511 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:29:11,534 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 17:29:11,536 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 17:29:11,627 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 17:29:11,630 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 17:29:13,591 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:29:13,685 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:29:13,696 | INFO | __main__ | User instruction received: turn male into 1 in the gender column.
+2026-05-03 17:29:13,696 | INFO | src.text_parser | Parsing instruction into operations. Text: turn male into 1 in the gender column.
+2026-05-03 17:29:13,697 | INFO | src.text_parser | algo parser evaluating user text: turn male into 1 in the gender column.
+2026-05-03 17:29:13,697 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: turn male into 1 in the gender column.
+2026-05-03 17:29:13,698 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-03 17:29:15,747 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:29:15,749 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-03 17:29:20,557 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}]
+2026-05-03 17:29:20,557 | INFO | src.text_parser | Final parsed operations: [{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}]
+2026-05-03 17:29:20,557 | INFO | __main__ | Parsed operations from instruction: [{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}]
+2026-05-03 17:29:20,557 | INFO | src.operations | Applying 1 operation(s) in sequence.
+2026-05-03 17:29:20,558 | INFO | src.operations | Applying operation replace_value with params {'column': 'gender', 'old_value': 'male', 'new_value': '1'}
+2026-05-03 17:29:20,559 | INFO | src.operations | replace_value complete. column=gender old_value=male new_value=1 replacements=5
+2026-05-03 17:29:20,560 | INFO | src.operations | Finished applying operations. Final shape=(5, 8)
+2026-05-03 17:29:20,561 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}] new_shape=(5, 8)
+2026-05-03 17:29:20,581 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 17:29:20,582 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 17:29:22,640 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 17:33:50,287 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 17:33:50,381 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-03 17:33:50,383 | INFO | __main__ | Started new Streamlit session.
+2026-05-03 17:33:50,383 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 17:33:54,498 | INFO | src.llm_utils | Ollama availability check failed for http://localhost:11434
+2026-05-03 17:35:14,604 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 17:35:14,609 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-03 17:35:14,610 | INFO | __main__ | Started new Streamlit session.
+2026-05-03 17:35:14,610 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 17:35:16,671 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-03 21:59:04,151 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-03 21:59:04,281 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-03 21:59:04,283 | INFO | __main__ | Started new Streamlit session.
+2026-05-03 21:59:04,283 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-03 21:59:06,383 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-06 15:12:46,390 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 15:12:46,544 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 15:12:46,545 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 15:12:46,546 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 15:12:48,663 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-06 15:20:02,009 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 15:20:02,187 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 15:20:02,191 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 15:20:02,191 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 15:20:04,246 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-06 15:21:46,902 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 15:21:47,045 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 15:21:47,047 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 15:21:47,047 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 15:21:49,098 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-06 15:22:34,639 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 15:22:34,641 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 15:22:34,768 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 15:22:34,769 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 15:22:36,681 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-06 15:22:36,787 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-06 15:22:36,801 | INFO | __main__ | User instruction received: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:22:36,802 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:22:36,802 | INFO | src.text_parser | algo parser evaluating user text: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:22:36,802 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:22:36,803 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-06 15:22:38,859 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-06 15:22:38,860 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-06 15:22:41,455 | INFO | httpx | HTTP Request: POST http://localhost:11434/v1/chat/completions "HTTP/1.1 404 Not Found"
+2026-05-06 15:22:41,456 | ERROR | src.llm_utils | Error connecting to LLM: Error code: 404 - {'error': {'message': "model 'meta-llama/Meta-Llama-3.1-8B-Instruct' not found", 'type': 'not_found_error', 'param': None, 'code': None}}
+2026-05-06 15:22:41,456 | ERROR | src.text_parser | LLM parsing failed, falling back to algo parser: Error connecting to LLM: Error code: 404 - {'error': {'message': "model 'meta-llama/Meta-Llama-3.1-8B-Instruct' not found", 'type': 'not_found_error', 'param': None, 'code': None}}
+2026-05-06 15:22:41,457 | INFO | src.text_parser | algo parser evaluating user text: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:22:41,457 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:22:41,457 | INFO | src.text_parser | Final parsed operations: []
+2026-05-06 15:22:41,457 | INFO | __main__ | Parsed operations from instruction: []
+2026-05-06 15:22:41,457 | WARNING | __main__ | Instruction could not be applied. Message=I couldn't map that request to one of the supported POC operations yet.
+2026-05-06 15:23:29,861 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 15:23:29,863 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 15:23:31,919 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-06 15:23:31,923 | INFO | __main__ | User instruction received: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:23:31,924 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:23:31,924 | INFO | src.text_parser | algo parser evaluating user text: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:23:31,924 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:23:31,924 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-06 15:23:33,932 | INFO | src.llm_utils | Ollama availability check returned status 200 from http://localhost:11434
+2026-05-06 15:23:33,932 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-06 15:23:36,084 | INFO | httpx | HTTP Request: POST http://localhost:11434/v1/chat/completions "HTTP/1.1 404 Not Found"
+2026-05-06 15:23:36,084 | ERROR | src.llm_utils | Error connecting to LLM: Error code: 404 - {'error': {'message': "model 'meta-llama/Meta-Llama-3.1-8B-Instruct' not found", 'type': 'not_found_error', 'param': None, 'code': None}}
+2026-05-06 15:23:36,084 | ERROR | src.text_parser | LLM parsing failed, falling back to algo parser: Error connecting to LLM: Error code: 404 - {'error': {'message': "model 'meta-llama/Meta-Llama-3.1-8B-Instruct' not found", 'type': 'not_found_error', 'param': None, 'code': None}}
+2026-05-06 15:23:36,084 | INFO | src.text_parser | algo parser evaluating user text: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:23:36,085 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you turn the values in all the categorical columns into numbers.  eg male = 1, low = 0, category_0 = 0, etc.?
+2026-05-06 15:23:36,085 | INFO | src.text_parser | Final parsed operations: []
+2026-05-06 15:23:36,085 | INFO | __main__ | Parsed operations from instruction: []
+2026-05-06 15:23:36,085 | WARNING | __main__ | Instruction could not be applied. Message=I couldn't map that request to one of the supported POC operations yet.
+2026-05-06 16:04:39,861 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:04:39,867 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 16:04:39,869 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 16:04:39,870 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:04:40,506 | INFO | src.llm_utils | Ollama availability check returned status 404 from https://api.tokenfactory.nebius.com/v1/
+2026-05-06 16:05:10,233 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:05:10,396 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 16:05:10,398 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 16:05:10,398 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:05:11,006 | INFO | src.llm_utils | Ollama availability check returned status 404 from https://api.tokenfactory.nebius.com/v1/
+2026-05-06 16:23:14,110 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:23:14,113 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 16:23:14,114 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 16:23:14,114 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:23:26,747 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:23:26,749 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:24:03,315 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:24:03,317 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:24:08,093 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:24:08,094 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:24:08,099 | INFO | __main__ | User instruction received: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:08,100 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:08,100 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:08,101 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:08,101 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-06 16:24:08,101 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-06 16:24:09,190 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 401 Unauthorized"
+2026-05-06 16:24:09,195 | ERROR | src.llm_utils | Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:24:09,196 | ERROR | src.text_parser | LLM parsing failed, falling back to algo parser: Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:24:09,196 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:09,196 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:09,197 | INFO | src.text_parser | Final parsed operations: []
+2026-05-06 16:24:09,197 | INFO | __main__ | Parsed operations from instruction: []
+2026-05-06 16:24:09,197 | WARNING | __main__ | Instruction could not be applied. Message=I couldn't map that request to one of the supported POC operations yet.
+2026-05-06 16:24:13,018 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:24:13,019 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:24:13,025 | INFO | __main__ | User instruction received: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:13,025 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:13,025 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:13,026 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:13,026 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-06 16:24:13,026 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-06 16:24:13,628 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 401 Unauthorized"
+2026-05-06 16:24:13,629 | ERROR | src.llm_utils | Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:24:13,629 | ERROR | src.text_parser | LLM parsing failed, falling back to algo parser: Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:24:13,629 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:13,629 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:13,629 | INFO | src.text_parser | Final parsed operations: []
+2026-05-06 16:24:13,629 | INFO | __main__ | Parsed operations from instruction: []
+2026-05-06 16:24:13,629 | WARNING | __main__ | Instruction could not be applied. Message=I couldn't map that request to one of the supported POC operations yet.
+2026-05-06 16:24:20,081 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:24:20,082 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:24:20,089 | INFO | __main__ | User instruction received: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:20,089 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:20,090 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:20,090 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:20,090 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-06 16:24:20,091 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-06 16:24:20,705 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 401 Unauthorized"
+2026-05-06 16:24:20,706 | ERROR | src.llm_utils | Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:24:20,706 | ERROR | src.text_parser | LLM parsing failed, falling back to algo parser: Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:24:20,706 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:20,706 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:24:20,706 | INFO | src.text_parser | Final parsed operations: []
+2026-05-06 16:24:20,707 | INFO | __main__ | Parsed operations from instruction: []
+2026-05-06 16:24:20,707 | WARNING | __main__ | Instruction could not be applied. Message=I couldn't map that request to one of the supported POC operations yet.
+2026-05-06 16:29:35,193 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:29:35,340 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 16:29:35,342 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 16:29:35,342 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:29:44,775 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:29:44,776 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:29:44,935 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:29:44,937 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:29:44,942 | INFO | __main__ | User instruction received: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:44,943 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:44,943 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:44,944 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:44,944 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-06 16:29:44,944 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-06 16:29:45,888 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 401 Unauthorized"
+2026-05-06 16:29:45,889 | ERROR | src.llm_utils | Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:29:45,890 | ERROR | src.text_parser | LLM parsing failed, falling back to algo parser: Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:29:45,890 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:45,891 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:45,891 | INFO | src.text_parser | Final parsed operations: []
+2026-05-06 16:29:45,891 | INFO | __main__ | Parsed operations from instruction: []
+2026-05-06 16:29:45,891 | WARNING | __main__ | Instruction could not be applied. Message=I couldn't map that request to one of the supported POC operations yet.
+2026-05-06 16:29:54,562 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:29:54,564 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:29:54,569 | INFO | __main__ | User instruction received: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:54,569 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:54,570 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:54,570 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:54,570 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-06 16:29:54,571 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-06 16:29:55,487 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 401 Unauthorized"
+2026-05-06 16:29:55,499 | ERROR | src.llm_utils | Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:29:55,499 | ERROR | src.text_parser | LLM parsing failed, falling back to algo parser: Error connecting to LLM: Error code: 401 - {'detail': "Couldn't authenticate. Reason: Unable authenticate"}
+2026-05-06 16:29:55,500 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:55,501 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:29:55,501 | INFO | src.text_parser | Final parsed operations: []
+2026-05-06 16:29:55,501 | INFO | __main__ | Parsed operations from instruction: []
+2026-05-06 16:29:55,501 | WARNING | __main__ | Instruction could not be applied. Message=I couldn't map that request to one of the supported POC operations yet.
+2026-05-06 16:35:10,252 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:35:10,254 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:35:19,940 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:35:19,941 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:35:19,948 | INFO | __main__ | User instruction received: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:35:19,949 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:35:19,949 | INFO | src.text_parser | algo parser evaluating user text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:35:19,949 | WARNING | src.text_parser | Algo parser could not map user text to a supported operation: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:35:19,950 | INFO | src.text_parser | Using algo parser result without LLM call: []
+2026-05-06 16:35:19,950 | INFO | src.llm_utils | Using cached JSON LLM wrapper.
+2026-05-06 16:35:29,674 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-06 16:35:29,682 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'fillna', 'params': {'column': 'categories', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}}]
+2026-05-06 16:35:29,682 | INFO | src.text_parser | Final parsed operations: [{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'fillna', 'params': {'column': 'categories', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}}]
+2026-05-06 16:35:29,682 | INFO | __main__ | Parsed operations from instruction: [{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'fillna', 'params': {'column': 'categories', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}}]
+2026-05-06 16:35:29,683 | INFO | src.operations | Applying 7 operation(s) in sequence.
+2026-05-06 16:35:29,683 | INFO | src.operations | Applying operation drop_columns with params {'columns': ['timestamp', 'gender', 'categories']}
+2026-05-06 16:35:29,685 | INFO | src.operations | drop_columns complete. dropped=['timestamp', 'gender', 'categories'] shape_after=(5, 5)
+2026-05-06 16:35:29,686 | INFO | src.operations | Applying operation fillna with params {'column': 'risk_level', 'strategy': 'mode', 'value': None}
+2026-05-06 16:35:29,688 | INFO | src.operations | fillna complete. column=risk_level strategy=mode value=None
+2026-05-06 16:35:29,689 | INFO | src.operations | Applying operation replace_value with params {'column': 'gender', 'old_value': 'male', 'new_value': 1}
+2026-05-06 16:35:29,690 | WARNING | src.operations | replace_value skipped because column does not exist: gender
+2026-05-06 16:35:29,690 | INFO | src.operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}
+2026-05-06 16:35:29,697 | INFO | src.operations | replace_value is converting categorical column 'risk_level' to object so a new value can be inserted.
+2026-05-06 16:35:29,699 | INFO | src.operations | replace_value complete. column=risk_level old_value=low new_value=0 replacements=1
+2026-05-06 16:35:29,700 | INFO | src.operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}
+2026-05-06 16:35:29,701 | INFO | src.operations | replace_value complete. column=risk_level old_value=med new_value=1 replacements=4
+2026-05-06 16:35:29,701 | INFO | src.operations | Applying operation fillna with params {'column': 'categories', 'strategy': 'mode', 'value': None}
+2026-05-06 16:35:29,701 | WARNING | src.operations | fillna skipped because column does not exist: categories
+2026-05-06 16:35:29,702 | INFO | src.operations | Applying operation replace_value with params {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}
+2026-05-06 16:35:29,702 | WARNING | src.operations | replace_value skipped because column does not exist: categories
+2026-05-06 16:35:29,702 | INFO | src.operations | Finished applying operations. Final shape=(5, 5)
+2026-05-06 16:35:29,702 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'fillna', 'params': {'column': 'categories', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}}] new_shape=(5, 5)
+2026-05-06 16:35:29,746 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:35:29,747 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 5)
+2026-05-06 16:44:14,665 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:44:14,668 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 16:44:14,669 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 16:44:14,670 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:44:23,727 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:44:23,729 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:44:23,845 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:44:23,847 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:44:23,852 | INFO | __main__ | User instruction received: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:44:23,853 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:44:23,853 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'fillna', 'params': {'column': 'categories', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}}]
+2026-05-06 16:44:23,853 | INFO | src.text_parser | Final parsed operations: [{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'fillna', 'params': {'column': 'categories', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}}]
+2026-05-06 16:44:23,854 | INFO | __main__ | Parsed operations from instruction: [{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'fillna', 'params': {'column': 'categories', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}}]
+2026-05-06 16:44:23,854 | INFO | src.operations | Applying 7 operation(s) in sequence.
+2026-05-06 16:44:23,854 | INFO | src.operations | Applying operation drop_columns with params {'columns': ['timestamp', 'gender', 'categories']}
+2026-05-06 16:44:23,855 | INFO | src.operations | drop_columns complete. dropped=['timestamp', 'gender', 'categories'] shape_after=(5, 5)
+2026-05-06 16:44:23,856 | INFO | src.operations | Applying operation fillna with params {'column': 'risk_level', 'strategy': 'mode', 'value': None}
+2026-05-06 16:44:23,856 | INFO | src.operations | fillna complete. column=risk_level strategy=mode value=None
+2026-05-06 16:44:23,857 | INFO | src.operations | Applying operation replace_value with params {'column': 'gender', 'old_value': 'male', 'new_value': 1}
+2026-05-06 16:44:23,858 | WARNING | src.operations | replace_value skipped because column does not exist: gender
+2026-05-06 16:44:23,858 | INFO | src.operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}
+2026-05-06 16:44:23,859 | INFO | src.operations | replace_value is converting categorical column 'risk_level' to object so a new value can be inserted.
+2026-05-06 16:44:23,859 | INFO | src.operations | replace_value complete. column=risk_level old_value=low new_value=0 replacements=1
+2026-05-06 16:44:23,860 | INFO | src.operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}
+2026-05-06 16:44:23,861 | INFO | src.operations | replace_value complete. column=risk_level old_value=med new_value=1 replacements=4
+2026-05-06 16:44:23,862 | INFO | src.operations | Applying operation fillna with params {'column': 'categories', 'strategy': 'mode', 'value': None}
+2026-05-06 16:44:23,862 | WARNING | src.operations | fillna skipped because column does not exist: categories
+2026-05-06 16:44:23,862 | INFO | src.operations | Applying operation replace_value with params {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}
+2026-05-06 16:44:23,862 | WARNING | src.operations | replace_value skipped because column does not exist: categories
+2026-05-06 16:44:23,862 | INFO | src.operations | Finished applying operations. Final shape=(5, 5)
+2026-05-06 16:44:23,863 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'fillna', 'params': {'column': 'categories', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'categories', 'old_value': 'category_3', 'new_value': 3}}] new_shape=(5, 5)
+2026-05-06 16:44:23,914 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:44:23,916 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 5)
+2026-05-06 16:49:07,524 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:49:07,527 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 16:49:07,528 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 16:49:07,528 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:49:13,671 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:49:13,672 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:49:13,773 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:49:13,774 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 16:49:13,780 | INFO | __main__ | User instruction received: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:49:13,780 | INFO | src.text_parser | Parsing instruction into operations. Text: Can you replace all the text values in all the columns with numbers in a logical way? eg. male = 1, low = 0, med =1, category_3 = 3, etc.
+2026-05-06 16:49:50,667 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-06 16:49:50,668 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'high', 'new_value': 2}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'female', 'new_value': 0}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'mode', 'value': None}}, {'op': 'dropna', 'params': {'axis': 0, 'subset': None}}]
+2026-05-06 16:49:50,668 | INFO | src.text_parser | Final parsed operations: [{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'high', 'new_value': 2}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'female', 'new_value': 0}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'mode', 'value': None}}, {'op': 'dropna', 'params': {'axis': 0, 'subset': None}}]
+2026-05-06 16:49:50,668 | INFO | __main__ | Parsed operations from instruction: [{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'high', 'new_value': 2}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'female', 'new_value': 0}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'mode', 'value': None}}, {'op': 'dropna', 'params': {'axis': 0, 'subset': None}}]
+2026-05-06 16:49:50,668 | INFO | src.operations | Applying 10 operation(s) in sequence.
+2026-05-06 16:49:50,669 | INFO | src.operations | Applying operation drop_columns with params {'columns': ['timestamp', 'gender', 'categories']}
+2026-05-06 16:49:50,669 | INFO | src.operations | drop_columns complete. dropped=['timestamp', 'gender', 'categories'] shape_after=(5, 5)
+2026-05-06 16:49:50,671 | INFO | src.operations | Applying operation fillna with params {'column': 'risk_level', 'strategy': 'mode', 'value': None}
+2026-05-06 16:49:50,672 | INFO | src.operations | fillna complete. column=risk_level strategy=mode value=None
+2026-05-06 16:49:50,673 | INFO | src.operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}
+2026-05-06 16:49:50,674 | INFO | src.operations | replace_value is converting categorical column 'risk_level' to object so a new value can be inserted.
+2026-05-06 16:49:50,675 | INFO | src.operations | replace_value complete. column=risk_level old_value=low new_value=0 replacements=1
+2026-05-06 16:49:50,675 | INFO | src.operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}
+2026-05-06 16:49:50,676 | INFO | src.operations | replace_value complete. column=risk_level old_value=med new_value=1 replacements=4
+2026-05-06 16:49:50,676 | INFO | src.operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'high', 'new_value': 2}
+2026-05-06 16:49:50,677 | INFO | src.operations | replace_value complete. column=risk_level old_value=high new_value=2 replacements=0
+2026-05-06 16:49:50,677 | INFO | src.operations | Applying operation fillna with params {'column': 'risk_level', 'strategy': 'mode', 'value': None}
+2026-05-06 16:49:50,688 | INFO | src.operations | fillna complete. column=risk_level strategy=mode value=None
+2026-05-06 16:49:50,689 | INFO | src.operations | Applying operation replace_value with params {'column': 'gender', 'old_value': 'male', 'new_value': 1}
+2026-05-06 16:49:50,689 | WARNING | src.operations | replace_value skipped because column does not exist: gender
+2026-05-06 16:49:50,689 | INFO | src.operations | Applying operation replace_value with params {'column': 'gender', 'old_value': 'female', 'new_value': 0}
+2026-05-06 16:49:50,689 | WARNING | src.operations | replace_value skipped because column does not exist: gender
+2026-05-06 16:49:50,689 | INFO | src.operations | Applying operation fillna with params {'column': 'gender', 'strategy': 'mode', 'value': None}
+2026-05-06 16:49:50,690 | WARNING | src.operations | fillna skipped because column does not exist: gender
+2026-05-06 16:49:50,690 | INFO | src.operations | Applying operation dropna with params {'axis': 0, 'subset': None}
+2026-05-06 16:49:50,691 | INFO | src.operations | dropna complete. axis=0 subset=None shape_after=(5, 5)
+2026-05-06 16:49:50,691 | INFO | src.operations | Finished applying operations. Final shape=(5, 5)
+2026-05-06 16:49:50,691 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'drop_columns', 'params': {'columns': ['timestamp', 'gender', 'categories']}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'low', 'new_value': 0}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'high', 'new_value': 2}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'mode', 'value': None}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': 1}}, {'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'female', 'new_value': 0}}, {'op': 'fillna', 'params': {'column': 'gender', 'strategy': 'mode', 'value': None}}, {'op': 'dropna', 'params': {'axis': 0, 'subset': None}}] new_shape=(5, 5)
+2026-05-06 16:49:50,733 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:49:50,734 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 5)
+2026-05-06 16:50:41,888 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 16:50:41,889 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 5)

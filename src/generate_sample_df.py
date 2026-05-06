@@ -1,9 +1,17 @@
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
-# config
-n_rows = 1000
-seed = 12345
+from pathlib import Path
+import yaml
+
+config_path = Path(__file__).resolve().parents[1] / "configs" / "generate_sample_df.yml"
+config = {}
+if config_path.exists():
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f) or {}
+
+n_rows = config.get("n_rows", 1000)
+seed = config.get("seed", 12345)
 
 def generate_sample_df(
         n_rows: int = 5,

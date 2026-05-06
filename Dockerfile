@@ -1,29 +1,9 @@
-# Multi-stage build: dependencies layer
-FROM python:3.13-slim AS builder
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
-WORKDIR /tmp
-
-# Copy Poetry files
-COPY pyproject.toml poetry.lock .
-
-# Install Poetry and build dependencies into the global Python env
-RUN pip install --no-cache-dir poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --only main --no-interaction --no-ansi && \
-    python -m streamlit --version
-
-# Final production stage
 FROM python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     STREAMLIT_SERVER_HEADLESS=true \
-    STREAMLIT_BROWSER_GATHER_USAGE_STATS=false \
-    OLLAMA_URL=https://api.tokenfactory.nebius.com/v1/ # http://ollama:11434
-    NEBIUS_API_KEY=(github secrets.NEBIUS_API_KEY)
+    STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
 WORKDIR /app
 
@@ -32,9 +12,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends curl ca-certificates && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Copy installed Python packages and scripts from builder
-COPY --from=builder /usr/local/lib/python3.13 /usr/local/lib/python3.13
-COPY --from=builder /usr/local/bin /usr/local/bin
+# Copy requirements and install dependencies matching the project exactly
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app

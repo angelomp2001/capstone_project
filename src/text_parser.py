@@ -1,182 +1,17 @@
 import json
 from typing import List, Dict, Any
 import logging
-import re
-from difflib import get_close_matches
 
 
 import pandas as pd
 
-from .llm_utils import is_ollama_available
-from .llm_utils import call_llm_for_json_cached
+from .llm_utils import is_llm_available
+from .llm_utils import call_llm_for_json
 from .operations import SUPPORTED_OPS
 
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
 
-
-def _coerce_literal(value: Any) -> Any:
-    '''Try to coerce a string value into a Python literal (number, bool, null). If it fails, return the original string.'''
-    if not isinstance(value, str):
-        return value
-
-    stripped = value.strip()
-    try:
-        return json.loads(stripped)
-    except json.JSONDecodeError:
-        return stripped
-
-
-def _normalize_text(text: str) -> str:
-    '''Normalize text by lowercasing and removing non-alphanumeric characters, to improve matching robustness.'''
-    return re.sub(r"[^a-z0-9]+", "", text.lower())
-
-
-def _match_column(candidate: str, columns: List[str]) -> str | None:
-    '''Try to match a candidate string to one of the column names, using normalization and fuzzy matching.'''
-    if not candidate:
-        return None
-
-    normalized_candidate = _normalize_text(candidate)
-    normalized_map = {_normalize_text(column): column for column in columns}
-
-    if normalized_candidate in normalized_map:
-        return normalized_map[normalized_candidate]
-
-    for normalized_column, column in normalized_map.items():
-        if normalized_candidate and normalized_candidate in normalized_column:
-            return column
-
-    matches = get_close_matches(
-        normalized_candidate,
-        list(normalized_map.keys()),
-        n=1,
-        cutoff=0.6,
-    )
-    return normalized_map[matches[0]] if matches else None
-
-
-def _extract_columns_from_text(user_text: str, columns: List[str]) -> List[str]:
-    '''Extract column names mentioned in the user text, using direct matching and fuzzy matching.'''
-    found_columns: List[str] = []
-    text_lower = user_text.lower()
-
-    for column in columns:
-        if column.lower() in text_lower:
-            found_columns.append(column)
-
-    if found_columns:
-        return found_columns
-
-    split_candidates = re.split(r",| and ", user_text)
-    for candidate in split_candidates:
-        match = _match_column(candidate.strip(), columns)
-        if match and match not in found_columns:
-            found_columns.append(match)
-
-    return found_columns
-
-
-def _algo_parses_to_ops(
-    user_text: str,
-    df: pd.DataFrame,
-) -> List[Dict[str, Any]]:
-    """
-    quick and simple algo parser for common cleaning instructions, without using the LLM. 
-    This is used as a fallback when LLM parsing fails, and also to handle very simple instructions without needing an LLM call.
-    """
-    columns = df.columns.tolist()
-    text_lower = user_text.lower().strip()
-    logger.info("algo parser evaluating user text: %s", user_text)
-    trace.info("ALGO INPUT columns=%r text=%r", columns, user_text)
-
-    if not text_lower:
-        logger.info("Algo parser received empty input.")
-        return []
-
-    replace_match = re.search(
-        r"replace\s+['\"]?(.+?)['\"]?(?:\s+category)?\s+(?:in|within)\s+([a-zA-Z0-9_ ]+?)\s+with\s+['\"]?([^,'\"]+)['\"]?",
-        user_text,
-        re.IGNORECASE,
-    )
-    if replace_match:
-        old_value = replace_match.group(1).strip()
-        target_column = _match_column(replace_match.group(2).strip(), columns)
-        new_value = replace_match.group(3).strip()
-        new_value = _coerce_literal(new_value)
-
-        if target_column:
-            ops = [{
-                "op": "replace_value",
-                "params": {
-                    "column": target_column,
-                    "old_value": old_value,
-                    "new_value": new_value,
-                },
-            }]
-            logger.info("Algo parser matched replace_value operation: %s", ops)
-            trace.info("ALGO OUTPUT replace_value=%r", ops)
-            return ops
-
-    if "drop column" in text_lower or "remove column" in text_lower:
-        columns_to_drop = _extract_columns_from_text(user_text, columns)
-        if columns_to_drop:
-            ops = [{"op": "drop_columns", "params": {"columns": columns_to_drop}}]
-            logger.info("Algo parser matched drop_columns: %s", ops)
-            trace.info("ALGO OUTPUT drop_columns=%r", ops)
-            return ops
-
-    if "drop rows" in text_lower or "drop missing" in text_lower or "drop null" in text_lower:
-        subset = _extract_columns_from_text(user_text, columns)
-        ops = [{
-            "op": "dropna",
-            "params": {"axis": 0, "subset": subset or None},
-        }]
-        logger.info("Algo parser matched dropna: %s", ops)
-        trace.info("ALGO OUTPUT dropna=%r", ops)
-        return ops
-
-    if "fill" in text_lower and ("missing" in text_lower or "null" in text_lower or "na" in text_lower):
-        strategy = "constant"
-        for candidate_strategy in ("median", "mean", "mode"):
-            if candidate_strategy in text_lower:
-                strategy = candidate_strategy
-                break
-
-        value = None
-        constant_match = re.search(r"with\s+['\"]?([^,'\"]+)['\"]?$", user_text.strip(), re.IGNORECASE)
-        if strategy == "constant" and constant_match:
-            value = constant_match.group(1).strip()
-            value = _coerce_literal(value)
-
-        target_column = None
-        fill_match = re.search(
-            r"fill(?:\s+missing)?\s+([a-zA-Z0-9_ ]+?)\s+with",
-            user_text,
-            re.IGNORECASE,
-        )
-        if fill_match:
-            target_column = _match_column(fill_match.group(1).strip(), columns)
-        if target_column is None:
-            extracted_columns = _extract_columns_from_text(user_text, columns)
-            target_column = extracted_columns[0] if extracted_columns else None
-
-        if target_column:
-            ops = [{
-                "op": "fillna",
-                "params": {
-                    "column": target_column,
-                    "strategy": strategy,
-                    "value": value,
-                },
-            }]
-            logger.info("Algo parser matched fillna: %s", ops)
-            trace.info("ALGO OUTPUT fillna=%r", ops)
-            return ops
-
-    logger.warning("Algo parser could not map user text to a supported operation: %s", user_text)
-    trace.info("ALGO OUTPUT none text=%r", user_text)
-    return []
 
 def llm_parses_to_ops(
     user_text: str,
@@ -303,27 +138,23 @@ No additional text or comments.
     try:
         logger.info("Parsing instruction into operations. Text: %s", user_text)
         trace.info("PARSER START text=%r columns=%r dtypes=%r", user_text, columns, dtypes)
-        algo_result = _algo_parses_to_ops(user_text, df)
-        logger.info("Using algo parser result without LLM call: %s", algo_result)
         
-        if algo_result:
-            
-            trace.info("PARSER USED ALGO ops=%r", algo_result)
-            result = algo_result
-        elif is_ollama_available():
-            result = call_llm_for_json_cached(
+        if is_llm_available():
+            result = call_llm_for_json(
                 system_prompt,
                 user_prompt,
-                temperature
+                temperature=temperature
             )
             logger.info("LLM parser returned raw result: %s", result)
         else:
-            logger.info("Ollama is unavailable; using algo parser for POC mode.")
-            result = algo_result
+            msg = "LLM API is not available. Please configure it to parse instructions."
+            logger.warning(msg)
+            return [{"op": "error", "params": {"message": msg}}]
     except Exception as e:
-        logger.error("LLM parsing failed, falling back to algo parser: %s", e)
+        msg = f"LLM parsing failed: {str(e)}"
+        logger.error(msg)
         trace.info("PARSER EXCEPTION error=%r", e)
-        result = _algo_parses_to_ops(user_text, df)
+        return [{"op": "error", "params": {"message": msg}}]
 
     # Normalize: ensure we always have a list
     if isinstance(result, dict):

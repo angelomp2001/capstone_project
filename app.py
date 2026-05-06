@@ -6,12 +6,15 @@ from src.generate_sample_df import generate_sample_df
 from src.operations import apply_operations
 from src.text_parser import llm_parses_to_ops
 from src.llm_utils import (
-    is_ollama_available,
+    is_llm_available,
     setup_logging,
     get_log_locations,
 )
 
 # setup logging
+from dotenv import load_dotenv
+load_dotenv()
+
 setup_logging()
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
@@ -52,10 +55,10 @@ def main():
     log_locations = get_log_locations()
     # log status
     logger.info("App rendered. Current DataFrame shape=%s", st.session_state.df.shape)
-    if is_ollama_available():
-        st.success("Connected to Ollama. Natural-language instructions will use the LLM parser.")  # ui component
+    if is_llm_available():
+        st.success("Connected to LLM API. Natural-language instructions will use the LLM parser.")  # ui component
     else:
-        st.info("Ollama was not detected. The app is running in built-in POC mode with simple instruction parsing.")  # ui component
+        st.error("LLM API was not detected. Please configure the LLM API to use this app.")  # ui component
 
     # with st.expander("Where the logs are saved"): # ui component
     #     st.code( # ui component
@@ -116,6 +119,7 @@ def main():
                 logger.warning("Instruction could not be applied. Message=%s", msg)
                 trace.info("USER INPUT FAILED text=%r message=%r", user_input, msg)
                 st.session_state.chat_history.append(("assistant", msg))
+                st.error(msg)
             else:
                 # Apply operations
                 new_df = apply_operations(st.session_state.df, ops)
