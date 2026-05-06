@@ -1,6 +1,7 @@
 MVP:
+user will not download model or access API key. 
 ollama container doesn't install model. 
-
+if the model is in the container, it needs to install on each build. 
 where is the model download triggered?
 it's not triggered ever during image build.
 When it worked in the past, it was because I already had the model downloaded and it was accessible through ollama on the same port. 

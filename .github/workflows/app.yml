@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  smoke-test:
+  install-dependencies:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

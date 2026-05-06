@@ -5,12 +5,18 @@ import logging
 
 import pandas as pd
 
-from .llm_utils import is_llm_available
-from .llm_utils import call_llm_for_json
+from .llm_utils import is_llm_available, call_llm_for_json, load_config, get_project_root
 from .operations import SUPPORTED_OPS
 
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
+
+try:
+    prompts_path = get_project_root() / "configs" / "llm_prompts.yml"
+    PROMPTS = load_config(str(prompts_path))
+except Exception:
+    PROMPTS = {}
+
 
 
 def llm_parses_to_ops(
@@ -46,94 +52,18 @@ def llm_parses_to_ops(
     columns = df.columns.tolist()
     dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
 
-    system_prompt = (
-        "You are a data cleaning assistant. "
-        "You translate user instructions into a JSON list of pandas-style "
-        "cleaning operations. Your output must be valid JSON."
+    system_prompt = PROMPTS.get("text_parser", {}).get("system_prompt", "")
+
+    ops_description = PROMPTS.get("text_parser", {}).get("ops_description", "")
+    user_prompt_template = PROMPTS.get("text_parser", {}).get("user_prompt_template", "")
+
+    user_prompt = user_prompt_template.format(
+        dtypes_json=json.dumps(dtypes, indent=2),
+        columns=columns,
+        ops_description=ops_description,
+        user_text=user_text,
+        supported_ops=sorted(list(SUPPORTED_OPS))
     )
-
-    # Describe supported operations precisely to the model
-    ops_description = """
-Supported operations and their JSON formats:
-
-1. dropna
-   - Drop rows or columns with missing values.
-   - JSON format:
-     {
-       "op": "dropna",
-       "params": {
-         "axis": 0 or 1,                  # 0 = rows, 1 = columns
-         "subset": null or [<column names>]
-       }
-     }
-
-2. fillna
-   - Fill missing values in a single column.
-   - JSON format:
-     {
-       "op": "fillna",
-       "params": {
-         "column": "<existing column name>",
-         "strategy": "mean" | "median" | "mode" | "constant",
-         "value": <constant value or null if not needed>
-       }
-     }
-
-3. drop_columns
-   - Drop one or more columns.
-   - JSON format:
-     {
-       "op": "drop_columns",
-       "params": {
-         "columns": ["col1", "col2", ...]
-       }
-     }
-
-4. replace_value
-   - Replace one existing value with a new value in a single column.
-   - JSON format:
-     {
-       "op": "replace_value",
-       "params": {
-         "column": "<existing column name>",
-         "old_value": "<existing value>",
-         "new_value": "<new value>"
-       }
-     }
-"""
-
-    user_prompt = f"""
-The current pandas DataFrame has these columns and dtypes:
-{json.dumps(dtypes, indent=2)}
-
-Column names you are allowed to reference:
-{columns}
-
-{ops_description}
-
-User instruction:
-\"\"\"{user_text}\"\"\"
-
-Instructions for your response:
-- Use only these operations: {sorted(list(SUPPORTED_OPS))}
-- Only reference columns that exist.
-- If the instruction implies multiple steps, return a JSON list with multiple operation objects.
-- You must ALWAYS return a valid JSON list. Never return explanations. If unsure, return [].
-  based on column names and types. For example, "fill missing ages" should target the "age" column.
-- If the instruction truly cannot be mapped to any supported operation, return an empty JSON list: [].
-- Respond with **only** a valid JSON list, e.g.:
-  [
-    {{
-      "op": "fillna",
-      "params": {{
-        "column": "age",
-        "strategy": "median",
-        "value": null
-      }}
-    }}
-  ]
-No additional text or comments.
-"""
 
     try:
         logger.info("Parsing instruction into operations. Text: %s", user_text)

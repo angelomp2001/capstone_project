@@ -45,11 +45,11 @@ ui:
 
 | Module | Input | Output | config/ | src/ | scripts/ | tests/ |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| gen_df | ❌ | df | \[   \] | \[✅\] | \[❌\] | \[   \] |
-| App | user_text | new_df | \[   \] | \[❌\] | \[✅\] | \[   \] |
+| gen_df | ❌ | df | \[✅\] | \[✅\] |   | \[✅\] |
+| App | user_text | new_df |   | \[❌\] | \[✅\] |   |
 | text_parser | user_text, df | JSON | \[   \] | \[✅\] | \[❌\] | \[   \] |
 | operations  | df, JSON  | new_df | \[   \] | \[✅\] | \[❌\] | \[   \] |
-| llm_utils | ❌ | ❌  | \[   \] | \[✅\] | \[❌\] | \[   \] |
+| llm_utils | ❌ | ❌  | \[✅\] | \[✅\] | \[❌\] | \[   \] |
 |  |  |  |  | \[   \] | \[   \] | \[   \] | \[   \] |
 
 2. containerize app with model running locally. and test container. update readme. 

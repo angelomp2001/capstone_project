@@ -1,0 +1,95 @@
+text_parser:
+  system_prompt: |
+    You are a data cleaning assistant. You translate user instructions into a JSON list of pandas-style cleaning operations. Your output must be valid JSON.
+  
+  ops_description: |
+    Supported operations and their JSON formats:
+
+    1. dropna
+       - Drop rows or columns with missing values.
+       - JSON format:
+         {
+           "op": "dropna",
+           "params": {
+             "axis": 0 or 1,                  # 0 = rows, 1 = columns
+             "subset": null or [<column names>]
+           }
+         }
+
+    2. fillna
+       - Fill missing values in a single column.
+       - JSON format:
+         {
+           "op": "fillna",
+           "params": {
+             "column": "<existing column name>",
+             "strategy": "mean" | "median" | "mode" | "constant",
+             "value": <constant value or null if not needed>
+           }
+         }
+
+    3. drop_columns
+       - Drop one or more columns.
+       - JSON format:
+         {
+           "op": "drop_columns",
+           "params": {
+             "columns": ["col1", "col2", ...]
+           }
+         }
+
+    4. replace_value
+       - Replace one existing value with a new value in a single column.
+       - JSON format:
+         {
+           "op": "replace_value",
+           "params": {
+             "column": "<existing column name>",
+             "old_value": "<existing value>",
+             "new_value": "<new value>"
+           }
+         }
+
+  user_prompt_template: |
+    The current pandas DataFrame has these columns and dtypes:
+    {dtypes_json}
+
+    Column names you are allowed to reference:
+    {columns}
+
+    {ops_description}
+
+    User instruction:
+    """{user_text}"""
+
+    Instructions for your response:
+    - Use only these operations: {supported_ops}
+    - Only reference columns that exist.
+    - If the instruction implies multiple steps, return a JSON list with multiple operation objects.
+    - You must ALWAYS return a valid JSON list. Never return explanations. If unsure, return [].
+      based on column names and types. For example, "fill missing ages" should target the "age" column.
+    - If the instruction truly cannot be mapped to any supported operation, return an empty JSON list: [].
+    - Respond with **only** a valid JSON list, e.g.:
+      [
+        {{
+          "op": "fillna",
+          "params": {{
+            "column": "age",
+            "strategy": "median",
+            "value": null
+          }}
+        }}
+      ]
+    No additional text or comments.
+
+test_run:
+  system_prompt: "You are a helpful assistant."
+  user_prompt: "Say the word 'success' and nothing else."
+
+tests:
+  call_llm:
+    system_prompt: "You are a helpful assistant."
+    user_prompt: "What is the capital of France?"
+  call_llm_for_json:
+    system_prompt: "You are a json bot."
+    user_prompt: "Return some JSON"
