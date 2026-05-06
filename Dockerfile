@@ -22,7 +22,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     STREAMLIT_SERVER_HEADLESS=true \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false \
-    OLLAMA_URL=http://ollama:11434
+    OLLAMA_URL=https://api.tokenfactory.nebius.com/v1/ # http://ollama:11434
+    NEBIUS_API_KEY=(github secrets.NEBIUS_API_KEY)
 
 WORKDIR /app
 

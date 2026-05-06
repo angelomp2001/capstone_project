@@ -90,7 +90,7 @@ OLLAMA_URL_DEFAULT = "http://localhost:11434"
 
 # Read configuration from environment variables (with defaults)
 OLLAMA_URL = os.getenv("OLLAMA_URL", OLLAMA_URL_DEFAULT)
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1")  # change default model if you prefer
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "meta-llama/Meta-Llama-3.1-8B-Instruct")  # change default model if you prefer
 OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", "120"))  # seconds
 
 logger = logging.getLogger(__name__)
@@ -151,17 +151,22 @@ def call_llm(
     if model is None:
         model = OLLAMA_MODEL
 
-    url = f"{OLLAMA_URL}/v1/chat/completions"
+    url = f"{OLLAMA_URL}" #/v1/chat/completions"
 
-    # Ollama's API is OpenAI-compatible for this endpoint.
+    # Nebius API:
     payload: Dict[str, Any] = {
         "model": model,
         "messages": [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
+            {"role": "user", "content": [
+                {
+                    "type": "text",
+                    "text": user_prompt
+                }
+            ]},
         ],
-        "temperature": temperature,
-        "stream": False,
+        "temperature": temperature, # might not work
+        "stream": False, # might not work
     }
 
     # Map max_tokens to Ollama's num_predict if provided

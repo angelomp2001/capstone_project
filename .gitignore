@@ -7,3 +7,4 @@ venv/
 capstone_project/
 docs/logs/*.log
 docs/logs/*.txt
+docs/branch_notes.txt

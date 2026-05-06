@@ -19,7 +19,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: capstone-app
+    container_name: capstone-project-app
     ports:
       - "8501:8501"
     volumes:
