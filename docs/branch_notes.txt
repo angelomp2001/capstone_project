@@ -1,0 +1,43 @@
+MVP:
+ollama container doesn't install model. 
+
+where is the model download triggered?
+it's not triggered ever during image build.
+When it worked in the past, it was because I already had the model downloaded and it was accessible through ollama on the same port. 
+
+Do you really want the model to be local? Will the teacher allow this?
+the right way to do this is to download the model separately outside 
+of a container so that it doesn't have to download every time. then have your one app container use the local model.
+
+change app to use cloud model api.
+NEBIUS_API_KEY (capstone-project): 
+v1.CmMKHHN0YXRpY2tleS1lMDB6dmFzYmMzMndkamJ4bXcSIXNlcnZpY2VhY2NvdW50LWUwMHhiZ240aHQ2M3duNTJmaDILCJPO6c8GELnzt3A6DAiR0YGbBxCAmuS0A0ACWgNlMDA.AAAAAAAAAAEeQ1L_njap5DoX56RABOYEbfntp0kk0_tHofhrm_l7omLJqskDxrqN63hq1OX3v4drJmVfkoWG2rFPWjLHZdAE
+
+import os
+from openai import OpenAI
+
+    client = OpenAI(
+        base_url="https://api.tokenfactory.nebius.com/v1/",
+        api_key=os.environ.get("NEBIUS_API_KEY")
+    )
+
+    response = client.chat.completions.create(
+        model="meta-llama/Meta-Llama-3.1-8B-Instruct",
+        messages=[
+            {"role": "system", "content": """SYSTEM_PROMPT"""},
+            {"role": "user", "content": [
+                    {
+                        "type": "text",
+                        "text": """USER_MESSAGE"""
+                    }
+                ]
+            }
+        ]
+    )
+
+    print(response.to_json())
+
+
+I am to save the api key to github, but:
+is the teacher using their own API key? 
+what if I'm doing a docker container?
