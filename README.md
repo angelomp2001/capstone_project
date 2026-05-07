@@ -70,13 +70,13 @@ If you want Docker, this is the command-line version rather than clicking around
 Build the image:
 
 ```powershell
-docker build -t capstone-project-poc .
+docker build -t capstone-project .
 ```
 
 Run the image:
 
 ```powershell
-docker run --rm -p 8501:8501 capstone-project-poc
+docker run --env-file .env --rm -p 8501:8501 capstone-project
 ```
 
 Then open [http://localhost:8501](http://localhost:8501).
