@@ -577,3 +577,25 @@
 2026-05-06 21:30:34,810 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 0}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 1}}] new_shape=(5, 8)
 2026-05-06 21:30:34,852 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
 2026-05-06 21:30:34,853 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-07 09:35:52,083 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 09:35:52,307 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-07 09:35:52,310 | INFO | __main__ | Started new Streamlit session.
+2026-05-07 09:35:52,310 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-07 09:36:00,468 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 09:36:00,470 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-07 09:36:00,576 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 09:36:00,577 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-07 09:36:00,582 | INFO | __main__ | User instruction received: replace 'med' in risk_level with 1
+2026-05-07 09:36:00,583 | INFO | src.text_parser | Parsing instruction into operations. Text: replace 'med' in risk_level with 1
+2026-05-07 09:36:09,472 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-07 09:36:09,477 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}}]
+2026-05-07 09:36:09,477 | INFO | src.text_parser | Final parsed operations: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}}]
+2026-05-07 09:36:09,477 | INFO | __main__ | Parsed operations from instruction: [{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}}]
+2026-05-07 09:36:09,477 | INFO | src.operations | Applying 1 operation(s) in sequence.
+2026-05-07 09:36:09,477 | INFO | src.operations | Applying operation replace_value with params {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}
+2026-05-07 09:36:09,483 | INFO | src.operations | replace_value is converting categorical column 'risk_level' to object so a new value can be inserted.
+2026-05-07 09:36:09,484 | INFO | src.operations | replace_value complete. column=risk_level old_value=med new_value=1 replacements=4
+2026-05-07 09:36:09,485 | INFO | src.operations | Finished applying operations. Final shape=(5, 8)
+2026-05-07 09:36:09,485 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}}] new_shape=(5, 8)
+2026-05-07 09:36:09,526 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 09:36:09,527 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
