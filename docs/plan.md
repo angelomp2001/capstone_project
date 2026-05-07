@@ -46,11 +46,11 @@ ui:
 
 | Module | Input | Output | config/ | src/ | scripts/ | tests/ |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| gen_df | ❌ | df | \[1\] | \[1\] |   | \[1\] |
-| App | user_text | new_df |   | \[❌\] | \[1\] |   |
-| text_parser | user_text, df | JSON | \[❌\] | \[1\] | \[❌\] | \[1\] |
-| operations  | df, JSON  | new_df |  | \[1\] | \[❌\] | \[1\] |
-| llm_utils | ❌ | ❌  | \[1\] | \[1\] | \[❌\] | \[1\] |
+| gen_df | ❌ | df | \[M\] | \[M\] |   | \[M\] |
+| App | user_text | new_df |   | \[❌\] | \[M\] |   |
+| text_parser | user_text, df | JSON | \[❌\] | \[M\] | \[❌\] | \[M\] |
+| operations  | df, JSON  | new_df |  | \[M\] | \[❌\] | \[M\] |
+| llm_utils | ❌ | ❌  | \[M\] | \[M\] | \[❌\] | \[M\] |
 |  |  |  |  | \[   \] | \[   \] | \[   \] | \[   \] |
 
 2. containerize app with model via API and API key in github secrets. 
@@ -70,6 +70,11 @@ predict target, mlflow (parameters, metrics, and model artifacts)
 
 | Module | Input | Output | config/ | src/ | scripts/ | tests/ |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| gen_df | ❌ | df | \[M\] | \[M\] |   | \[M\] |
+| App | user_text | new_df |   | \[❌\] | \[M\] |   |
+| text_parser | user_text, df | JSON | \[❌\] | \[M\] | \[❌\] | \[M\] |
+| operations  | df, JSON  | new_df |  | \[M\] | \[❌\] | \[M\] |
+| llm_utils | ❌ | ❌  | \[M\] | \[M\] | \[❌\] | \[M\] |
 | loaders |   |   | \[1\] | \[1\] |   | \[1\] |
 | feature_eng | df | new_df |   | \[❌\] | \[1\] |   |
 | cross_validate | df, models | results | \[❌\] | \[1\] | \[❌\] | \[1\] |

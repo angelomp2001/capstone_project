@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import logging
-
+import os
 from src.generate_sample_df import generate_sample_df
 from src.operations import apply_operations
 from src.text_parser import llm_parses_to_ops
@@ -21,15 +21,18 @@ trace = logging.getLogger("trace")
 
 
 def create_initial_df() -> pd.DataFrame:
-    """Generate display-friendly starter data for the app."""
-    # wrapper for this function
-    df = generate_sample_df()
-    # clean df
-    for col in df.select_dtypes(include=["datetime64[ns]", "datetime64"]).columns:
-        df[col] = df[col].astype(str)
-    # log 
-    logger.info("Created initial DataFrame with shape %s", df.shape)
-    trace.info("DATAFRAME INIT shape=%r preview=%r", df.shape, df.head(3).to_dict(orient="records"))
+    """Generate display-friendly starter data for the app. if there is no data in the data/raw dir"""
+    if os.path.exists("data/raw"):
+        df = pd.read_csv("data/raw/raw_data.csv")
+    else:
+        # wrapper for this function
+        df = generate_sample_df()
+        # clean df
+        for col in df.select_dtypes(include=["datetime64[ns]", "datetime64"]).columns:
+            df[col] = df[col].astype(str)
+        # log 
+        logger.info("Created initial DataFrame with shape %s", df.shape)
+        trace.info("DATAFRAME INIT shape=%r preview=%r", df.shape, df.head(3).to_dict(orient="records"))
     return df
 
 

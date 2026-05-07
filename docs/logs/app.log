@@ -599,3 +599,28 @@
 2026-05-07 09:36:09,485 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'replace_value', 'params': {'column': 'risk_level', 'old_value': 'med', 'new_value': '1'}}] new_shape=(5, 8)
 2026-05-07 09:36:09,526 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
 2026-05-07 09:36:09,527 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-07 10:50:28,123 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 10:51:32,715 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 10:52:01,515 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 10:58:20,130 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 10:58:57,652 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 11:50:27,687 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 11:50:27,820 | INFO | __main__ | Started new Streamlit session.
+2026-05-07 11:50:27,821 | INFO | __main__ | App rendered. Current DataFrame shape=(418, 12)
+2026-05-07 11:50:44,875 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 11:50:44,876 | INFO | __main__ | App rendered. Current DataFrame shape=(418, 12)
+2026-05-07 11:50:44,970 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 11:50:44,971 | INFO | __main__ | App rendered. Current DataFrame shape=(418, 12)
+2026-05-07 11:50:44,977 | INFO | __main__ | User instruction received: drop Cabin
+2026-05-07 11:50:44,977 | INFO | src.text_parser | Parsing instruction into operations. Text: drop Cabin
+2026-05-07 11:50:49,751 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-07 11:50:49,757 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'drop_columns', 'params': {'columns': ['Cabin']}}]
+2026-05-07 11:50:49,757 | INFO | src.text_parser | Final parsed operations: [{'op': 'drop_columns', 'params': {'columns': ['Cabin']}}]
+2026-05-07 11:50:49,757 | INFO | __main__ | Parsed operations from instruction: [{'op': 'drop_columns', 'params': {'columns': ['Cabin']}}]
+2026-05-07 11:50:49,758 | INFO | src.operations | Applying 1 operation(s) in sequence.
+2026-05-07 11:50:49,758 | INFO | src.operations | Applying operation drop_columns with params {'columns': ['Cabin']}
+2026-05-07 11:50:49,759 | INFO | src.operations | drop_column complete. dropped=['Cabin'] shape_after=(418, 11)
+2026-05-07 11:50:49,761 | INFO | src.operations | Finished applying operations. Final shape=(418, 11)
+2026-05-07 11:50:49,761 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'drop_columns', 'params': {'columns': ['Cabin']}}] new_shape=(418, 11)
+2026-05-07 11:50:49,804 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-07 11:50:49,805 | INFO | __main__ | App rendered. Current DataFrame shape=(418, 11)
