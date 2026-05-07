@@ -5,7 +5,12 @@ import logging
 
 import pandas as pd
 
-from .llm_utils import is_llm_available, call_llm_for_json, load_config, get_project_root
+from .llm_utils import (
+    is_llm_available, 
+    call_llm_for_json, 
+    load_config, 
+    get_project_root
+)
 from .operations import SUPPORTED_OPS
 
 logger = logging.getLogger(__name__)
@@ -49,14 +54,16 @@ def llm_parses_to_ops(
 
         Returns an empty list if parsing fails.
     """
+    # info for the llm
     columns = df.columns.tolist()
     dtypes = {col: str(dtype) for col, dtype in df.dtypes.items()}
 
+    # prompt components
     system_prompt = PROMPTS.get("text_parser", {}).get("system_prompt", "")
-
     ops_description = PROMPTS.get("text_parser", {}).get("ops_description", "")
     user_prompt_template = PROMPTS.get("text_parser", {}).get("user_prompt_template", "")
 
+    # final user prompt to be sent to the llm
     user_prompt = user_prompt_template.format(
         dtypes_json=json.dumps(dtypes, indent=2),
         columns=columns,
