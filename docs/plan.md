@@ -43,16 +43,46 @@ ui:
 # MVP
 1. formalize project folder structure a bit 
 
+
 | Module | Input | Output | config/ | src/ | scripts/ | tests/ |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| gen_df | ❌ | df | \[   \] | \[✅\] | \[❌\] | \[   \] |
-| App | user_text | new_df | \[   \] | \[❌\] | \[✅\] | \[   \] |
-| text_parser | user_text, df | JSON | \[   \] | \[✅\] | \[❌\] | \[   \] |
-| operations  | df, JSON  | new_df | \[   \] | \[✅\] | \[❌\] | \[   \] |
-| llm_utils | ❌ | ❌  | \[   \] | \[✅\] | \[❌\] | \[   \] |
+| gen_df | ❌ | df | \[M\] | \[M\] |   | \[M\] |
+| App | user_text | new_df |   | \[❌\] | \[M\] |   |
+| text_parser | user_text, df | JSON | \[❌\] | \[M\] | \[❌\] | \[M\] |
+| operations  | df, JSON  | new_df |  | \[M\] | \[❌\] | \[M\] |
+| llm_utils | ❌ | ❌  | \[M\] | \[M\] | \[❌\] | \[M\] |
 |  |  |  |  | \[   \] | \[   \] | \[   \] | \[   \] |
 
-2. containerize app with model running locally. and test container. update readme. 
+2. containerize app with model via API and API key in github secrets. 
+test container: clone, docker build, docker run, test in browser. 
+update readme. 
+
+# Version 1:
+upload df
+label target
+predict target, mlflow (parameters, metrics, and model artifacts)
+- multiple models
+- 3 metrics
+- mlflow
+- experiment comparison script (programmatically identify best model)
+- choose best model
+- choose a df to load (not random)
+
+| Module | Input | Output | config/ | src/ | scripts/ | tests/ |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| gen_df | ❌ | df | \[M\] | \[M\] |   | \[M\] |
+| App | user_text | new_df |   | \[❌\] | \[M\] |   |
+| text_parser | user_text, df | JSON | \[❌\] | \[M\] | \[❌\] | \[M\] |
+| operations  | df, JSON  | new_df |  | \[M\] | \[❌\] | \[M\] |
+| llm_utils | ❌ | ❌  | \[M\] | \[M\] | \[❌\] | \[M\] |
+| loaders |   |   | \[1\] | \[1\] |   | \[1\] |
+| feature_eng | df | new_df |   | \[❌\] | \[1\] |   |
+| cross_validate | df, models | results | \[❌\] | \[1\] | \[❌\] | \[1\] |
+| model_registry  |  | models list |  | \[1\] | \[❌\] | \[1\] |
+| training | ❌ | ❌  | \[1\] | \[1\] | \[❌\] | \[1\] |
+| utils |  |  |  | \[   \] | \[   \] | \[   \] | \[   \] |
+
+# Version 2:
 
 
 

@@ -1,0 +1,44 @@
+MVP:
+user will not download model or access API key. 
+ollama container doesn't install model. 
+if the model is in the container, it needs to install on each build. 
+where is the model download triggered?
+it's not triggered ever during image build.
+When it worked in the past, it was because I already had the model downloaded and it was accessible through ollama on the same port. 
+
+Do you really want the model to be local? Will the teacher allow this?
+the right way to do this is to download the model separately outside 
+of a container so that it doesn't have to download every time. then have your one app container use the local model.
+
+change app to use cloud model api.
+API key name in Nebius: NEBIUS_API_KEY (capstone-project)
+
+I am to save the api key to github, but:
+is the teacher using their own API key? 
+what if I'm doing a docker container?
+The docker container is build via github actions, 
+and accesses the api key via github secrets. 
+
+_algo_parses_to_ops is set to backup llm fail, but should be set to be back to NO llm.   
+
+within the docker container, the model is getting all the context, but this happens now:
+2026-05-07 13:28:08,391 | USER INPUT text='in the categories column, replace category_3 with 3 (num)'
+2026-05-07 13:28:08,398 | PARSER START text='in the categories column, replace category_3 with 3 (num)' columns=['index', 'timestamp', 'uniform', 'normal', 'exponential', 'gender', 'risk_level', 'categories'] dtypes={'index': 'int64', 'timestamp': 'object', 'uniform': 'float64', 'normal': 'float64', 'exponential': 'float64', 'gender': 'object', 'risk_level': 'category', 'categories': 'object'}
+2026-05-07 13:28:09,649 | LLM RESPONSE content='It seems like you started to ask a question, but it got cut off. Could you please rephrase or complete your question so I can better assist you?'
+
+somewhere between user input and text transport, system and user become empty:
+docker trace:
+2026-05-07 13:28:08,427 | LLM REQUEST model='meta-llama/Meta-Llama-3.1-8B-Instruct' temperature=0.0 system='' user=''  
+
+on my desktop it works just fine, so this is a docker container problem. within the container, this llm api endpoint is being hit successfully, but is also empty:
+docker log:
+2026-05-07 14:07:48,351 | INFO | src.llm_utils | Logging initialized. Main log file: /app/docs/logs/app.log
+2026-05-07 14:07:48,354 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-07 14:07:48,364 | INFO | __main__ | User instruction received: what is the capital of France?
+2026-05-07 14:07:48,365 | INFO | src.text_parser | Parsing instruction into operations. Text: what is the capital of France?
+2026-05-07 14:07:49,578 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-07 14:07:49,582 | ERROR | src.llm_utils | RAW LLM OUTPUT:
+It seems like you started to ask a question, but it got cut off. Could you please rephrase or complete your question so I can better understand and provide a helpful response?
+2026-05-07 14:07:49,582 | ERROR | src.text_parser | LLM parsing failed: LLM output is not valid JSON
+2026-05-07 14:07:49,583 | INFO | __main__ | Parsed operations from instruction: [{'op': 'error', 'params': {'message': 'LLM parsing failed: LLM output is not valid JSON'}}]
+2026-05-07 14:07:49,584 | WARNING | __main__ | Instruction could not be applied. Message=LLM parsing failed: LLM output is not valid JSON

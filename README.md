@@ -9,17 +9,14 @@ Right now the app supports these operations:
 - `drop_columns`
 - `replace_value`
 
-If Ollama is running on your machine, the app will try to use it. If Ollama is not running, the app still works in a simpler built-in POC mode.
-
 ## Fastest Local Run For A Beginner
 
 If you have never run a Python app before, use these exact steps.
 
-1. Install Python 3.11 or newer from [python.org](https://www.python.org/downloads/).
-2. Download this repository to your computer.
-3. Open the project folder in File Explorer.
-4. Click the folder path bar, type `powershell`, and press Enter.
-5. In that PowerShell window, run:
+1. Download this repository to your computer.
+2. Open the project folder in File Explorer.
+3. Click the folder path bar, type `powershell`, and press Enter.
+4. In that PowerShell window, run:
 
 ```powershell
 python -m venv .venv
@@ -73,13 +70,13 @@ If you want Docker, this is the command-line version rather than clicking around
 Build the image:
 
 ```powershell
-docker build -t capstone-project-poc .
+docker build -t capstone-project .
 ```
 
 Run the image:
 
 ```powershell
-docker run --rm -p 8501:8501 capstone-project-poc
+docker run --env-file .env --rm -p 8501:8501 capstone-project
 ```
 
 Then open [http://localhost:8501](http://localhost:8501).

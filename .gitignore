@@ -5,5 +5,4 @@ __pycache__/
 .venv/
 venv/
 capstone_project/
-docs/logs/*.log
-docs/logs/*.txt
+.envdata/raw/*

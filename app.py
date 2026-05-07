@@ -1,32 +1,38 @@
 import streamlit as st
 import pandas as pd
 import logging
-
+import os
 from src.generate_sample_df import generate_sample_df
 from src.operations import apply_operations
 from src.text_parser import llm_parses_to_ops
 from src.llm_utils import (
-    is_ollama_available,
+    is_llm_available,
     setup_logging,
     get_log_locations,
 )
 
 # setup logging
+from dotenv import load_dotenv
+load_dotenv()
+
 setup_logging()
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
 
 
 def create_initial_df() -> pd.DataFrame:
-    """Generate display-friendly starter data for the app."""
-    # wrapper for this function
-    df = generate_sample_df()
-    # clean df
-    for col in df.select_dtypes(include=["datetime64[ns]", "datetime64"]).columns:
-        df[col] = df[col].astype(str)
-    # log 
-    logger.info("Created initial DataFrame with shape %s", df.shape)
-    trace.info("DATAFRAME INIT shape=%r preview=%r", df.shape, df.head(3).to_dict(orient="records"))
+    """Generate display-friendly starter data for the app. if there is no data in the data/raw dir"""
+    if os.path.exists("data/raw"):
+        df = pd.read_csv("data/raw/raw_data.csv")
+    else:
+        # wrapper for this function
+        df = generate_sample_df()
+        # clean df
+        for col in df.select_dtypes(include=["datetime64[ns]", "datetime64"]).columns:
+            df[col] = df[col].astype(str)
+        # log 
+        logger.info("Created initial DataFrame with shape %s", df.shape)
+        trace.info("DATAFRAME INIT shape=%r preview=%r", df.shape, df.head(3).to_dict(orient="records"))
     return df
 
 
@@ -52,10 +58,10 @@ def main():
     log_locations = get_log_locations()
     # log status
     logger.info("App rendered. Current DataFrame shape=%s", st.session_state.df.shape)
-    if is_ollama_available():
-        st.success("Connected to Ollama. Natural-language instructions will use the LLM parser.")  # ui component
+    if is_llm_available():
+        st.success("Connected to LLM API. Natural-language instructions will use the LLM parser.")  # ui component
     else:
-        st.info("Ollama was not detected. The app is running in built-in POC mode with simple instruction parsing.")  # ui component
+        st.error("LLM API was not detected. Please configure the LLM API to use this app.")  # ui component
 
     # with st.expander("Where the logs are saved"): # ui component
     #     st.code( # ui component
@@ -67,7 +73,7 @@ def main():
     # --- Data Preview --------------------------------------------------------
     st.subheader("Sample Data (first 15 rows)") # ui component
     preview_df = st.session_state.df.head(8).copy()
-    st.dataframe(preview_df, width='stretch') # ui component
+    st.dataframe(preview_df, use_container_width=True) # width='stretch' ui component
 
     st.markdown("**Columns and dtypes:**") # ui component
     dtypes = {col: str(dtype) for col, dtype in st.session_state.df.dtypes.items()}
@@ -116,6 +122,7 @@ def main():
                 logger.warning("Instruction could not be applied. Message=%s", msg)
                 trace.info("USER INPUT FAILED text=%r message=%r", user_input, msg)
                 st.session_state.chat_history.append(("assistant", msg))
+                st.error(msg)
             else:
                 # Apply operations
                 new_df = apply_operations(st.session_state.df, ops)

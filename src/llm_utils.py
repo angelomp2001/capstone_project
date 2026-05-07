@@ -3,10 +3,14 @@ import sys
 import yaml
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 import json
 from typing import List, Dict, Any, Optional
 import streamlit as st
 import requests
+from openai import OpenAI
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -85,26 +89,28 @@ def get_project_root() -> Path:
 # Configuration
 # -----------------------------------------------------------------------------
 
-# Default Ollama HTTP endpoint
-OLLAMA_URL_DEFAULT = "http://localhost:11434"
+config_path = PROJECT_ROOT / "configs" / "llm_utils.yml"
+config = load_config(str(config_path)) if config_path.exists() else {}
 
-# Read configuration from environment variables (with defaults)
-OLLAMA_URL = os.getenv("OLLAMA_URL", OLLAMA_URL_DEFAULT)
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.1")  # change default model if you prefer
-OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", "120"))  # seconds
+# Read configuration from environment variables (with defaults from config file)
+OLLAMA_URL = os.getenv("OLLAMA_URL", config.get("OLLAMA_URL", "https://api.tokenfactory.nebius.com/v1/"))
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", config.get("OLLAMA_MODEL", "meta-llama/Meta-Llama-3.1-8B-Instruct"))
+OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", config.get("OLLAMA_TIMEOUT", 120.0)))
 
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
 
 
-def is_ollama_available() -> bool:
-    """Return True when the configured Ollama endpoint responds."""
+def is_llm_available() -> bool:
+    """Return True when the configured LLM endpoint responds or NEBIUS_API_KEY is set."""
+    if os.getenv("NEBIUS_API_KEY") or "nebius.com" in OLLAMA_URL:
+        return True
     try:
         response = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
-        logger.info("Ollama availability check returned status %s from %s", response.status_code, OLLAMA_URL)
+        logger.info("LLM availability check returned status %s from %s", response.status_code, OLLAMA_URL)
         return response.status_code == 200
     except requests.RequestException:
-        logger.info("Ollama availability check failed for %s", OLLAMA_URL)
+        logger.info("LLM availability check failed for %s", OLLAMA_URL)
         return False
 
 
@@ -151,66 +157,51 @@ def call_llm(
     if model is None:
         model = OLLAMA_MODEL
 
-    url = f"{OLLAMA_URL}/v1/chat/completions"
-
-    # Ollama's API is OpenAI-compatible for this endpoint.
-    payload: Dict[str, Any] = {
-        "model": model,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        "temperature": temperature,
-        "stream": False,
-    }
-
-    # Map max_tokens to Ollama's num_predict if provided
-    if max_tokens is not None:
-        payload["num_predict"] = max_tokens
+    NEBIUS_API_KEY = os.getenv("NEBIUS_API_KEY")
+    
+    if NEBIUS_API_KEY:
+        client = OpenAI(
+            base_url=OLLAMA_URL,
+            api_key=NEBIUS_API_KEY,
+        )
+    else:
+        client = OpenAI(
+            base_url=OLLAMA_URL if OLLAMA_URL.endswith("/v1/") else f"{OLLAMA_URL}/v1/",
+            api_key="ollama", # required but ignored
+        )
 
     try:
-        logger.debug("Sending request to Ollama at %s with model '%s'", OLLAMA_URL, model)
+        logger.debug("Sending request to llm with model '%s'", model)
         trace.info("LLM REQUEST model=%r temperature=%r system=%r user=%r", model, temperature, system_prompt, user_prompt)
-        response = requests.post(
-            url,
-            json=payload,
-            timeout=OLLAMA_TIMEOUT,
+        
+        extra_args = {}
+        if max_tokens is not None:
+            extra_args["max_tokens"] = max_tokens
+
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": user_prompt
+                        }
+                    ]
+                },
+            ],
+            temperature=temperature,
+            **extra_args
         )
-    except requests.RequestException as e:
-        msg = f"Error connecting to Ollama at {OLLAMA_URL}: {e}"
+        content = response.choices[0].message.content
+        trace.info("LLM RESPONSE content=%r", content)
+        return content
+    except Exception as e:
+        msg = f"Error connecting to LLM: {e}"
         logger.error(msg)
         raise RuntimeError(msg) from e
-
-    if response.status_code != 200:
-        msg = (
-            f"Ollama returned non-200 status code {response.status_code}: "
-            f"{response.text}"
-        )
-        logger.error(msg)
-        raise RuntimeError(msg)
-
-    try:
-        data = response.json()
-    except json.JSONDecodeError as e:
-        msg = f"Failed to parse JSON from Ollama response: {e}. Raw text: {response.text[:500]}"
-        logger.error(msg)
-        raise RuntimeError(msg) from e
-
-    # OpenAI-compatible structure: choices[0].message.content
-    choices = data.get("choices")
-    if not choices:
-        msg = f"No 'choices' field in Ollama response: {data}"
-        logger.error(msg)
-        raise RuntimeError(msg)
-
-    content = choices[0].get("message", {}).get("content")
-    if content is None:
-        msg = f"No 'content' in Ollama response message: {choices[0]}"
-        logger.error(msg)
-        raise RuntimeError(msg)
-
-    trace.info("LLM RESPONSE content=%r", content)
-    return content
 
 
 # -----------------------------------------------------------------------------
@@ -264,9 +255,6 @@ def call_llm_for_json(
     """
     Call the LLM and parse the response as JSON.
 
-    This is useful when you instruct the model to output a JSON object or array,
-    e.g., for data cleaning operations.
-
     Parameters
     ----------
     system_prompt : str
@@ -303,24 +291,18 @@ def call_llm_for_json(
         trace.info("LLM JSON PARSED direct=%r", parsed)
         return parsed
     except json.JSONDecodeError:
+
         # Some models wrap JSON in markdown fences; try to extract.
         stripped = _extract_json_from_text(text)
         try:
+            # Final attempt to parse the extracted JSON substring
             parsed = json.loads(stripped)
             trace.info("LLM JSON PARSED extracted=%r", parsed)
             return parsed
         except json.JSONDecodeError as e:
-            logger.error("RAW LLM OUTPUT:\n%s", text)
+            # Log the raw output for debugging
             trace.info("LLM JSON PARSE ERROR raw=%r", text)
+            logger.error("RAW LLM OUTPUT:\n%s", text)
             raise ValueError("LLM output is not valid JSON") from e
 
 
-@st.cache_data(show_spinner=False)
-def call_llm_for_json_cached(system_prompt, user_prompt, temperature):
-    '''Cached wrapper around call_llm_for_json to speed up repeated calls with the same prompts.'''
-    logger.info("Using cached JSON LLM wrapper.")
-    return call_llm_for_json(
-        system_prompt=system_prompt,
-        user_prompt=user_prompt,
-        temperature=temperature,
-    )

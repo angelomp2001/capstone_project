@@ -36,12 +36,115 @@ from typing import Dict, Any, List
 #   }
 # -----------------------------------------------------------------------------
 
-# supported operations:
-# copy_df, validate required, validate unique, validate categorical values, validate bounds, validate date range, drop duplicates, replace value, coerce dtype, dropna, fillna, drop_columns
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
 
-SUPPORTED_OPS = {"dropna", "fillna", "drop_columns", "replace_value"}
+SUPPORTED_OPS = {"dropna", "fillna", "drop_columns", "replace_value", "drop_column"}
+
+
+class ApplyOperation:
+    """
+    Class containing methods for applying data cleaning operations.
+    Each method corresponds to an operation the LLM can apply to a DataFrame.
+    """
+
+    @staticmethod
+    def dropna(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
+        axis = params.get("axis", 0)
+        subset = params.get("subset", None)
+
+        # Normalize subset: can be string, list, or None
+        if isinstance(subset, str):
+            subset = [subset]
+        if subset is not None:
+            # Only keep columns that exist
+            subset = [c for c in subset if c in df.columns]
+            if not subset:
+                subset = None
+
+        df = df.dropna(axis=axis, subset=subset)
+        logger.info("dropna complete. axis=%s subset=%s shape_after=%s", axis, subset, df.shape)
+        return df
+
+    @staticmethod
+    def fillna(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
+        column = params.get("column")
+        strategy = params.get("strategy", "mean")
+        value = params.get("value", None)
+
+        if column not in df.columns:
+            # Invalid column: ignore for POC
+            logger.warning("fillna skipped because column does not exist: %s", column)
+            trace.info("APPLY fillna skipped missing_column=%r", column)
+            return df
+
+        if strategy == "mean":
+            df[column] = df[column].fillna(df[column].mean())
+        elif strategy == "median":
+            df[column] = df[column].fillna(df[column].median())
+        elif strategy == "mode":
+            # mode() returns a Series; take first
+            df[column] = df[column].fillna(df[column].mode().iloc[0])
+        elif strategy == "constant":
+            # If value is None, you might choose a default (e.g., 0)
+            if value is None:
+                value = 0
+            df[column] = df[column].fillna(value)
+        logger.info("fillna complete. column=%s strategy=%s value=%s", column, strategy, value)
+        return df
+
+    @staticmethod
+    def drop_column(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
+        """
+        Drops one or more columns from the DataFrame.
+        Supports both 'columns' (list) and 'column' (string) in params.
+        """
+        columns = params.get("columns", [])
+        if not columns and "column" in params:
+            columns = [params["column"]]
+            
+        if isinstance(columns, str):
+            columns = [columns]
+        # Keep only existing columns
+        columns = [c for c in columns if c in df.columns]
+        if columns:
+            df = df.drop(columns=columns)
+        logger.info("drop_column complete. dropped=%s shape_after=%s", columns, df.shape)
+        return df
+
+    # Alias drop_columns to drop_column to maintain backward compatibility with old op names
+    drop_columns = drop_column
+
+    @staticmethod
+    def replace_value(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
+        column = params.get("column")
+        old_value = params.get("old_value")
+        new_value = params.get("new_value")
+
+        if column not in df.columns:
+            logger.warning("replace_value skipped because column does not exist: %s", column)
+            trace.info("APPLY replace_value skipped missing_column=%r", column)
+            return df
+
+        replacement_count = int((df[column].astype(str) == str(old_value)).sum())
+        
+        # Use pandas recommended way to check categorical dtype (is_categorical_dtype is deprecated)
+        if isinstance(df[column].dtype, pd.CategoricalDtype) and new_value not in df[column].cat.categories:
+            logger.info(
+                "replace_value is converting categorical column '%s' to object so a new value can be inserted.",
+                column,
+            )
+            df[column] = df[column].astype(object)
+            
+        df[column] = df[column].replace(old_value, new_value)
+        logger.info(
+            "replace_value complete. column=%s old_value=%s new_value=%s replacements=%s",
+            column,
+            old_value,
+            new_value,
+            replacement_count,
+        )
+        return df
 
 
 def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
@@ -54,7 +157,7 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
         Input DataFrame (will not be modified in-place; a modified copy is returned).
     op : dict
         Operation dictionary with keys:
-          - "op": operation name (e.g., "dropna", "fillna", "drop_columns")
+          - "op": operation name (e.g., "dropna", "fillna", "drop_column", "drop_columns")
           - "params": dict with operation-specific parameters
 
     Returns
@@ -81,82 +184,11 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
 
     df = df.copy()
 
-    if op_type == "dropna":
-        axis = params.get("axis", 0)
-        subset = params.get("subset", None)
-
-        # Normalize subset: can be string, list, or None
-        if isinstance(subset, str):
-            subset = [subset]
-        if subset is not None:
-            # Only keep columns that exist
-            subset = [c for c in subset if c in df.columns]
-            if not subset:
-                subset = None
-
-        df = df.dropna(axis=axis, subset=subset)
-        logger.info("dropna complete. axis=%s subset=%s shape_after=%s", axis, subset, df.shape)
-
-    elif op_type == "fillna":
-        column = params.get("column")
-        strategy = params.get("strategy", "mean")
-        value = params.get("value", None)
-
-        if column not in df.columns:
-            # Invalid column: ignore for POC
-            logger.warning("fillna skipped because column does not exist: %s", column)
-            trace.info("APPLY fillna skipped missing_column=%r", column)
-            return df
-
-        if strategy == "mean":
-            df[column] = df[column].fillna(df[column].mean())
-        elif strategy == "median":
-            df[column] = df[column].fillna(df[column].median())
-        elif strategy == "mode":
-            # mode() returns a Series; take first
-            df[column] = df[column].fillna(df[column].mode().iloc[0])
-        elif strategy == "constant":
-            # If value is None, you might choose a default (e.g., 0)
-            if value is None:
-                value = 0
-            df[column] = df[column].fillna(value)
-        logger.info("fillna complete. column=%s strategy=%s value=%s", column, strategy, value)
-
-    elif op_type == "drop_columns":
-        columns = params.get("columns", [])
-        if isinstance(columns, str):
-            columns = [columns]
-        # Keep only existing columns
-        columns = [c for c in columns if c in df.columns]
-        if columns:
-            df = df.drop(columns=columns)
-        logger.info("drop_columns complete. dropped=%s shape_after=%s", columns, df.shape)
-
-    elif op_type == "replace_value":
-        column = params.get("column")
-        old_value = params.get("old_value")
-        new_value = params.get("new_value")
-
-        if column not in df.columns:
-            logger.warning("replace_value skipped because column does not exist: %s", column)
-            trace.info("APPLY replace_value skipped missing_column=%r", column)
-            return df
-
-        replacement_count = int((df[column].astype(str) == str(old_value)).sum())
-        if pd.api.types.is_categorical_dtype(df[column]) and new_value not in df[column].cat.categories:
-            logger.info(
-                "replace_value is converting categorical column '%s' to object so a new value can be inserted.",
-                column,
-            )
-            df[column] = df[column].astype(object)
-        df[column] = df[column].replace(old_value, new_value)
-        logger.info(
-            "replace_value complete. column=%s old_value=%s new_value=%s replacements=%s",
-            column,
-            old_value,
-            new_value,
-            replacement_count,
-        )
+    if hasattr(ApplyOperation, op_type):
+        method = getattr(ApplyOperation, op_type)
+        df = method(df, params)
+    else:
+        logger.warning(f"Method {op_type} not found in ApplyOperation")
 
     trace.info(
         "APPLY END op=%r shape_after=%r columns_after=%r preview_after=%r",
