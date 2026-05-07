@@ -60,12 +60,15 @@ update readme.
 # Version 1:
 upload df
 label target
-predict target
+predict target, mlflow (parameters, metrics, and model artifacts)
 - multiple models
 - 3 metrics
 - mlflow
+- experiment comparison script (programmatically identify best model)
 - choose best model
+- choose a df to load (not random)
 
+# Version 2:
 
 
 
