@@ -12,9 +12,11 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends curl ca-certificates && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Copy requirements and install dependencies matching the project exactly
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install poetry and dependencies
+COPY pyproject.toml poetry.lock* ./
+RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-root --only main
 
 # Create non-root user
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
