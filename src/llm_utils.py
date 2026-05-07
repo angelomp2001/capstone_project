@@ -255,9 +255,6 @@ def call_llm_for_json(
     """
     Call the LLM and parse the response as JSON.
 
-    This is useful when you instruct the model to output a JSON object or array,
-    e.g., for data cleaning operations.
-
     Parameters
     ----------
     system_prompt : str
@@ -294,15 +291,18 @@ def call_llm_for_json(
         trace.info("LLM JSON PARSED direct=%r", parsed)
         return parsed
     except json.JSONDecodeError:
+
         # Some models wrap JSON in markdown fences; try to extract.
         stripped = _extract_json_from_text(text)
         try:
+            # Final attempt to parse the extracted JSON substring
             parsed = json.loads(stripped)
             trace.info("LLM JSON PARSED extracted=%r", parsed)
             return parsed
         except json.JSONDecodeError as e:
-            logger.error("RAW LLM OUTPUT:\n%s", text)
+            # Log the raw output for debugging
             trace.info("LLM JSON PARSE ERROR raw=%r", text)
+            logger.error("RAW LLM OUTPUT:\n%s", text)
             raise ValueError("LLM output is not valid JSON") from e
 
 

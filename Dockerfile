@@ -24,6 +24,7 @@ RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 # Copy application code
 COPY --chown=appuser:appuser app.py .
 COPY --chown=appuser:appuser src ./src
+COPY --chown=appuser:appuser configs ./configs
 
 EXPOSE 8501
 
