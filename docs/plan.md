@@ -68,6 +68,15 @@ predict target, mlflow (parameters, metrics, and model artifacts)
 - choose best model
 - choose a df to load (not random)
 
+| Module | Input | Output | config/ | src/ | scripts/ | tests/ |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| loaders |   |   | \[1\] | \[1\] |   | \[1\] |
+| feature_eng | df | new_df |   | \[❌\] | \[1\] |   |
+| cross_validate | df, models | results | \[❌\] | \[1\] | \[❌\] | \[1\] |
+| model_registry  |  | models list |  | \[1\] | \[❌\] | \[1\] |
+| training | ❌ | ❌  | \[1\] | \[1\] | \[❌\] | \[1\] |
+| utils |  |  |  | \[   \] | \[   \] | \[   \] | \[   \] |
+
 # Version 2:
 
 

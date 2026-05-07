@@ -533,3 +533,47 @@
 2026-05-06 16:49:50,734 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 5)
 2026-05-06 16:50:41,888 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
 2026-05-06 16:50:41,889 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 5)
+2026-05-06 21:21:40,408 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 21:21:40,606 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 21:21:40,608 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 21:21:40,608 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 21:21:51,314 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 21:21:51,316 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 21:21:51,439 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 21:21:51,441 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 21:21:51,446 | INFO | __main__ | User instruction received: replace male in the gender column with 1.
+2026-05-06 21:21:51,447 | INFO | src.text_parser | Parsing instruction into operations. Text: replace male in the gender column with 1.
+2026-05-06 21:21:53,312 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-06 21:21:53,316 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}]
+2026-05-06 21:21:53,316 | INFO | src.text_parser | Final parsed operations: [{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}]
+2026-05-06 21:21:53,316 | INFO | __main__ | Parsed operations from instruction: [{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}]
+2026-05-06 21:21:53,316 | INFO | src.operations | Applying 1 operation(s) in sequence.
+2026-05-06 21:21:53,316 | INFO | src.operations | Applying operation replace_value with params {'column': 'gender', 'old_value': 'male', 'new_value': '1'}
+2026-05-06 21:21:53,320 | INFO | src.operations | replace_value complete. column=gender old_value=male new_value=1 replacements=5
+2026-05-06 21:21:53,321 | INFO | src.operations | Finished applying operations. Final shape=(5, 8)
+2026-05-06 21:21:53,321 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'replace_value', 'params': {'column': 'gender', 'old_value': 'male', 'new_value': '1'}}] new_shape=(5, 8)
+2026-05-06 21:21:53,365 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 21:21:53,366 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 21:29:47,845 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 21:29:47,992 | INFO | __main__ | Created initial DataFrame with shape (5, 8)
+2026-05-06 21:29:47,994 | INFO | __main__ | Started new Streamlit session.
+2026-05-06 21:29:47,994 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 21:30:15,409 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 21:30:15,411 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 21:30:18,871 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 21:30:18,872 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
+2026-05-06 21:30:18,877 | INFO | __main__ | User instruction received: change med to equal 1 and low to equal 0.
+2026-05-06 21:30:18,878 | INFO | src.text_parser | Parsing instruction into operations. Text: change med to equal 1 and low to equal 0.
+2026-05-06 21:30:34,801 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-06 21:30:34,806 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 0}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 1}}]
+2026-05-06 21:30:34,807 | INFO | src.text_parser | Final parsed operations: [{'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 0}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 1}}]
+2026-05-06 21:30:34,807 | INFO | __main__ | Parsed operations from instruction: [{'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 0}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 1}}]
+2026-05-06 21:30:34,807 | INFO | src.operations | Applying 2 operation(s) in sequence.
+2026-05-06 21:30:34,807 | INFO | src.operations | Applying operation fillna with params {'column': 'risk_level', 'strategy': 'constant', 'value': 0}
+2026-05-06 21:30:34,808 | INFO | src.operations | fillna complete. column=risk_level strategy=constant value=0
+2026-05-06 21:30:34,809 | INFO | src.operations | Applying operation fillna with params {'column': 'risk_level', 'strategy': 'constant', 'value': 1}
+2026-05-06 21:30:34,809 | INFO | src.operations | fillna complete. column=risk_level strategy=constant value=1
+2026-05-06 21:30:34,810 | INFO | src.operations | Finished applying operations. Final shape=(5, 8)
+2026-05-06 21:30:34,810 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 0}}, {'op': 'fillna', 'params': {'column': 'risk_level', 'strategy': 'constant', 'value': 1}}] new_shape=(5, 8)
+2026-05-06 21:30:34,852 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-06 21:30:34,853 | INFO | __main__ | App rendered. Current DataFrame shape=(5, 8)
