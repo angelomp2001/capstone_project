@@ -1,6 +1,8 @@
 [core]
-    remote = raw_data
+    remote = local_storage
 ['remote "capstone_project"']
     url = ../data/.dvc_storage
 ['remote "raw_data"']
+    url = ../data/.dvc_storage
+['remote "local_storage"']
     url = ../data/.dvc_storage

@@ -9,6 +9,26 @@ Right now the app supports these operations:
 - `drop_columns`
 - `replace_value`
 
+# default data set
+https://www.kaggle.com/datasets/pranjalyadav92905/titanic-eda-data
+
+Titanic:
+PassengerId: Passenger unique identifier.
+Survived: binary target variable, 1 = survived, 0 = died
+Pclass: proxy for the socio-economic status (SES) of the passenger.
+- 1: upper class
+- 2: middle class
+- 3: lower class
+Name: Passenger name
+Sex: Passenger gender
+Age: Passenger age
+SibSp: Number of siblings or spouses aboard the Titanic
+Parch: Number of parents or children aboard the Titanic
+Ticket: Ticket number
+Fare: Passenger fare
+Cabin: Cabin number
+Embarked: Port of embarkation
+
 ## Fastest Local Run For A Beginner
 
 If you have never run a Python app before, use these exact steps.
