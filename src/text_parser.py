@@ -11,7 +11,7 @@ from .llm_utils import (
     load_config, 
     get_project_root
 )
-from .operations import SUPPORTED_OPS
+from .operations import SUPPORTED_OPS, get_ops_description
 
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
@@ -60,7 +60,7 @@ def llm_parses_to_ops(
 
     # prompt components
     system_prompt = PROMPTS.get("text_parser", {}).get("system_prompt", "")
-    ops_description = PROMPTS.get("text_parser", {}).get("ops_description", "")
+    ops_description = get_ops_description()
     user_prompt_template = PROMPTS.get("text_parser", {}).get("user_prompt_template", "")
 
     # final user prompt to be sent to the llm

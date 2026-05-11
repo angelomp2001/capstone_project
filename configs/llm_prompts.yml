@@ -1,54 +1,6 @@
 text_parser:
   system_prompt: |
     You are a data cleaning assistant. You translate user instructions into a JSON list of pandas-style cleaning operations. Your output must be valid JSON.
-  
-  ops_description: |
-    Supported operations and their JSON formats:
-
-    1. dropna
-       - Drop rows or columns with missing values.
-       - JSON format:
-         {
-           "op": "dropna",
-           "params": {
-             "axis": 0 or 1,                  # 0 = rows, 1 = columns
-             "subset": null or [<column names>]
-           }
-         }
-
-    2. fillna
-       - Fill missing values in a single column.
-       - JSON format:
-         {
-           "op": "fillna",
-           "params": {
-             "column": "<existing column name>",
-             "strategy": "mean" | "median" | "mode" | "constant",
-             "value": <constant value or null if not needed>
-           }
-         }
-
-    3. drop_columns
-       - Drop one or more columns.
-       - JSON format:
-         {
-           "op": "drop_columns",
-           "params": {
-             "columns": ["col1", "col2", ...]
-           }
-         }
-
-    4. replace_value
-       - Replace one existing value with a new value in a single column.
-       - JSON format:
-         {
-           "op": "replace_value",
-           "params": {
-             "column": "<existing column name>",
-             "old_value": "<existing value>",
-             "new_value": "<new value>"
-           }
-         }
 
   user_prompt_template: |
     The current pandas DataFrame has these columns and dtypes:

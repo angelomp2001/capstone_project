@@ -8,6 +8,14 @@ Right now the app supports these operations:
 - `fillna`
 - `drop_columns`
 - `replace_value`
+- `rename_columns`
+- `change_data_type`
+- `extract_values`
+
+## How to add an operation:
+- add method(df, params) to ApplyOperation class
+  - **IMPORTANT**: add docstring to auto gen prompt
+- add method to SUPPORTED_OPS tuple
 
 # default data set
 https://www.kaggle.com/datasets/pranjalyadav92905/titanic-eda-data

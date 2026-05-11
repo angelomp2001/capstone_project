@@ -1,45 +1,23 @@
+from pandas.core.interchange import dataframe_protocol
+from pandas.core.interchange import dataframe_protocol
+from pandas.core.interchange import dataframe
 import logging
 
 import pandas as pd
 from typing import Dict, Any, List
-
-# -----------------------------------------------------------------------------
-# Supported operations and their parameter schemas
-# -----------------------------------------------------------------------------
-# For the POC, we keep this intentionally small and simple.
-#
-# Operation: dropna
-#   {
-#     "op": "dropna",
-#     "params": {
-#       "axis": 0,                  # 0 = rows, 1 = columns
-#       "subset": null or [cols],   # optional
-#     }
-#   }
-#
-# Operation: fillna
-#   {
-#     "op": "fillna",
-#     "params": {
-#       "column": "age",
-#       "strategy": "mean" | "median" | "mode" | "constant",
-#       "value": null or <constant>
-#     }
-#   }
-#
-# Operation: drop_columns
-#   {
-#     "op": "drop_columns",
-#     "params": {
-#       "columns": ["col1", "col2"]
-#     }
-#   }
-# -----------------------------------------------------------------------------
+import re
 
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
 
-SUPPORTED_OPS = {"dropna", "fillna", "drop_columns", "replace_value", "drop_column"}
+SUPPORTED_OPS = {
+    "dropna", 
+    "fillna", 
+    "replace_value", 
+    "drop_column",
+    "get_first_value_in_col",
+    "split_alphanumeric",
+}
 
 
 class ApplyOperation:
@@ -47,9 +25,116 @@ class ApplyOperation:
     Class containing methods for applying data cleaning operations.
     Each method corresponds to an operation the LLM can apply to a DataFrame.
     """
+    @staticmethod
+    def _copy_data(df: pd.DataFrame) -> pd.DataFrame:
+        logger.info("copy_data complete. shape_after=%s", df.shape)
+        return df.copy()
+    
+    @staticmethod
+    def _return_n_elements(element, n_returns):
+        return pd.Series([element] * n_returns)
 
     @staticmethod
-    def dropna(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
+    def get_first_value_in_col(
+        df: pd.DataFrame,
+        params: Dict[str, Any] # col, split_by
+    ):
+        """
+        Gets the first value in an element based on a split character.
+        
+        JSON format:
+        {
+          "op": "get_first_value_in_col",
+          "params": {
+            "column": "<existing column name>",
+            "split_by": "<character to split by, e.g. ','>"
+          }
+        }
+        """
+        #extract parameters
+        col = params.get("column")
+        split_by = params.get("split_by")
+
+        def get_first_in_element(element: str):
+            # case 0: check if na
+            if pd.isna(element): 
+                return ApplyOperation._return_n_elements(element, 1)
+
+            # case 1: one or more values
+            # get first value from list
+            first_value = str(element).split(split_by)[0]
+
+            return pd.Series([first_value])
+
+        # apply element-wise function to all of column
+        df[[f'{col}_first_value']] = df[col].apply(get_first_in_element)
+        logger.info("get_first_value_in_col complete. col=%s split_by=%s shape_after=%s", col, split_by, df.shape)
+        return df[[f'{col}_first_value']]
+    
+    @staticmethod
+    def split_alphanumeric(
+        df: pd.DataFrame,   
+        params: Dict[str, Any] # col
+    ):
+        """
+        Splits element into letter(s) and number(s) elements.
+        
+        JSON format:
+        {
+          "op": "split_alphanumeric",
+          "params": {
+            "column": "<existing column name>"
+          }
+        }
+        """
+        col = params.get("column")
+        
+        def splitter(element: str):
+            # case 0: check if na
+            if pd.isna(element):
+                return ApplyOperation._return_n_elements(element, 2)
+
+        # verify cabine matches pattern:(letter(s))(number(s)) or (letter(s))(number(s)):
+        # 4 groups are outputted
+        match = re.match(r'^([A-Za-z]+)(\d+)$|^(\d+)([A-Za-z]+)$', element)
+        
+        # return NA if NA
+        if not match:
+            return ApplyOperation._return_n_elements(pd.NA, 2)
+        
+        # return as two series
+        # save groups as dtype var options 
+        str1, num1, num2, str2 = match.groups()
+        
+        # if letter(s) number(s)
+        if str1 is not None:
+            return pd.Series([str1, int(num1)])
+ 
+        # else number(s) letter(s)
+        return pd.Series([int(num2), str2])
+
+        # apply element-wise function to all of cabin column
+        df[[f'{col}_left', f'{col}_right']] = df[col].apply(splitter)
+        logger.info("split_alphanumeric complete. col=%s shape_after=%s", col, df.shape)
+        return df
+
+    @staticmethod
+    def dropna(
+        df: pd.DataFrame,
+        params: Dict[str, Any] # axis, subset (optional)
+    ) -> pd.DataFrame:
+        """
+        Drop rows or columns with missing values.
+        
+        JSON format:
+        {
+          "op": "dropna",
+          "params": {
+            "axis": 0 or 1,                  # 0 = rows, 1 = columns
+            "subset": null or [<column names>]
+          }
+        }
+        """
         axis = params.get("axis", 0)
         subset = params.get("subset", None)
 
@@ -67,7 +152,24 @@ class ApplyOperation:
         return df
 
     @staticmethod
-    def fillna(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
+    def fillna(
+        df: pd.DataFrame,
+        params: Dict[str, Any] # column, strategy, value (optional)
+    ) -> pd.DataFrame:
+        """
+        Fill missing values in a single column.
+        
+        JSON format:
+        {
+          "op": "fillna",
+          "params": {
+            "column": "<existing column name>",
+            "strategy": "mean" | "median" | "mode" | "constant",
+            "value": <constant value or null if not needed>
+          }
+        }
+        """
+        # extract parameters
         column = params.get("column")
         strategy = params.get("strategy", "mean")
         value = params.get("value", None)
@@ -94,10 +196,20 @@ class ApplyOperation:
         return df
 
     @staticmethod
-    def drop_column(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
+    def drop_column(
+        df: pd.DataFrame,
+        params: Dict[str, Any] # columns (list), column (string, optional)
+    ) -> pd.DataFrame:
         """
-        Drops one or more columns from the DataFrame.
-        Supports both 'columns' (list) and 'column' (string) in params.
+        Drop one or more columns.
+        
+        JSON format:
+        {
+          "op": "drop_column",
+          "params": {
+            "columns": ["col1", "col2", ...]
+          }
+        }
         """
         columns = params.get("columns", [])
         if not columns and "column" in params:
@@ -113,19 +225,37 @@ class ApplyOperation:
         return df
 
     # Alias drop_columns to drop_column to maintain backward compatibility with old op names
-    drop_columns = drop_column
+    # drop_columns = drop_column
 
     @staticmethod
-    def replace_value(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFrame:
+    def replace_value(
+        df: pd.DataFrame,
+        params: Dict[str, Any] # column, old_value, new_value
+    ) -> pd.DataFrame:
+        """
+        Replace one existing value with a new value in a single column.
+        
+        JSON format:
+        {
+          "op": "replace_value",
+          "params": {
+            "column": "<existing column name>",
+            "old_value": "<existing value>",
+            "new_value": "<new value>"
+          }
+        }
+        """
+        # extract parameters
         column = params.get("column")
         old_value = params.get("old_value")
         new_value = params.get("new_value")
 
+        # check if column exists
         if column not in df.columns:
             logger.warning("replace_value skipped because column does not exist: %s", column)
-            trace.info("APPLY replace_value skipped missing_column=%r", column)
             return df
 
+        # count occurrences
         replacement_count = int((df[column].astype(str) == str(old_value)).sum())
         
         # Use pandas recommended way to check categorical dtype (is_categorical_dtype is deprecated)
@@ -135,7 +265,8 @@ class ApplyOperation:
                 column,
             )
             df[column] = df[column].astype(object)
-            
+        
+        #replace value
         df[column] = df[column].replace(old_value, new_value)
         logger.info(
             "replace_value complete. column=%s old_value=%s new_value=%s replacements=%s",
@@ -145,6 +276,24 @@ class ApplyOperation:
             replacement_count,
         )
         return df
+
+import inspect
+
+def get_ops_description() -> str:
+    """
+    Dynamically generates the ops_description string for the LLM prompt
+    by extracting the docstrings of the methods in ApplyOperation.
+    """
+    lines = ["Supported operations and their JSON formats:\n"]
+    for i, method_name in enumerate(sorted(SUPPORTED_OPS), 1):
+        method = getattr(ApplyOperation, method_name, None)
+        if method and method.__doc__:
+            doc = inspect.cleandoc(method.__doc__)
+            lines.append(f"{i}. {method_name}")
+            for line in doc.split("\\n"):
+                lines.append(f"   {line}")
+            lines.append("")
+    return "\\n".join(lines)
 
 
 def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:

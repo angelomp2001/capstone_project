@@ -74,7 +74,7 @@ def get_log_locations() -> Dict[str, str]:
     }
 
 
-def load_config(config_path: str):
+def load_config(config_path: str) -> Dict[str, Any]:
     """Load a YAML configuration file."""
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
@@ -82,7 +82,6 @@ def load_config(config_path: str):
 def get_project_root() -> Path:
     """Returns project root path."""
     return PROJECT_ROOT
-
 
 
 # -----------------------------------------------------------------------------
