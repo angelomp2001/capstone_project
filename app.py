@@ -22,8 +22,8 @@ trace = logging.getLogger("trace")
 
 def create_initial_df() -> pd.DataFrame:
     """Generate display-friendly starter data for the app. if there is no data in the data/raw dir"""
-    if os.path.exists("data/raw"):
-        df = pd.read_csv("data/raw/raw_data.csv")
+    if os.path.exists("data/raw/titanic.csv"):
+        df = pd.read_csv("data/raw/titanic.csv")
     else:
         # wrapper for this function
         df = generate_sample_df()
