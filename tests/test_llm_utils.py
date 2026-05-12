@@ -1,5 +1,7 @@
 import os
 from unittest.mock import patch, MagicMock
+import pytest
+# pyrefly: ignore [missing-import]
 from src.llm_utils import call_llm, call_llm_for_json, load_config, get_project_root
 
 try:
@@ -26,6 +28,7 @@ def test_call_llm(mock_openai):
     mock_client.chat.completions.create.assert_called_once()
 
 @patch("src.llm_utils.call_llm")
+@pytest.mark.dependency(name="test_call_llm_for_json", scope="session")
 def test_call_llm_for_json(mock_call_llm):
     mock_call_llm.return_value = '{"status": "ok"}'
     

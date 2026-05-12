@@ -96,18 +96,19 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", config.get("OLLAMA_URL", "https://api.token
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", config.get("OLLAMA_MODEL", "meta-llama/Meta-Llama-3.1-8B-Instruct"))
 OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", config.get("OLLAMA_TIMEOUT", 120.0)))
 
+# set loggers
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
 
 
 def is_llm_available() -> bool:
     """Return True when the configured LLM endpoint responds or NEBIUS_API_KEY is set."""
-    if os.getenv("NEBIUS_API_KEY") or "nebius.com" in OLLAMA_URL:
+    if "nebius.com" in OLLAMA_URL: # or os.getenv("NEBIUS_API_KEY"):
         return True
     try:
         response = requests.get(f"{OLLAMA_URL}/api/tags", timeout=5)
         logger.info("LLM availability check returned status %s from %s", response.status_code, OLLAMA_URL)
-        return response.status_code == 200
+        return response.status_code == 200 # is true?
     except requests.RequestException:
         logger.info("LLM availability check failed for %s", OLLAMA_URL)
         return False

@@ -6,10 +6,13 @@ import logging
 import pandas as pd
 from typing import Dict, Any, List
 import re
+import inspect
 
+# setup loggers
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
 
+# supported operations
 SUPPORTED_OPS = {
     "dropna", 
     "fillna", 
@@ -40,7 +43,7 @@ class ApplyOperation:
         params: Dict[str, Any] # col, split_by
     ):
         """
-        Gets the first value in an element based on a split character.
+        Splits a column by a delimiter and returns only the first part of each element.
         
         JSON format:
         {
@@ -77,7 +80,7 @@ class ApplyOperation:
         params: Dict[str, Any] # col
     ):
         """
-        Splits element into letter(s) and number(s) elements.
+        Splits a column into two new columns based on alphanumeric values.
         
         JSON format:
         {
@@ -94,24 +97,24 @@ class ApplyOperation:
             if pd.isna(element):
                 return ApplyOperation._return_n_elements(element, 2)
 
-        # verify cabine matches pattern:(letter(s))(number(s)) or (letter(s))(number(s)):
-        # 4 groups are outputted
-        match = re.match(r'^([A-Za-z]+)(\d+)$|^(\d+)([A-Za-z]+)$', element)
-        
-        # return NA if NA
-        if not match:
-            return ApplyOperation._return_n_elements(pd.NA, 2)
-        
-        # return as two series
-        # save groups as dtype var options 
-        str1, num1, num2, str2 = match.groups()
-        
-        # if letter(s) number(s)
-        if str1 is not None:
-            return pd.Series([str1, int(num1)])
- 
-        # else number(s) letter(s)
-        return pd.Series([int(num2), str2])
+            # verify cabine matches pattern:(letter(s))(number(s)) or (letter(s))(number(s)):
+            # 4 groups are outputted
+            match = re.match(r'^([A-Za-z]+)(\d+)$|^(\d+)([A-Za-z]+)$', element)
+            
+            # return NA if NA
+            if not match:
+                return ApplyOperation._return_n_elements(pd.NA, 2)
+            
+            # return as two series
+            # save groups as dtype var options 
+            str1, num1, num2, str2 = match.groups()
+            
+            # if letter(s) number(s)
+            if str1 is not None:
+                return pd.Series([str1, int(num1)])
+     
+            # else number(s) letter(s)
+            return pd.Series([int(num2), str2])
 
         # apply element-wise function to all of cabin column
         df[[f'{col}_left', f'{col}_right']] = df[col].apply(splitter)
@@ -211,13 +214,16 @@ class ApplyOperation:
           }
         }
         """
+        # in case there is column and not columns key 
         columns = params.get("columns", [])
         if not columns and "column" in params:
             columns = [params["column"]]
-            
+        
+        # if there is a string instead of list   
         if isinstance(columns, str):
             columns = [columns]
-        # Keep only existing columns
+
+        # keep only existing columns
         columns = [c for c in columns if c in df.columns]
         if columns:
             df = df.drop(columns=columns)
@@ -277,7 +283,7 @@ class ApplyOperation:
         )
         return df
 
-import inspect
+
 
 def get_ops_description() -> str:
     """

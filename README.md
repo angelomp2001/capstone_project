@@ -37,6 +37,9 @@ Fare: Passenger fare
 Cabin: Cabin number
 Embarked: Port of embarkation
 
+## github API key
+Github has a copy of the API key to pass the CI/CD.
+
 ## Fastest Local Run For A Beginner
 
 If you have never run a Python app before, use these exact steps.

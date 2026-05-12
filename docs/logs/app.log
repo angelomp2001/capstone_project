@@ -624,3 +624,26 @@
 2026-05-07 11:50:49,761 | INFO | __main__ | Instruction applied successfully. Operations=[{'op': 'drop_columns', 'params': {'columns': ['Cabin']}}] new_shape=(418, 11)
 2026-05-07 11:50:49,804 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
 2026-05-07 11:50:49,805 | INFO | __main__ | App rendered. Current DataFrame shape=(418, 11)
+2026-05-12 11:12:43,321 | INFO | src.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\docs\logs\app.log
+2026-05-12 11:12:43,394 | INFO | src.operations | Applying operation dropna with params {'axis': 0, 'subset': ['A']}
+2026-05-12 11:12:43,395 | INFO | src.operations | dropna complete. axis=0 subset=['A'] shape_after=(2, 2)
+2026-05-12 11:12:43,396 | INFO | src.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-12 11:12:43,397 | INFO | src.operations | fillna complete. column=A strategy=constant value=0
+2026-05-12 11:12:43,397 | INFO | src.operations | Applying operation drop_column with params {'columns': ['A']}
+2026-05-12 11:12:43,398 | INFO | src.operations | drop_column complete. dropped=['A'] shape_after=(2, 1)
+2026-05-12 11:12:43,399 | INFO | src.operations | Applying operation replace_value with params {'column': 'A', 'old_value': 'old', 'new_value': 'changed'}
+2026-05-12 11:12:43,399 | INFO | src.operations | replace_value complete. column=A old_value=old new_value=changed replacements=2
+2026-05-12 11:12:43,400 | INFO | src.operations | Applying 2 operation(s) in sequence.
+2026-05-12 11:12:43,400 | INFO | src.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-12 11:12:43,400 | INFO | src.operations | fillna complete. column=A strategy=constant value=0
+2026-05-12 11:12:43,401 | INFO | src.operations | Applying operation drop_column with params {'columns': ['B']}
+2026-05-12 11:12:43,401 | INFO | src.operations | drop_column complete. dropped=['B'] shape_after=(3, 1)
+2026-05-12 11:12:43,401 | INFO | src.operations | Finished applying operations. Final shape=(3, 1)
+2026-05-12 11:12:43,402 | INFO | src.operations | Applying operation get_first_value_in_col with params {'column': 'A', 'split_by': ','}
+2026-05-12 11:12:43,403 | INFO | src.operations | get_first_value_in_col complete. col=A split_by=, shape_after=(3, 2)
+2026-05-12 11:12:43,404 | INFO | src.operations | Applying operation split_alphanumeric with params {'column': 'A'}
+2026-05-12 11:12:43,405 | INFO | src.operations | split_alphanumeric complete. col=A shape_after=(4, 3)
+2026-05-12 11:12:43,407 | INFO | src.text_parser | Parsing instruction into operations. Text: fill missing uniforms with median
+2026-05-12 11:12:45,847 | INFO | httpx | HTTP Request: POST https://api.tokenfactory.nebius.com/v1/chat/completions "HTTP/1.1 200 OK"
+2026-05-12 11:12:45,855 | INFO | src.text_parser | LLM parser returned raw result: [{'op': 'fillna', 'params': {'column': 'uniform', 'strategy': 'median', 'value': None}}]
+2026-05-12 11:12:45,855 | INFO | src.text_parser | Final parsed operations: [{'op': 'fillna', 'params': {'column': 'uniform', 'strategy': 'median', 'value': None}}]
