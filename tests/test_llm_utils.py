@@ -2,7 +2,7 @@ import os
 from unittest.mock import patch, MagicMock
 import pytest
 # pyrefly: ignore [missing-import]
-from src.llm_utils import call_llm, call_llm_for_json, load_config, get_project_root
+from src.llm.llm_utils import call_llm, call_llm_for_json, load_config, get_project_root
 
 try:
     prompts_path = get_project_root() / "configs" / "llm_prompts.yml"

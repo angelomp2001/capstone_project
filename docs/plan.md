@@ -72,12 +72,10 @@ predict target, mlflow (parameters, metrics, and model artifacts)
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | gen_df | ❌ | df | \[M\] | \[M\] |   | \[M\] |
 | App | user_text | new_df |   | \[❌\] | \[M\] |   |
-| text_parser | user_text, df | JSON | \[❌\] | \[M\] | \[❌\] | \[M\] |
-| operations  | df, JSON  | new_df |  | \[M\] | \[❌\] | \[M\] |
-| llm_utils | ❌ | ❌  | \[M\] | \[M\] | \[❌\] | \[M\] |
-| EDA.ipynb | titanic.csv  | operations | \[❌\] | \[1️⃣\] |\[1️⃣\] | \[1️⃣\] |
-| loaders |   |   | \[1️⃣\] | \[1️⃣\] |   | \[1️⃣\] |
-| feature_eng | df | new_df |   | \[❌\] | \[1️⃣\] |   |
+| text_parser | user_text, df | JSON | \[1️⃣\] | \[M\] |  | \[M\] |
+| operations  | df, JSON  | new_df | \[1️⃣\] | \[M\] |  | \[M\] |
+| llm_utils | ❌ | ❌  | \[M\] | \[M\] | | \[M\] |
+| feature_eng | df | new_df |   | \[1️⃣\] | \[1️⃣\] |   |
 | cross_validate | df, models | results | \[❌\] | \[1️⃣\] | \[❌\] | \[1️⃣\] |
 | model_registry  |  | models list |  | \[1️⃣\] | \[❌\] | \[1️⃣\] |
 | training | ❌ | ❌  | \[1️⃣\] | \[1️⃣\] | \[❌\] | \[1️⃣\] |

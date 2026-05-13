@@ -1,13 +1,54 @@
-from pandas.core.interchange import dataframe_protocol
-from pandas.core.interchange import dataframe_protocol
-from pandas.core.interchange import dataframe
 import logging
-
+import mlflow
+from pathlib import Path
 import pandas as pd
 from typing import Dict, Any, List
 import re
 import inspect
+from src.model_target import (
+    data_splitter,
+    define_features_by_type,
+    define_target,
+    numerical_transformer,
+    categorical_transformer,
+    tree_based_numerical_transformer,
+    tree_based_categorical_transformer,
+    preprocessor,
+    tree_based_preprocessor,
+    build_pipeline,
+    train_model_cv,
+    generate_cv_summary_df,
+    log_results_to_mlflow,
+    save_metrics
+)
+from src.registry import (
+    MODEL_REGISTRY, # {model_name, model_instance}
+    MODEL_GROUPS, # {"non-tree-based": [model_name], "tree-based": [model_name]}
+)
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+    average_precision_score
+)
 
+# config area ##########################
+TEST_SIZE = 0.2
+RANDOM_STATE = 42
+POLY_DEGREE = 2
+METRICS = {
+    'accuracy': accuracy_score,
+    'roc_auc': roc_auc_score,
+    'average_precision': average_precision_score,
+    'f1': f1_score,
+    'precision': precision_score,
+    'recall': recall_score,
+}
+CV_SPLITS = 5
+
+#######################################
 # setup loggers
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")
@@ -20,6 +61,7 @@ SUPPORTED_OPS = {
     "drop_column",
     "get_first_value_in_col",
     "split_alphanumeric",
+    "model_target",
 }
 
 
@@ -283,7 +325,109 @@ class ApplyOperation:
         )
         return df
 
+    @staticmethod
+    def model_target(
+        df: pd.DataFrame,
+        params: Dict[str, Any] # column
+    ) -> pd.DataFrame:
+        """
+        Set the target column for modeling.
 
+        JSON format:
+        {
+          "op": "model_target",
+          "params": {
+            "column": "<column name>"
+          }
+        }
+        """
+        column = params.get("column")
+        if column not in df.columns:
+            logger.warning("model_target skipped because column does not exist: %s", column)
+            return df
+        
+        # outer split
+        remaining_df, validate_df = data_splitter(df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
+
+        # inner split
+        train_df, test_df = data_splitter(remaining_df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
+       
+        # train df:
+        # define target
+        y_train = define_target(train_df, column)
+
+        # define features by type
+        X_train = train_df.drop(columns=[column])
+
+        # define features by type
+        categorical_features, numerical_features = define_features_by_type(X_train, y_train)
+
+        # non-tree based models
+        # apply transformers:
+        numerical_features = numerical_transformer()
+        categorical_features = categorical_transformer()
+         
+        # apply preprocessors:
+        non_tree_based_preprocessor = preprocessor(numerical_features, categorical_features, POLY_DEGREE)
+
+        # tree based:
+        # apply transformers:
+        tree_based_numerical_transformer = tree_based_numerical_transformer()
+        tree_based_categorical_transformer = tree_based_categorical_transformer()
+
+        # apply preprocessors:
+        tree_based_preprocessor = tree_based_preprocessor(tree_based_numerical_transformer, tree_based_categorical_transformer)
+        
+        # build pipelines by group:
+        pipelines = {}
+        ## cross-validate on train_df
+        
+        # group 1: non-tree based
+        for model_name in MODEL_GROUPS["non-tree-based"]:
+            pipelines[model_name] = build_pipeline(model_name, non_tree_based_preprocessor)     
+
+        # group 2: tree-based
+        for model_name in MODEL_GROUPS["tree-based"]:
+            pipelines[model_name] = build_pipeline(MODEL_REGISTRY[model_name], tree_based_preprocessor)
+        
+        ## cross-validate on train_df
+        all_fold_results = []
+        fold_df = train_model_cv(X_train, y_train, pipelines, cv_splits=CV_SPLITS, random_state=RANDOM_STATE, metrics=METRICS)
+        all_fold_results.append(fold_df)
+
+        # Process and log results
+        if all_fold_results:
+            final_fold_results = pd.concat(all_fold_results, ignore_index=True)
+            summary_df = generate_cv_summary_df(final_fold_results, METRICS)
+            
+            logger.info("\nCross Validation Results:\n" + summary_df.to_markdown(index=False))
+            
+            log_results_to_mlflow(final_fold_results, METRICS)
+            saved_path = save_metrics(final_fold_results, "reports")
+            mlflow.log_artifact(str(saved_path))
+        else:
+            logger.warning("No models were evaluated.")
+        
+
+        logger.info("model_target complete. column=%s", column)
+        return df
+
+        
+        
+        
+
+        
+
+        
+
+
+
+
+
+
+        df[f'{column}_target'] = target
+        logger.info("model_target complete. column=%s", column)
+        return df
 
 def get_ops_description() -> str:
     """
@@ -301,10 +445,9 @@ def get_ops_description() -> str:
             lines.append("")
     return "\\n".join(lines)
 
-
 def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
     """
-    Apply a single cleaning operation to a DataFrame.
+    Apply a single operation to a DataFrame.
 
     Parameters
     ----------
@@ -341,7 +484,7 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
 
     if hasattr(ApplyOperation, op_type):
         method = getattr(ApplyOperation, op_type)
-        df = method(df, params)
+        df = method(df, params) # all methods output a df
     else:
         logger.warning(f"Method {op_type} not found in ApplyOperation")
 
@@ -353,7 +496,6 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
         df.head(3).to_dict(orient="records"),
     )
     return df
-
 
 def apply_operations(df: pd.DataFrame, ops: List[Dict[str, Any]]) -> pd.DataFrame:
     """

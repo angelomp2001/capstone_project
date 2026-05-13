@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from src.generate_sample_df import generate_sample_df
-from src.text_parser import llm_parses_to_ops
+from src.llm.text_parser import llm_parses_to_ops
 # Add tests for llm_parses_to_ops here in the future
 @pytest.mark.dependency(
     depends=["test_call_llm_for_json", "test_apply_operation_fillna"],
