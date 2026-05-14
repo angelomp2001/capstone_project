@@ -3,9 +3,9 @@ import pandas as pd
 import logging
 import os
 from src.generate_sample_df import generate_sample_df
-from src.operations import apply_operations
-from src.text_parser import llm_parses_to_ops
-from src.llm_utils import (
+from src.llm.operations import apply_operations
+from src.llm.text_parser import llm_parses_to_ops
+from src.llm.llm_utils import (
     is_llm_available,
     setup_logging,
     get_log_locations,

@@ -25,26 +25,24 @@ from src.registry import (
     MODEL_REGISTRY, # {model_name, model_instance}
     MODEL_GROUPS, # {"non-tree-based": [model_name], "tree-based": [model_name]}
 )
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-    average_precision_score
-)
-
 # config area ##########################
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
 POLY_DEGREE = 2
-METRICS = {
-    'accuracy': accuracy_score,
-    'roc_auc': roc_auc_score,
-    'average_precision': average_precision_score,
-    'f1': f1_score,
-    'precision': precision_score,
-    'recall': recall_score,
+EVALUATION_METRICS = {
+    'classification': (
+        'accuracy',
+        'roc_auc',
+        'average_precision',
+        'f1',
+        'precision',
+        'recall',
+    ),
+    'regression': (
+        'neg_root_mean_squared_error',
+        'neg_mean_absolute_error',
+        'r2',
+    )
 }
 CV_SPLITS = 5
 
@@ -341,6 +339,15 @@ class ApplyOperation:
           }
         }
         """
+        # dropping missing for testing purposes:
+        df.dropna(inplace=True)
+
+        # check for missing data
+        if df.isnull().values.any():
+            logger.warning("model_target skipped because there is missing data in the dataframe")
+            return df
+
+        # check if column exists
         column = params.get("column")
         if column not in df.columns:
             logger.warning("model_target skipped because column does not exist: %s", column)
@@ -363,54 +370,47 @@ class ApplyOperation:
         categorical_features, numerical_features = define_features_by_type(X_train)
 
         # non-tree based models
-        # apply transformers:
-        num_transformer = numerical_transformer(POLY_DEGREE)
-        cat_transformer = categorical_transformer()
-
         # apply preprocessors:
-        non_tree_based_preprocessor = preprocessor(num_transformer, cat_transformer, POLY_DEGREE)
+        non_tree_based_preprocessor = preprocessor(numerical_features, categorical_features, POLY_DEGREE)
 
         # tree based:
-        # apply transformers:
-        tree_based_num_transformer = tree_based_numerical_transformer()
-        tree_based_cat_transformer = tree_based_categorical_transformer()
-
         # apply preprocessors:
-        tree_based_prep = tree_based_preprocessor(tree_based_num_transformer, tree_based_cat_transformer)
+        tree_based_prep = tree_based_preprocessor(numerical_features, categorical_features)
         
+        # determine task type
+        if y_train.nunique() <= 10 or y_train.dtype == 'object':
+            task_type = "classification"
+        else:
+            task_type = "regression"
+
+        # get metrics based on task type
+        metrics = list(EVALUATION_METRICS[task_type])
+
         # build pipelines by group:
         pipelines = {}
-        ## cross-validate on train_df
-        
+
         # group 1: non-tree based
-        for model_name in MODEL_GROUPS["non-tree-based"]:
-            pipelines[model_name] = build_pipeline(model_name, non_tree_based_preprocessor)     
+        for model_name in MODEL_GROUPS[task_type]["non-tree-based"]:
+            pipelines[model_name] = build_pipeline(MODEL_REGISTRY[task_type][model_name](), non_tree_based_preprocessor)     
 
         # group 2: tree-based
-        for model_name in MODEL_GROUPS["tree-based"]:
-            pipelines[model_name] = build_pipeline(MODEL_REGISTRY[model_name], tree_based_prep)
+        for model_name in MODEL_GROUPS[task_type]["tree-based"]:
+            pipelines[model_name] = build_pipeline(MODEL_REGISTRY[task_type][model_name](), tree_based_prep)
         
         
         ## cross-validate on train_df
         all_fold_results = []
-        fold_df = train_model_cv(X_train, y_train, pipelines, cv_splits=CV_SPLITS, random_state=RANDOM_STATE, metrics=METRICS)
+        fold_df = train_model_cv(X_train, y_train, pipelines, cv_splits=CV_SPLITS, random_state=RANDOM_STATE, metrics=metrics)
         all_fold_results.append(fold_df)
-
-        print(f'all_fold_results: {all_fold_results}')
-        
-        # for testing purposes:
-        df =  pd.DataFrame(data=[range(len(categorical_features + numerical_features))], columns=categorical_features + numerical_features)    
-        print(df.head())
-        return df
 
         # Process and log results
         if all_fold_results:
             final_fold_results = pd.concat(all_fold_results, ignore_index=True)
-            summary_df = generate_cv_summary_df(final_fold_results, METRICS)
+            summary_df = generate_cv_summary_df(final_fold_results, metrics)
             
             logger.info("\nCross Validation Results:\n" + summary_df.to_markdown(index=False))
             
-            log_results_to_mlflow(final_fold_results, METRICS)
+            log_results_to_mlflow(final_fold_results, metrics)
             saved_path = save_metrics(final_fold_results, "reports")
             mlflow.log_artifact(str(saved_path))
         else:

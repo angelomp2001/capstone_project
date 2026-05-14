@@ -1,0 +1,58 @@
+2026-05-13 20:01:02,248 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:01:02,251 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:06:57,060 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:06:57,065 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:21:27,553 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:21:27,556 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:22:15,559 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:22:15,562 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:23:58,394 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:23:58,396 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:25:49,039 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:25:49,041 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:29:28,389 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:29:28,391 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:31:20,455 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:31:20,457 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:35:44,776 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:35:44,779 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:35:44,779 | WARNING | src.llm.operations | model_target skipped because there is missing data in the dataframe
+2026-05-13 20:36:13,044 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:36:13,046 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:44:58,620 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 20:44:58,622 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 20:45:03,733 | INFO | src.llm.operations | Applying operation dropna with params {'axis': 0, 'subset': ['A']}
+2026-05-13 20:45:03,734 | INFO | src.llm.operations | dropna complete. axis=0 subset=['A'] shape_after=(2, 2)
+2026-05-13 20:45:03,735 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-13 20:45:03,735 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-13 20:45:03,736 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['A']}
+2026-05-13 20:45:03,736 | INFO | src.llm.operations | drop_column complete. dropped=['A'] shape_after=(2, 1)
+2026-05-13 20:45:03,737 | INFO | src.llm.operations | Applying operation replace_value with params {'column': 'A', 'old_value': 'old', 'new_value': 'changed'}
+2026-05-13 20:45:03,738 | INFO | src.llm.operations | replace_value complete. column=A old_value=old new_value=changed replacements=2
+2026-05-13 20:45:03,739 | INFO | src.llm.operations | Applying 2 operation(s) in sequence.
+2026-05-13 20:45:03,739 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-13 20:45:03,739 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-13 20:45:03,740 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['B']}
+2026-05-13 20:45:03,740 | INFO | src.llm.operations | drop_column complete. dropped=['B'] shape_after=(3, 1)
+2026-05-13 20:45:03,740 | INFO | src.llm.operations | Finished applying operations. Final shape=(3, 1)
+2026-05-13 20:45:03,741 | INFO | src.llm.operations | Applying operation get_first_value_in_col with params {'column': 'A', 'split_by': ','}
+2026-05-13 20:45:03,741 | INFO | src.llm.operations | get_first_value_in_col complete. col=A split_by=, shape_after=(3, 2)
+2026-05-13 20:45:03,743 | INFO | src.llm.operations | Applying operation split_alphanumeric with params {'column': 'A'}
+2026-05-13 20:45:03,743 | INFO | src.llm.operations | split_alphanumeric complete. col=A shape_after=(4, 3)
+2026-05-13 20:45:03,745 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 21:33:01,815 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 21:33:01,818 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 21:33:54,562 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-13 21:33:54,565 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-13 21:33:59,542 | INFO | src.llm.operations | 
+Cross Validation Results:
+| Model            |   Train Time (s) |   Pred Time (s) |   test_accuracy |   train_accuracy |   test_roc_auc |   train_roc_auc |   test_average_precision |   train_average_precision |   test_f1 |   train_f1 |   test_precision |   train_precision |   test_recall |   train_recall |
+|:-----------------|-----------------:|----------------:|----------------:|-----------------:|---------------:|----------------:|-------------------------:|--------------------------:|----------:|-----------:|-----------------:|------------------:|--------------:|---------------:|
+| DecisionTree     |             0    |            0.01 |            1    |             1    |           1    |            1    |                     1    |                      1    |      1    |       1    |             1    |              1    |          1    |           1    |
+| GradientBoosting |             0.02 |            0.01 |            1    |             1    |           1    |            1    |                     1    |                      1    |      1    |       1    |             1    |              1    |          1    |           1    |
+| RandomForest     |             0.06 |            0.01 |            1    |             1    |           1    |            1    |                     1    |                      1    |      1    |       1    |             1    |              1    |          1    |           1    |
+| XGBoost          |             0.03 |            0.01 |            1    |             1    |           1    |            1    |                     1    |                      1    |      1    |       1    |             1    |              1    |          1    |           1    |
+| Logistic         |             0.01 |            0.01 |            0.91 |             1    |           0.89 |            1    |                     0.95 |                      1    |      0.88 |       1    |             0.9  |              1    |          0.9  |           1    |
+| LightGBM         |             0.72 |            0.01 |            0.71 |             0.86 |           0.71 |            0.89 |                     0.81 |                      0.89 |      0.69 |       0.85 |             0.66 |              0.86 |          0.8  |           0.86 |
+| SVC              |             0    |            0.01 |            0.64 |             0.97 |           0.77 |            1    |                     0.84 |                      1    |      0.65 |       0.97 |             0.66 |              0.99 |          0.72 |           0.95 |
+2026-05-13 21:34:06,545 | INFO | src.llm.operations | model_target complete. column=Survived

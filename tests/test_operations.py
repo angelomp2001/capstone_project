@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
 from src.llm.operations import apply_operation, apply_operations
+from app import create_initial_df
 
 def test_apply_operation_dropna():
     df = pd.DataFrame({"A": [1, None, 3], "B": [4, 5, 6]})
@@ -66,8 +67,9 @@ def test_apply_operation_split_alphanumeric():
     assert pd.isna(new_df["A_right"].iloc[3])
 
 def test_apply_operation_model_target():
-    df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
-    op = {"op": "model_target", "params": {"column": "A"}}
+    #df = pd.DataFrame({"A": [1, 2, 3], "B": [4, 5, 6]})
+    df = create_initial_df()
+    op = {"op": "model_target", "params": {"column": "Survived"}}
     new_df = apply_operation(df, op)
     # check that A is in the new df
     #assert "A_target" in new_df.columns

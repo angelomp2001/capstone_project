@@ -5,13 +5,13 @@ import logging
 
 import pandas as pd
 
-from llm.llm_utils import (
+from src.llm.llm_utils import (
     is_llm_available, 
     call_llm_for_json, 
     load_config, 
     get_project_root
 )
-from llm.operations import SUPPORTED_OPS, get_ops_description
+from src.llm.operations import SUPPORTED_OPS, get_ops_description
 
 logger = logging.getLogger(__name__)
 trace = logging.getLogger("trace")

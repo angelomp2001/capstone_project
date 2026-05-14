@@ -93,7 +93,7 @@ def train_model_cv(X_train, y_train, pipelines, cv_splits, random_state, metrics
         pipelines (dict): Dictionary of model names to instantiated pipelines.
         cv_splits (int): Number of CV folds.
         random_state (int): Random state for reproducibility.
-        metrics (dict): Dictionary mapping Custom Name to Scikit-learn scoring string.
+        metrics (list): List of Scikit-learn scoring strings.
         
     Returns:
         tuple (pd.DataFrame, pd.DataFrame): 
@@ -101,7 +101,7 @@ def train_model_cv(X_train, y_train, pipelines, cv_splits, random_state, metrics
              - A dataframe containing model evaluation metrics averaged per model.
     """
     if metrics is None:
-        metrics = {"root_mean_squared_error": "neg_root_mean_squared_error"}
+        metrics = ["neg_root_mean_squared_error"]
         
     kf = KFold(n_splits=cv_splits, shuffle=True, random_state=random_state)
     results = []
@@ -125,17 +125,17 @@ def train_model_cv(X_train, y_train, pipelines, cv_splits, random_state, metrics
                 }
                 
                 # Log all metrics systematically
-                for custom_name, sklearn_metric in metrics.items():
-                    test_val = cv_results[f'test_{custom_name}'][fold_idx]
-                    train_val = cv_results[f'train_{custom_name}'][fold_idx]
+                for metric_name in metrics:
+                    test_val = cv_results[f'test_{metric_name}'][fold_idx]
+                    train_val = cv_results[f'train_{metric_name}'][fold_idx]
                     
                     # Ensure minimization metrics visually invert to positive values for the user
-                    if 'neg_' in sklearn_metric:
+                    if 'neg_' in metric_name:
                         test_val = -test_val
                         train_val = -train_val
                         
-                    fold_result[f'test_{custom_name}'] = test_val
-                    fold_result[f'train_{custom_name}'] = train_val
+                    fold_result[f'test_{metric_name}'] = test_val
+                    fold_result[f'train_{metric_name}'] = train_val
                     
                 results.append(fold_result)
                 
@@ -145,13 +145,13 @@ def train_model_cv(X_train, y_train, pipelines, cv_splits, random_state, metrics
     # return fold_results as dataframe        
     return pd.DataFrame(results)
 
-def generate_cv_summary_df(fold_df: pd.DataFrame, metrics: dict) -> pd.DataFrame:
+def generate_cv_summary_df(fold_df: pd.DataFrame, metrics: list) -> pd.DataFrame:
     """
     Generate the averaged summary dataframe with cosmetic formatting.
     
     Args:
         fold_df (pd.DataFrame): Dataframe containing model evaluation metrics for EVERY fold.
-        metrics (dict): Dictionary mapping Custom Name to Scikit-learn scoring string.
+        metrics (list): List of metric names.
         
     Returns:
         pd.DataFrame: Formatted dataframe containing model evaluation metrics averaged per model.
@@ -160,7 +160,7 @@ def generate_cv_summary_df(fold_df: pd.DataFrame, metrics: dict) -> pd.DataFrame
         return pd.DataFrame()
 
     agg_dict = {'Train Time (s)': 'mean', 'Pred Time (s)': 'mean'}
-    for metric_name in metrics.keys():
+    for metric_name in metrics:
         agg_dict[f'test_{metric_name}'] = 'mean'
         agg_dict[f'train_{metric_name}'] = 'mean'
         
@@ -168,27 +168,27 @@ def generate_cv_summary_df(fold_df: pd.DataFrame, metrics: dict) -> pd.DataFrame
 
     # Formulate the cleanly averaged summary specifically requested for github README tables
     if metrics:
-        first_metric = f"test_{list(metrics.keys())[0]}"
+        first_metric = f"test_{metrics[0]}"
         if first_metric in summary_df.columns:
             summary_df = summary_df.sort_values(by=first_metric, ascending=False).reset_index(drop=True)
     
     # Condense visual clutter by rounding display columns neatly to the second decimal place
     return summary_df.round(2)
 
-def log_results_to_mlflow(fold_df: pd.DataFrame, metrics: dict) -> None:
+def log_results_to_mlflow(fold_df: pd.DataFrame, metrics: list) -> None:
     """
     Log individual fold metrics to MLflow for granular analysis.
     
     Args:
         fold_df (pd.DataFrame): Dataframe containing model evaluation metrics for EVERY fold.
-        metrics (dict): Dictionary of metrics to log.
+        metrics (list): List of metrics to log.
     """
     for _, row in fold_df.iterrows():
         model_name = row['Model']
         fold_idx = int(row['Fold'])
-        for custom_metric in metrics.keys():
-            mlflow.log_metric(f"{model_name}_test_{custom_metric}", float(row[f'test_{custom_metric}']), step=fold_idx)
-            mlflow.log_metric(f"{model_name}_train_{custom_metric}", float(row[f'train_{custom_metric}']), step=fold_idx)
+        for metric_name in metrics:
+            mlflow.log_metric(f"{model_name}_test_{metric_name}", float(row[f'test_{metric_name}']), step=fold_idx)
+            mlflow.log_metric(f"{model_name}_train_{metric_name}", float(row[f'train_{metric_name}']), step=fold_idx)
 
 def save_metrics(fold_results_df, reports_dir):
     """Serialize the extensive multi-fold metrics file locally to disk cleanly."""
