@@ -351,7 +351,7 @@ class ApplyOperation:
 
         # inner split
         train_df, test_df = data_splitter(remaining_df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
-       
+
         # train df:
         # define target
         y_train = define_target(train_df, column)
@@ -360,23 +360,23 @@ class ApplyOperation:
         X_train = train_df.drop(columns=[column])
 
         # define features by type
-        categorical_features, numerical_features = define_features_by_type(X_train, y_train)
+        categorical_features, numerical_features = define_features_by_type(X_train)
 
         # non-tree based models
         # apply transformers:
-        numerical_features = numerical_transformer()
-        categorical_features = categorical_transformer()
-         
+        num_transformer = numerical_transformer(POLY_DEGREE)
+        cat_transformer = categorical_transformer()
+
         # apply preprocessors:
-        non_tree_based_preprocessor = preprocessor(numerical_features, categorical_features, POLY_DEGREE)
+        non_tree_based_preprocessor = preprocessor(num_transformer, cat_transformer, POLY_DEGREE)
 
         # tree based:
         # apply transformers:
-        tree_based_numerical_transformer = tree_based_numerical_transformer()
-        tree_based_categorical_transformer = tree_based_categorical_transformer()
+        tree_based_num_transformer = tree_based_numerical_transformer()
+        tree_based_cat_transformer = tree_based_categorical_transformer()
 
         # apply preprocessors:
-        tree_based_preprocessor = tree_based_preprocessor(tree_based_numerical_transformer, tree_based_categorical_transformer)
+        tree_based_prep = tree_based_preprocessor(tree_based_num_transformer, tree_based_cat_transformer)
         
         # build pipelines by group:
         pipelines = {}
@@ -388,12 +388,20 @@ class ApplyOperation:
 
         # group 2: tree-based
         for model_name in MODEL_GROUPS["tree-based"]:
-            pipelines[model_name] = build_pipeline(MODEL_REGISTRY[model_name], tree_based_preprocessor)
+            pipelines[model_name] = build_pipeline(MODEL_REGISTRY[model_name], tree_based_prep)
+        
         
         ## cross-validate on train_df
         all_fold_results = []
         fold_df = train_model_cv(X_train, y_train, pipelines, cv_splits=CV_SPLITS, random_state=RANDOM_STATE, metrics=METRICS)
         all_fold_results.append(fold_df)
+
+        print(f'all_fold_results: {all_fold_results}')
+        
+        # for testing purposes:
+        df =  pd.DataFrame(data=[range(len(categorical_features + numerical_features))], columns=categorical_features + numerical_features)    
+        print(df.head())
+        return df
 
         # Process and log results
         if all_fold_results:

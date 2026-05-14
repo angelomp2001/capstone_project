@@ -12,11 +12,8 @@ def data_splitter(df: pd.DataFrame, test_size: float, random_state: int) -> pd.D
     train_df, test_df = train_test_split(df, test_size=test_size, random_state=random_state)
     return train_df, test_df
 
-def define_features_by_type(df, target_col):
+def define_features_by_type(df):
     """Define features by type"""
-    # remove target column from features
-    df = df.drop(columns=[target_col])
-
     # define features by type
     categorical_features = df.select_dtypes(include=['object', 'category']).columns.tolist()
     numerical_features = df.select_dtypes(include=['float64', 'int64', 'float32', 'int32']).columns.tolist()
@@ -24,9 +21,9 @@ def define_features_by_type(df, target_col):
     return categorical_features, numerical_features
 
 
-def define_target(df, target_col):
+def define_target(df, target_col_name):
     """Define target"""
-    target = df[target_col]
+    target = df[target_col_name]
     return target
 
 # non-tree-based models: numerical transformer
