@@ -5,47 +5,53 @@ import pandas as pd
 from typing import Dict, Any, List
 import re
 import inspect
+import numpy as np
+from sklearn.base import clone
 from src.model_target import (
     data_splitter,
-    define_features_by_type,
-    define_target,
-    numerical_transformer,
-    categorical_transformer,
-    tree_based_numerical_transformer,
-    tree_based_categorical_transformer,
-    preprocessor,
-    tree_based_preprocessor,
-    build_pipeline,
-    train_model_cv,
+    define_features,
+    define_column_types,
+    feature_engineering_pipeline,
+    train_model,
     generate_cv_summary_df,
     log_results_to_mlflow,
     save_metrics
 )
 from src.registry import (
-    MODEL_REGISTRY, # {model_name, model_instance}
-    MODEL_GROUPS, # {"non-tree-based": [model_name], "tree-based": [model_name]}
+    MODEL_REGISTRY,
 )
 # config area ##########################
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
 POLY_DEGREE = 2
+from sklearn.metrics import (
+    accuracy_score, 
+    roc_auc_score, 
+    average_precision_score, 
+    f1_score, 
+    precision_score, 
+    recall_score,
+    mean_squared_error,
+    mean_absolute_error,
+    r2_score
+)
 EVALUATION_METRICS = {
-    'classification': (
-        'accuracy',
-        'roc_auc',
-        'average_precision',
-        'f1',
-        'precision',
-        'recall',
-    ),
-    'regression': (
-        'neg_root_mean_squared_error',
-        'neg_mean_absolute_error',
-        'r2',
-    )
+    'classification': {
+        'accuracy': accuracy_score,
+        'roc_auc': roc_auc_score,
+        'average_precision': average_precision_score,
+        'f1': f1_score,
+        'precision': precision_score,
+        'recall': recall_score,
+    },
+    'regression': {
+        'neg_root_mean_squared_error': lambda y_true, y_pred: -np.sqrt(mean_squared_error(y_true, y_pred)),
+        'neg_mean_absolute_error': lambda y_true, y_pred: -mean_absolute_error(y_true, y_pred),
+        'r2': r2_score,
+    }
 }
+PRIMARY_METRIC = 'accuracy'
 CV_SPLITS = 5
-
 #######################################
 # setup loggers
 logger = logging.getLogger(__name__)
@@ -329,7 +335,7 @@ class ApplyOperation:
         params: Dict[str, Any] # column
     ) -> pd.DataFrame:
         """
-        Set the target column for modeling.
+        Model the target column.
 
         JSON format:
         {
@@ -339,102 +345,119 @@ class ApplyOperation:
           }
         }
         """
+        
         # dropping missing for testing purposes:
-        df.dropna(inplace=True)
+        original_rows = len(df)
+        df = df.dropna().copy()
+        dropped_rows = original_rows - len(df)
+        if dropped_rows > 0:
+            logger.warning(
+                "Dropped %s rows containing missing values",
+                dropped_rows
+            )
 
-        # check for missing data
-        if df.isnull().values.any():
-            logger.warning("model_target skipped because there is missing data in the dataframe")
+        if len(df) == 0:
+            logger.warning("model_target skipped because dataframe is empty")
             return df
 
         # check if column exists
-        column = params.get("column")
-        if column not in df.columns:
-            logger.warning("model_target skipped because column does not exist: %s", column)
+        target = params.get("column")
+        if target not in df.columns:
+            logger.warning("model_target skipped because column does not exist: %s", target)
             return df
         
-        # outer split
-        remaining_df, validate_df = data_splitter(df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
+        # train–test split
+        df_train, df_test = data_splitter(df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
 
-        # inner split
-        train_df, test_df = data_splitter(remaining_df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
+        # define columns on df_train
+        features = define_features(df_train, target)
 
-        # train df:
-        # define target
-        y_train = define_target(train_df, column)
+        # define column types
+        task_type, cat_features, num_features = define_column_types(
+            df=df_train, 
+            target=target,
+            features=features
+        )
 
-        # define features by type
-        X_train = train_df.drop(columns=[column])
+        # define metrics
+        metrics = list(EVALUATION_METRICS[task_type].keys())
+        logger.info("Metrics: %s", metrics)
 
-        # define features by type
-        categorical_features, numerical_features = define_features_by_type(X_train)
-
-        # non-tree based models
-        # apply preprocessors:
-        non_tree_based_preprocessor = preprocessor(numerical_features, categorical_features, POLY_DEGREE)
-
-        # tree based:
-        # apply preprocessors:
-        tree_based_prep = tree_based_preprocessor(numerical_features, categorical_features)
-        
-        # determine task type
-        if y_train.nunique() <= 10 or y_train.dtype == 'object':
-            task_type = "classification"
-        else:
-            task_type = "regression"
-
-        # get metrics based on task type
-        metrics = list(EVALUATION_METRICS[task_type])
-
-        # build pipelines by group:
+        # define feature engineering pipelines and get model parameters
         pipelines = {}
-
-        # group 1: non-tree based
-        for model_name in MODEL_GROUPS[task_type]["non-tree-based"]:
-            pipelines[model_name] = build_pipeline(MODEL_REGISTRY[task_type][model_name](), non_tree_based_preprocessor)     
-
-        # group 2: tree-based
-        for model_name in MODEL_GROUPS[task_type]["tree-based"]:
-            pipelines[model_name] = build_pipeline(MODEL_REGISTRY[task_type][model_name](), tree_based_prep)
-        
-        
-        ## cross-validate on train_df
-        all_fold_results = []
-        fold_df = train_model_cv(X_train, y_train, pipelines, cv_splits=CV_SPLITS, random_state=RANDOM_STATE, metrics=metrics)
-        all_fold_results.append(fold_df)
-
-        # Process and log results
-        if all_fold_results:
-            final_fold_results = pd.concat(all_fold_results, ignore_index=True)
-            summary_df = generate_cv_summary_df(final_fold_results, metrics)
+        model_params = {}
+        for model_name, model_info in MODEL_REGISTRY[task_type].items():
             
-            logger.info("\nCross Validation Results:\n" + summary_df.to_markdown(index=False))
+            pipelines[model_name] = feature_engineering_pipeline(
+                numerical_features=num_features,
+                categorical_features=cat_features,
+                poly_degree=POLY_DEGREE,
+                model_instance=model_info["class"],
+                model_type=model_info["type"]
+            )   
+
+            # get model parameters
+            model_params[model_name] = model_info.get("params", {})
+
+        # train models: CV + hyperparameter tuning on df_train
+        scores, trained_models = train_model(
+            df=df_train,
+            features=features,
+            target=target,
+            pipelines=pipelines,
+            param_grids=model_params,
+            cv_splits=CV_SPLITS,
+            tuning_cv=CV_SPLITS,
+            random_state=RANDOM_STATE,
+            metrics=metrics,
+            metric_funcs=EVALUATION_METRICS[task_type],
+            primary_metric=PRIMARY_METRIC,
+            task_type=task_type
+        )
+                
+        # log and save
+        log_results_to_mlflow(scores, metrics)
+        saved_path = save_metrics(scores, "reports")
+        mlflow.log_artifact(str(saved_path))
+
+        # generate summary
+        summary_df = generate_cv_summary_df(scores, metrics)
+        logger.info("\nCross Validation Results:\n" + summary_df.to_markdown(index=False))
+        
+        # choose best model
+        best_model_name = (
+            scores.groupby("Model")[f'test_{PRIMARY_METRIC}']
+            .mean()
+            .sort_values(ascending=False)
+            .index[0]
+        )
+        
+        best_estimator_train = trained_models[best_model_name]
+        logger.info("Best model: %s", best_model_name)
+        mlflow.sklearn.log_model(best_estimator_train, "best_model_train")
+        
+        # test performance on holdout test set
+        eval_function = EVALUATION_METRICS[task_type][PRIMARY_METRIC]
+        best_model_test_score = eval_function(
+            df_test[target], best_estimator_train.predict(df_test[features])
+        )
+        logger.info("Holdout test score: %s", best_model_test_score)
+        mlflow.log_metric(f"holdout_{PRIMARY_METRIC}", best_model_test_score)
+
+        # final model:
+        # Train best model on entire df to get y_hat for entire df
+        if best_estimator_train is not None:
+            final_estimator = clone(best_estimator_train)
+            final_estimator.fit(df[features], df[target])
+
+            # append y_hat to df
+            df[f"{target}_hat"] = final_estimator.predict(df[features])
+
+            # get score of best model on df
+            best_model_score_overall = EVALUATION_METRICS[task_type][PRIMARY_METRIC](df[target], df[f"{target}_hat"])
+            mlflow.log_metric(f'{target}_hat', best_model_score_overall)
             
-            log_results_to_mlflow(final_fold_results, metrics)
-            saved_path = save_metrics(final_fold_results, "reports")
-            mlflow.log_artifact(str(saved_path))
-        else:
-            logger.warning("No models were evaluated.")
-        
-
-        logger.info("model_target complete. column=%s", column)
-        return df
-
-        
-        
-        
-
-        
-
-        
-
-
-
-
-
-
-        df[f'{column}_target'] = target
-        logger.info("model_target complete. column=%s", column)
+        logger.info("model_target complete. target=%s", target)
         return df
 
 def get_ops_description() -> str:

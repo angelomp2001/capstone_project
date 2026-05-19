@@ -76,7 +76,7 @@ predict target, mlflow (parameters, metrics, and model artifacts)
 | operations  | df, JSON  | new_df | \[1️⃣\] | \[M\] |  | \[M\] |
 | llm_utils | ❌ | ❌  | \[M\] | \[M\] | | \[M\] |
 | feature_eng | df | new_df |   | \[1️⃣\] | \[1️⃣\] |   |
-| cross_validate | df, models | results | \[❌\] | \[1️⃣\] | \[❌\] | \[1️⃣\] |
+| model_target | df, models | results | \[❌\] | \[1️⃣\] | \[❌\] | \[1️⃣\] |
 | model_registry  |  | models list |  | \[1️⃣\] | \[❌\] | \[1️⃣\] |
 | training | ❌ | ❌  | \[1️⃣\] | \[1️⃣\] | \[❌\] | \[1️⃣\] |
 | utils |  |  |  | \[   \] | \[   \] | \[   \] | \[   \] |
