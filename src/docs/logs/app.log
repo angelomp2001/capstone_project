@@ -2236,3 +2236,252 @@ TypeError: LGBMModel.get_params() missing 1 required positional argument: 'self'
 2026-05-19 17:22:13,824 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
 2026-05-19 17:22:13,825 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
 2026-05-19 17:22:13,826 | INFO | PIL.ImageFile | Task type: classification
+2026-05-19 23:04:06,454 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-19 23:04:06,493 | INFO | src.llm.operations | Applying operation dropna with params {'axis': 0, 'subset': ['A']}
+2026-05-19 23:04:06,494 | INFO | src.llm.operations | dropna complete. axis=0 subset=['A'] shape_after=(2, 2)
+2026-05-19 23:04:06,496 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-19 23:04:06,497 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-19 23:04:06,498 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['A']}
+2026-05-19 23:04:06,498 | INFO | src.llm.operations | drop_column complete. dropped=['A'] shape_after=(2, 1)
+2026-05-19 23:04:06,499 | INFO | src.llm.operations | Applying operation replace_value with params {'column': 'A', 'old_value': 'old', 'new_value': 'changed'}
+2026-05-19 23:04:06,500 | INFO | src.llm.operations | replace_value complete. column=A old_value=old new_value=changed replacements=2
+2026-05-19 23:04:06,501 | INFO | src.llm.operations | Applying 2 operation(s) in sequence.
+2026-05-19 23:04:06,501 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-19 23:04:06,501 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-19 23:04:06,501 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['B']}
+2026-05-19 23:04:06,502 | INFO | src.llm.operations | drop_column complete. dropped=['B'] shape_after=(3, 1)
+2026-05-19 23:04:06,502 | INFO | src.llm.operations | Finished applying operations. Final shape=(3, 1)
+2026-05-19 23:04:06,513 | INFO | src.llm.operations | Applying operation get_first_value_in_col with params {'column': 'A', 'split_by': ','}
+2026-05-19 23:04:06,514 | INFO | src.llm.operations | get_first_value_in_col complete. col=A split_by=, shape_after=(3, 2)
+2026-05-19 23:04:06,516 | INFO | src.llm.operations | Applying operation split_alphanumeric with params {'column': 'A'}
+2026-05-19 23:04:06,517 | INFO | src.llm.operations | split_alphanumeric complete. col=A shape_after=(4, 3)
+2026-05-19 23:04:06,542 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-19 23:04:06,542 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-19 23:04:06,543 | INFO | src.model_target | Task type: classification
+2026-05-19 23:04:06,544 | INFO | src.llm.operations | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-19 23:04:48,783 | INFO | src.llm.operations | 
+Cross Validation Results:
+| Model            |   test_accuracy |   train_accuracy |   test_roc_auc |   train_roc_auc |   test_average_precision |   train_average_precision |   test_f1 |   train_f1 |   test_precision |   train_precision |   test_recall |   train_recall |
+|:-----------------|----------------:|-----------------:|---------------:|----------------:|-------------------------:|--------------------------:|----------:|-----------:|-----------------:|------------------:|--------------:|---------------:|
+| DecisionTree     |            1    |             1    |           1    |            1    |                     1    |                       1   |      1    |       1    |             1    |              1    |          1    |            1   |
+| GradientBoosting |            1    |             1    |           1    |            1    |                     1    |                       1   |      1    |       1    |             1    |              1    |          1    |            1   |
+| LightGBM         |            1    |             1    |           1    |            1    |                     1    |                       1   |      1    |       1    |             1    |              1    |          1    |            1   |
+| RandomForest     |            1    |             1    |           1    |            1    |                     1    |                       1   |      1    |       1    |             1    |              1    |          1    |            1   |
+| XGBoost          |            1    |             1    |           1    |            1    |                     1    |                       1   |      1    |       1    |             1    |              1    |          1    |            1   |
+| Logistic         |            0.91 |             1    |           0.91 |            1    |                     0.88 |                       1   |      0.91 |       1    |             0.92 |              1    |          0.93 |            1   |
+| SVC              |            0.48 |             0.52 |           0.48 |            0.51 |                     0.48 |                       0.5 |      0.11 |       0.14 |             0.08 |              0.11 |          0.17 |            0.2 |
+2026-05-19 23:04:48,784 | INFO | src.llm.operations | Best model selected on training data: DecisionTree
+2026-05-19 23:04:52,965 | INFO | src.llm.operations | Holdout test score: 1.0
+2026-05-19 23:04:52,981 | INFO | src.llm.operations | model_target complete. target=Survived
+2026-05-19 23:39:23,800 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-19 23:39:23,804 | INFO | src.llm.operations | Applying operation dropna with params {'axis': 0, 'subset': ['A']}
+2026-05-19 23:39:23,808 | INFO | src.llm.operations | dropna complete. axis=0 subset=['A'] shape_after=(2, 2)
+2026-05-19 23:39:23,809 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-19 23:39:23,810 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-19 23:39:23,811 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['A']}
+2026-05-19 23:39:23,811 | INFO | src.llm.operations | drop_column complete. dropped=['A'] shape_after=(2, 1)
+2026-05-19 23:39:23,812 | INFO | src.llm.operations | Applying operation replace_value with params {'column': 'A', 'old_value': 'old', 'new_value': 'changed'}
+2026-05-19 23:39:23,813 | INFO | src.llm.operations | replace_value complete. column=A old_value=old new_value=changed replacements=2
+2026-05-19 23:39:23,814 | INFO | src.llm.operations | Applying 2 operation(s) in sequence.
+2026-05-19 23:39:23,814 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-19 23:39:23,814 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-19 23:39:23,815 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['B']}
+2026-05-19 23:39:23,815 | INFO | src.llm.operations | drop_column complete. dropped=['B'] shape_after=(3, 1)
+2026-05-19 23:39:23,815 | INFO | src.llm.operations | Finished applying operations. Final shape=(3, 1)
+2026-05-19 23:39:23,816 | INFO | src.llm.operations | Applying operation get_first_value_in_col with params {'column': 'A', 'split_by': ','}
+2026-05-19 23:39:23,817 | INFO | src.llm.operations | get_first_value_in_col complete. col=A split_by=, shape_after=(3, 2)
+2026-05-19 23:39:23,819 | INFO | src.llm.operations | Applying operation split_alphanumeric with params {'column': 'A'}
+2026-05-19 23:39:23,820 | INFO | src.llm.operations | split_alphanumeric complete. col=A shape_after=(4, 3)
+2026-05-19 23:39:23,823 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-19 23:39:23,823 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-19 23:39:23,824 | INFO | src.llm.operations | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-19 23:39:23,825 | INFO | src.llm.operations | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-19 23:39:23,825 | INFO | src.model_target | Task type: classification
+2026-05-19 23:39:23,826 | INFO | src.llm.operations | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-19 23:39:23,826 | INFO | src.llm.operations | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-19 23:39:23,826 | INFO | src.llm.operations | Pipeline defined for model Logistic
+2026-05-19 23:39:23,826 | INFO | src.llm.operations | Model parameters defined for Logistic
+2026-05-19 23:39:30,512 | INFO | src.llm.operations | Model training and evaluation complete for Logistic. Scores:
+      Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0  Logistic     1             1.0  ...           1.000           1.0     1.000000
+1  Logistic     2             1.0  ...           0.700           1.0     1.000000
+2  Logistic     3             1.0  ...           0.875           1.0     1.000000
+3  Logistic     4             1.0  ...           1.000           1.0     1.000000
+4  Logistic     5             1.0  ...           1.000           1.0     0.666667
+
+[5 rows x 14 columns]
+2026-05-19 23:39:32,625 | INFO | src.llm.operations | Pipeline defined for model SVC
+2026-05-19 23:39:32,625 | INFO | src.llm.operations | Model parameters defined for SVC
+2026-05-19 23:39:33,109 | INFO | src.llm.operations | Model training and evaluation complete for SVC. Scores:
+  Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0   SVC     1        0.509091  ...        0.000000           0.0     0.000000
+1   SVC     2        0.509091  ...        0.000000           0.0     0.000000
+2   SVC     3        0.509091  ...        0.000000           0.0     0.000000
+3   SVC     4        0.509091  ...        0.000000           0.0     0.000000
+4   SVC     5        0.571429  ...        0.416667           1.0     0.833333
+
+[5 rows x 14 columns]
+2026-05-19 23:39:33,782 | INFO | src.llm.operations | Pipeline defined for model DecisionTree
+2026-05-19 23:39:33,782 | INFO | src.llm.operations | Model parameters defined for DecisionTree
+2026-05-19 23:39:34,311 | INFO | src.llm.operations | Model training and evaluation complete for DecisionTree. Scores:
+          Model  Fold  ...  train_recall  test_recall
+0  DecisionTree     1  ...           1.0          1.0
+1  DecisionTree     2  ...           1.0          1.0
+2  DecisionTree     3  ...           1.0          1.0
+3  DecisionTree     4  ...           1.0          1.0
+4  DecisionTree     5  ...           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:39:35,013 | INFO | src.llm.operations | Pipeline defined for model RandomForest
+2026-05-19 23:39:35,013 | INFO | src.llm.operations | Model parameters defined for RandomForest
+2026-05-19 23:39:37,128 | INFO | src.llm.operations | Model training and evaluation complete for RandomForest. Scores:
+          Model  Fold  ...  train_recall  test_recall
+0  RandomForest     1  ...           1.0          1.0
+1  RandomForest     2  ...           1.0          1.0
+2  RandomForest     3  ...           1.0          1.0
+3  RandomForest     4  ...           1.0          1.0
+4  RandomForest     5  ...           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:39:37,815 | INFO | src.llm.operations | Pipeline defined for model GradientBoosting
+2026-05-19 23:39:37,815 | INFO | src.llm.operations | Model parameters defined for GradientBoosting
+2026-05-19 23:39:38,834 | INFO | src.llm.operations | Model training and evaluation complete for GradientBoosting. Scores:
+              Model  Fold  ...  train_recall  test_recall
+0  GradientBoosting     1  ...           1.0          1.0
+1  GradientBoosting     2  ...           1.0          1.0
+2  GradientBoosting     3  ...           1.0          1.0
+3  GradientBoosting     4  ...           1.0          1.0
+4  GradientBoosting     5  ...           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:39:39,533 | INFO | src.llm.operations | Pipeline defined for model XGBoost
+2026-05-19 23:39:39,534 | INFO | src.llm.operations | Model parameters defined for XGBoost
+2026-05-19 23:39:41,979 | INFO | src.llm.operations | Model training and evaluation complete for XGBoost. Scores:
+     Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0  XGBoost     1             1.0  ...             1.0           1.0          1.0
+1  XGBoost     2             1.0  ...             1.0           1.0          1.0
+2  XGBoost     3             1.0  ...             1.0           1.0          1.0
+3  XGBoost     4             1.0  ...             1.0           1.0          1.0
+4  XGBoost     5             1.0  ...             1.0           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:39:42,719 | INFO | src.llm.operations | Pipeline defined for model LightGBM
+2026-05-19 23:39:42,719 | INFO | src.llm.operations | Model parameters defined for LightGBM
+2026-05-19 23:40:07,028 | INFO | src.llm.operations | Model training and evaluation complete for LightGBM. Scores:
+      Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0  LightGBM     1             1.0  ...             1.0           1.0          1.0
+1  LightGBM     2             1.0  ...             1.0           1.0          1.0
+2  LightGBM     3             1.0  ...             1.0           1.0          1.0
+3  LightGBM     4             1.0  ...             1.0           1.0          1.0
+4  LightGBM     5             1.0  ...             1.0           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:40:07,771 | INFO | src.llm.operations | Best model selected on training data: DecisionTree
+2026-05-19 23:40:14,744 | INFO | src.llm.operations | Holdout test score: 1.0
+2026-05-19 23:40:14,761 | INFO | src.llm.operations | model_target complete. target=Survived
+2026-05-19 23:54:31,562 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-19 23:54:31,565 | INFO | src.llm.operations | Applying operation dropna with params {'axis': 0, 'subset': ['A']}
+2026-05-19 23:54:31,566 | INFO | src.llm.operations | dropna complete. axis=0 subset=['A'] shape_after=(2, 2)
+2026-05-19 23:54:31,568 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-19 23:54:31,568 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-19 23:54:31,569 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['A']}
+2026-05-19 23:54:31,569 | INFO | src.llm.operations | drop_column complete. dropped=['A'] shape_after=(2, 1)
+2026-05-19 23:54:31,570 | INFO | src.llm.operations | Applying operation replace_value with params {'column': 'A', 'old_value': 'old', 'new_value': 'changed'}
+2026-05-19 23:54:31,571 | INFO | src.llm.operations | replace_value complete. column=A old_value=old new_value=changed replacements=2
+2026-05-19 23:54:31,572 | INFO | src.llm.operations | Applying 2 operation(s) in sequence.
+2026-05-19 23:54:31,572 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-19 23:54:31,572 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-19 23:54:31,573 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['B']}
+2026-05-19 23:54:31,573 | INFO | src.llm.operations | drop_column complete. dropped=['B'] shape_after=(3, 1)
+2026-05-19 23:54:31,573 | INFO | src.llm.operations | Finished applying operations. Final shape=(3, 1)
+2026-05-19 23:54:31,574 | INFO | src.llm.operations | Applying operation get_first_value_in_col with params {'column': 'A', 'split_by': ','}
+2026-05-19 23:54:31,575 | INFO | src.llm.operations | get_first_value_in_col complete. col=A split_by=, shape_after=(3, 2)
+2026-05-19 23:54:31,576 | INFO | src.llm.operations | Applying operation split_alphanumeric with params {'column': 'A'}
+2026-05-19 23:54:31,577 | INFO | src.llm.operations | split_alphanumeric complete. col=A shape_after=(4, 3)
+2026-05-19 23:54:31,580 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-19 23:54:31,580 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-19 23:54:31,581 | INFO | src.llm.operations | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-19 23:54:31,581 | INFO | src.llm.operations | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-19 23:54:31,581 | INFO | src.model_target | Task type: classification
+2026-05-19 23:54:31,582 | INFO | src.llm.operations | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-19 23:54:31,582 | INFO | src.llm.operations | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-19 23:54:31,582 | INFO | src.llm.operations | Pipeline defined for model Logistic
+2026-05-19 23:54:31,582 | INFO | src.llm.operations | Model parameters defined for Logistic
+2026-05-19 23:54:38,290 | INFO | src.llm.operations | Model training and evaluation complete for Logistic. Scores:
+      Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0  Logistic     1             1.0  ...           1.000           1.0     1.000000
+1  Logistic     2             1.0  ...           0.700           1.0     1.000000
+2  Logistic     3             1.0  ...           0.875           1.0     1.000000
+3  Logistic     4             1.0  ...           1.000           1.0     1.000000
+4  Logistic     5             1.0  ...           1.000           1.0     0.666667
+
+[5 rows x 14 columns]
+2026-05-19 23:54:39,115 | INFO | src.llm.operations | Pipeline defined for model SVC
+2026-05-19 23:54:39,115 | INFO | src.llm.operations | Model parameters defined for SVC
+2026-05-19 23:54:39,585 | INFO | src.llm.operations | Model training and evaluation complete for SVC. Scores:
+  Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0   SVC     1        0.509091  ...        0.000000           0.0     0.000000
+1   SVC     2        0.509091  ...        0.000000           0.0     0.000000
+2   SVC     3        0.509091  ...        0.000000           0.0     0.000000
+3   SVC     4        0.509091  ...        0.000000           0.0     0.000000
+4   SVC     5        0.571429  ...        0.416667           1.0     0.833333
+
+[5 rows x 14 columns]
+2026-05-19 23:54:39,735 | INFO | src.llm.operations | Pipeline defined for model DecisionTree
+2026-05-19 23:54:39,735 | INFO | src.llm.operations | Model parameters defined for DecisionTree
+2026-05-19 23:54:40,224 | INFO | src.llm.operations | Model training and evaluation complete for DecisionTree. Scores:
+          Model  Fold  ...  train_recall  test_recall
+0  DecisionTree     1  ...           1.0          1.0
+1  DecisionTree     2  ...           1.0          1.0
+2  DecisionTree     3  ...           1.0          1.0
+3  DecisionTree     4  ...           1.0          1.0
+4  DecisionTree     5  ...           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:54:40,380 | INFO | src.llm.operations | Pipeline defined for model RandomForest
+2026-05-19 23:54:40,380 | INFO | src.llm.operations | Model parameters defined for RandomForest
+2026-05-19 23:54:42,444 | INFO | src.llm.operations | Model training and evaluation complete for RandomForest. Scores:
+          Model  Fold  ...  train_recall  test_recall
+0  RandomForest     1  ...           1.0          1.0
+1  RandomForest     2  ...           1.0          1.0
+2  RandomForest     3  ...           1.0          1.0
+3  RandomForest     4  ...           1.0          1.0
+4  RandomForest     5  ...           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:54:42,597 | INFO | src.llm.operations | Pipeline defined for model GradientBoosting
+2026-05-19 23:54:42,597 | INFO | src.llm.operations | Model parameters defined for GradientBoosting
+2026-05-19 23:54:43,564 | INFO | src.llm.operations | Model training and evaluation complete for GradientBoosting. Scores:
+              Model  Fold  ...  train_recall  test_recall
+0  GradientBoosting     1  ...           1.0          1.0
+1  GradientBoosting     2  ...           1.0          1.0
+2  GradientBoosting     3  ...           1.0          1.0
+3  GradientBoosting     4  ...           1.0          1.0
+4  GradientBoosting     5  ...           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:54:43,727 | INFO | src.llm.operations | Pipeline defined for model XGBoost
+2026-05-19 23:54:43,728 | INFO | src.llm.operations | Model parameters defined for XGBoost
+2026-05-19 23:54:46,070 | INFO | src.llm.operations | Model training and evaluation complete for XGBoost. Scores:
+     Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0  XGBoost     1             1.0  ...             1.0           1.0          1.0
+1  XGBoost     2             1.0  ...             1.0           1.0          1.0
+2  XGBoost     3             1.0  ...             1.0           1.0          1.0
+3  XGBoost     4             1.0  ...             1.0           1.0          1.0
+4  XGBoost     5             1.0  ...             1.0           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:54:46,236 | INFO | src.llm.operations | Pipeline defined for model LightGBM
+2026-05-19 23:54:46,236 | INFO | src.llm.operations | Model parameters defined for LightGBM
+2026-05-19 23:55:10,752 | INFO | src.llm.operations | Model training and evaluation complete for LightGBM. Scores:
+      Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0  LightGBM     1             1.0  ...             1.0           1.0          1.0
+1  LightGBM     2             1.0  ...             1.0           1.0          1.0
+2  LightGBM     3             1.0  ...             1.0           1.0          1.0
+3  LightGBM     4             1.0  ...             1.0           1.0          1.0
+4  LightGBM     5             1.0  ...             1.0           1.0          1.0
+
+[5 rows x 14 columns]
+2026-05-19 23:55:10,940 | INFO | src.llm.operations | Best model selected on training data: DecisionTree
+2026-05-19 23:55:13,956 | INFO | src.llm.operations | Holdout test score: 1.0
+2026-05-19 23:55:13,972 | INFO | src.llm.operations | model_target complete. target=Survived

@@ -1,0 +1,2 @@
+Model,train_accuracy,test_accuracy,train_roc_auc,test_roc_auc,train_average_precision,test_average_precision,train_f1,test_f1,train_precision,test_precision,train_recall,test_recall
+DecisionTree,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0

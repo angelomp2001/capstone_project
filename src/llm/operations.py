@@ -13,9 +13,6 @@ from src.model_target import (
     define_column_types,
     feature_engineering_pipeline,
     train_model,
-    generate_cv_summary_df,
-    log_results_to_mlflow,
-    save_metrics
 )
 from src.registry import (
     MODEL_REGISTRY,
@@ -368,95 +365,114 @@ class ApplyOperation:
         
         # train–test split
         df_train, df_test = data_splitter(df, test_size=TEST_SIZE, random_state=RANDOM_STATE)
+        logger.info("Data split complete. train_shape=%s test_shape=%s", df_train.shape, df_test.shape)
 
         # define columns on df_train
         features = define_features(df_train, target)
+        logger.info("Features defined: %s", features)
 
-        # define column types
+        # infer task type and feature categories on the training set only
         task_type, cat_features, num_features = define_column_types(
-            df=df_train, 
+            df=df_train,
             target=target,
             features=features
         )
+        logger.info("column types defined. task_type=%s cat_features=%s num_features=%s", task_type, cat_features, num_features)
 
         # define metrics
         metrics = list(EVALUATION_METRICS[task_type].keys())
         logger.info("Metrics: %s", metrics)
 
-        # define feature engineering pipelines and get model parameters
-        pipelines = {}
-        model_params = {}
+        # train each model in a single outer loop and save its scores
+        train_results = []
+        trained_models = {}
+
         for model_name, model_info in MODEL_REGISTRY[task_type].items():
-            
-            pipelines[model_name] = feature_engineering_pipeline(
+            pipeline = feature_engineering_pipeline(
                 numerical_features=num_features,
                 categorical_features=cat_features,
                 poly_degree=POLY_DEGREE,
-                model_instance=model_info["class"],
+                model_class=model_info["class"],
                 model_type=model_info["type"]
-            )   
+            )
+            logger.info("Pipeline defined for model %s", model_name)
 
-            # get model parameters
-            model_params[model_name] = model_info.get("params", {})
+            model_param_grid = model_info.get("params", {})
+            logger.info("Model parameters defined for %s", model_name)
 
-        # train models: CV + hyperparameter tuning on df_train
-        scores, trained_models = train_model(
-            df=df_train,
-            features=features,
-            target=target,
-            pipelines=pipelines,
-            param_grids=model_params,
-            cv_splits=CV_SPLITS,
-            tuning_cv=CV_SPLITS,
-            random_state=RANDOM_STATE,
-            metrics=metrics,
-            metric_funcs=EVALUATION_METRICS[task_type],
-            primary_metric=PRIMARY_METRIC,
-            task_type=task_type
-        )
-                
-        # log and save
-        log_results_to_mlflow(scores, metrics)
-        saved_path = save_metrics(scores, "reports")
-        mlflow.log_artifact(str(saved_path))
+            scores_df, trained_model = train_model(
+                df=df_train,
+                features=features,
+                target=target,
+                model_name=model_name,
+                pipeline=pipeline,
+                param_grid=model_param_grid,
+                cv_splits=CV_SPLITS,
+                tuning_cv=CV_SPLITS,
+                random_state=RANDOM_STATE,
+                metrics=metrics,
+                metric_funcs=EVALUATION_METRICS[task_type],
+                primary_metric=PRIMARY_METRIC,
+                task_type=task_type
+            )
+            logger.info("Model training and evaluation complete for %s. Scores:\n%s", model_name, scores_df)
 
-        # generate summary
-        summary_df = generate_cv_summary_df(scores, metrics)
-        logger.info("\nCross Validation Results:\n" + summary_df.to_markdown(index=False))
-        
-        # choose best model
+            avg_scores = (
+                scores_df.drop(columns=["Fold"])
+                .groupby("Model", as_index=False)
+                .mean()
+                .round(6)
+            )
+
+            report_dir = Path(f"reports/{model_name}")
+            report_dir.mkdir(parents=True, exist_ok=True)
+            saved_path = report_dir / "cv_metrics.csv"
+            avg_scores.to_csv(saved_path, index=False)
+            mlflow.log_artifact(str(saved_path))
+
+            for metric_name in metrics:
+                mlflow.log_metric(
+                    f"avg_test_{model_name}_{metric_name}",
+                    float(avg_scores.at[0, f"test_{metric_name}"]),
+                )
+                mlflow.log_metric(
+                    f"avg_train_{model_name}_{metric_name}",
+                    float(avg_scores.at[0, f"train_{metric_name}"]),
+                )
+
+            train_results.append(avg_scores)
+            trained_models[model_name] = trained_model
+
+        scores = pd.concat(train_results, ignore_index=True) if train_results else pd.DataFrame()
+        if scores.empty:
+            logger.warning("No model scores were generated; skipping model selection.")
+            return df
+
         best_model_name = (
             scores.groupby("Model")[f'test_{PRIMARY_METRIC}']
             .mean()
             .sort_values(ascending=False)
             .index[0]
         )
-        
-        best_estimator_train = trained_models[best_model_name]
-        logger.info("Best model: %s", best_model_name)
-        mlflow.sklearn.log_model(best_estimator_train, "best_model_train")
-        
-        # test performance on holdout test set
+
+        best_model_on_train = trained_models[best_model_name]
+        logger.info("Best model selected on training data: %s", best_model_name)
+        mlflow.sklearn.log_model(best_model_on_train, "best_model_train")
+
+        # final untouched evaluation on holdout test set
         eval_function = EVALUATION_METRICS[task_type][PRIMARY_METRIC]
         best_model_test_score = eval_function(
-            df_test[target], best_estimator_train.predict(df_test[features])
+            df_test[target], best_model_on_train.predict(df_test[features])
         )
         logger.info("Holdout test score: %s", best_model_test_score)
         mlflow.log_metric(f"holdout_{PRIMARY_METRIC}", best_model_test_score)
 
-        # final model:
-        # Train best model on entire df to get y_hat for entire df
-        if best_estimator_train is not None:
-            final_estimator = clone(best_estimator_train)
-            final_estimator.fit(df[features], df[target])
+        # retrain the selected model on all available data after final evaluation
+        final_estimator = clone(best_model_on_train)
+        final_estimator.fit(df[features], df[target])
 
-            # append y_hat to df
-            df[f"{target}_hat"] = final_estimator.predict(df[features])
+        df[f"{target}_hat"] = final_estimator.predict(df[features])
 
-            # get score of best model on df
-            best_model_score_overall = EVALUATION_METRICS[task_type][PRIMARY_METRIC](df[target], df[f"{target}_hat"])
-            mlflow.log_metric(f'{target}_hat', best_model_score_overall)
-            
         logger.info("model_target complete. target=%s", target)
         return df
 

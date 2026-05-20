@@ -1,0 +1,6 @@
+Model,Fold,train_accuracy,test_accuracy,train_roc_auc,test_roc_auc,train_average_precision,test_average_precision,train_f1,test_f1,train_precision,test_precision,train_recall,test_recall
+LightGBM,1,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+LightGBM,2,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+LightGBM,3,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+LightGBM,4,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+LightGBM,5,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
