@@ -2485,3 +2485,413 @@ Cross Validation Results:
 2026-05-19 23:55:10,940 | INFO | src.llm.operations | Best model selected on training data: DecisionTree
 2026-05-19 23:55:13,956 | INFO | src.llm.operations | Holdout test score: 1.0
 2026-05-19 23:55:13,972 | INFO | src.llm.operations | model_target complete. target=Survived
+2026-05-20 11:44:23,106 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-20 11:44:23,120 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-20 11:44:23,121 | WARNING | src.model_target | Dropped 331 rows containing missing values
+2026-05-20 11:44:23,122 | INFO | src.model_target | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-20 11:44:23,122 | INFO | src.model_target | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-20 11:44:23,132 | INFO | src.model_target | Task type: classification
+2026-05-20 11:44:23,134 | INFO | src.model_target | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-20 11:44:23,134 | INFO | src.model_target | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-20 11:44:23,134 | INFO | src.model_target | Pipeline defined for model LogisticRegression
+2026-05-20 11:44:23,134 | INFO | src.model_target | Model parameters defined for Logistic
+2026-05-20 11:44:23,134 | INFO | src.model_target | Model parameters defined for LogisticRegression: {'model__C': <scipy.stats._distn_infrastructure.rv_continuous_frozen object at 0x000002741DD75940>, 'model__penalty': ['l2'], 'model__solver': ['lbfgs']}
+2026-05-20 11:44:26,664 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 11:44:27,094 | ERROR | src.model_target | model_target model selection failed: Detected out-of-date database schema (found version 7d34483879f0, but expected 1b5f0d9ad7c1). Take a backup of your database, then run 'mlflow db upgrade <database_uri>' to migrate your database to the latest schema. NOTE: schema migration may result in database downtime - please consult your database's documentation for more detail.
+Traceback (most recent call last):
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 504, in model_target
+    best_model_on_train, best_model_name = run_model_selection(
+                                           ~~~~~~~~~~~~~~~~~~~^
+        df_train=df_train,
+        ^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        metrics=metrics,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 392, in run_model_selection
+    scores_df, trained_model = train_model_cv(
+                               ~~~~~~~~~~~~~~^
+                df=df_train,
+                ^^^^^^^^^^^^
+    ...<11 lines>...
+                task_type=task_type
+                ^^^^^^^^^^^^^^^^^^^
+            )
+            ^
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 316, in train_model_cv
+    scores = cross_validate_model(
+        model_name,
+    ...<9 lines>...
+        metric_funcs,
+    )
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 248, in cross_validate_model
+    model_best_estimator = tune_hyperparameters(
+        pipeline, model_param_grid, X_outer_train, y_outer_train,
+        tuning_cv, primary_metric, random_state
+    )
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 190, in tune_hyperparameters
+    mlflow.log_params(search.best_params_)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\fluent.py", line 1293, in log_params
+    run_id = run_id or _get_or_start_run().info.run_id
+                       ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\fluent.py", line 3269, in _get_or_start_run
+    return start_run()
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\fluent.py", line 450, in start_run
+    client = MlflowClient()
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\client.py", line 249, in __init__
+    self._tracking_client = TrackingServiceClient(final_tracking_uri)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\client.py", line 99, in __init__
+    self.store
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\client.py", line 103, in store
+    return utils._get_store(self.tracking_uri)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\utils.py", line 270, in _get_store
+    return _tracking_store_registry.get_store(store_uri, artifact_uri)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\registry.py", line 45, in get_store
+    return self._get_store_with_resolved_uri(resolved_store_uri, artifact_uri)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\registry.py", line 56, in _get_store_with_resolved_uri
+    return builder(store_uri=resolved_store_uri, artifact_uri=artifact_uri)
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\utils.py", line 201, in _get_sqlalchemy_store
+    return store_cls(store_uri, artifact_uri)
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\store\tracking\sqlalchemy_store.py", line 304, in __init__
+    mlflow.store.db.utils._verify_schema(self.engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\store\db\utils.py", line 159, in _verify_schema
+    raise MlflowException(
+    ...<6 lines>...
+    )
+mlflow.exceptions.MlflowException: Detected out-of-date database schema (found version 7d34483879f0, but expected 1b5f0d9ad7c1). Take a backup of your database, then run 'mlflow db upgrade <database_uri>' to migrate your database to the latest schema. NOTE: schema migration may result in database downtime - please consult your database's documentation for more detail.
+2026-05-20 11:44:27,153 | INFO | src.llm.operations | Applying operation dropna with params {'axis': 0, 'subset': ['A']}
+2026-05-20 11:44:27,154 | INFO | src.llm.operations | dropna complete. axis=0 subset=['A'] shape_after=(2, 2)
+2026-05-20 11:44:27,155 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-20 11:44:27,155 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-20 11:44:27,156 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['A']}
+2026-05-20 11:44:27,157 | INFO | src.llm.operations | drop_column complete. dropped=['A'] shape_after=(2, 1)
+2026-05-20 11:44:27,158 | INFO | src.llm.operations | Applying operation replace_value with params {'column': 'A', 'old_value': 'old', 'new_value': 'changed'}
+2026-05-20 11:44:27,158 | INFO | src.llm.operations | replace_value complete. column=A old_value=old new_value=changed replacements=2
+2026-05-20 11:44:27,159 | INFO | src.llm.operations | Applying 2 operation(s) in sequence.
+2026-05-20 11:44:27,159 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-20 11:44:27,160 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-20 11:44:27,160 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['B']}
+2026-05-20 11:44:27,160 | INFO | src.llm.operations | drop_column complete. dropped=['B'] shape_after=(3, 1)
+2026-05-20 11:44:27,160 | INFO | src.llm.operations | Finished applying operations. Final shape=(3, 1)
+2026-05-20 11:44:27,161 | INFO | src.llm.operations | Applying operation get_first_value_in_col with params {'column': 'A', 'split_by': ','}
+2026-05-20 11:44:27,162 | INFO | src.llm.operations | get_first_value_in_col complete. col=A split_by=, shape_after=(3, 2)
+2026-05-20 11:44:27,164 | INFO | src.llm.operations | Applying operation split_alphanumeric with params {'column': 'A'}
+2026-05-20 11:44:27,165 | INFO | src.llm.operations | split_alphanumeric complete. col=A shape_after=(4, 3)
+2026-05-20 11:44:27,167 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-20 11:44:27,168 | WARNING | src.model_target | Dropped 331 rows containing missing values
+2026-05-20 11:44:27,169 | INFO | src.model_target | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-20 11:44:27,169 | INFO | src.model_target | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-20 11:44:27,169 | INFO | src.model_target | Task type: classification
+2026-05-20 11:44:27,170 | INFO | src.model_target | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-20 11:44:27,170 | INFO | src.model_target | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-20 11:44:27,170 | INFO | src.model_target | Pipeline defined for model LogisticRegression
+2026-05-20 11:44:27,170 | INFO | src.model_target | Model parameters defined for Logistic
+2026-05-20 11:44:27,171 | INFO | src.model_target | Model parameters defined for LogisticRegression: {'model__C': <scipy.stats._distn_infrastructure.rv_continuous_frozen object at 0x000002741DD75940>, 'model__penalty': ['l2'], 'model__solver': ['lbfgs']}
+2026-05-20 11:44:29,489 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 11:44:29,516 | ERROR | src.model_target | model_target model selection failed: Detected out-of-date database schema (found version 7d34483879f0, but expected 1b5f0d9ad7c1). Take a backup of your database, then run 'mlflow db upgrade <database_uri>' to migrate your database to the latest schema. NOTE: schema migration may result in database downtime - please consult your database's documentation for more detail.
+Traceback (most recent call last):
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 504, in model_target
+    best_model_on_train, best_model_name = run_model_selection(
+                                           ~~~~~~~~~~~~~~~~~~~^
+        df_train=df_train,
+        ^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        metrics=metrics,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 392, in run_model_selection
+    scores_df, trained_model = train_model_cv(
+                               ~~~~~~~~~~~~~~^
+                df=df_train,
+                ^^^^^^^^^^^^
+    ...<11 lines>...
+                task_type=task_type
+                ^^^^^^^^^^^^^^^^^^^
+            )
+            ^
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 316, in train_model_cv
+    scores = cross_validate_model(
+        model_name,
+    ...<9 lines>...
+        metric_funcs,
+    )
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 248, in cross_validate_model
+    model_best_estimator = tune_hyperparameters(
+        pipeline, model_param_grid, X_outer_train, y_outer_train,
+        tuning_cv, primary_metric, random_state
+    )
+  File "C:\Users\Angelo\Documents\github\capstone_project\src\model_target.py", line 190, in tune_hyperparameters
+    mlflow.log_params(search.best_params_)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\fluent.py", line 1293, in log_params
+    run_id = run_id or _get_or_start_run().info.run_id
+                       ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\fluent.py", line 3269, in _get_or_start_run
+    return start_run()
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\fluent.py", line 450, in start_run
+    client = MlflowClient()
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\client.py", line 249, in __init__
+    self._tracking_client = TrackingServiceClient(final_tracking_uri)
+                            ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\client.py", line 99, in __init__
+    self.store
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\client.py", line 103, in store
+    return utils._get_store(self.tracking_uri)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\utils.py", line 270, in _get_store
+    return _tracking_store_registry.get_store(store_uri, artifact_uri)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\registry.py", line 45, in get_store
+    return self._get_store_with_resolved_uri(resolved_store_uri, artifact_uri)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\registry.py", line 56, in _get_store_with_resolved_uri
+    return builder(store_uri=resolved_store_uri, artifact_uri=artifact_uri)
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\tracking\_tracking_service\utils.py", line 201, in _get_sqlalchemy_store
+    return store_cls(store_uri, artifact_uri)
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\store\tracking\sqlalchemy_store.py", line 304, in __init__
+    mlflow.store.db.utils._verify_schema(self.engine)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\Angelo\miniconda3\Lib\site-packages\mlflow\store\db\utils.py", line 159, in _verify_schema
+    raise MlflowException(
+    ...<6 lines>...
+    )
+mlflow.exceptions.MlflowException: Detected out-of-date database schema (found version 7d34483879f0, but expected 1b5f0d9ad7c1). Take a backup of your database, then run 'mlflow db upgrade <database_uri>' to migrate your database to the latest schema. NOTE: schema migration may result in database downtime - please consult your database's documentation for more detail.
+2026-05-20 11:53:02,778 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-20 11:53:02,781 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-20 11:53:02,781 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-20 11:53:02,783 | INFO | src.model_target | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-20 11:53:02,783 | INFO | src.model_target | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-20 11:53:02,793 | INFO | src.model_target | Task type: classification
+2026-05-20 11:53:02,794 | INFO | src.model_target | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-20 11:53:02,794 | INFO | src.model_target | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-20 11:53:02,794 | INFO | src.model_target | Pipeline defined for model LogisticRegression
+2026-05-20 11:53:02,794 | INFO | src.model_target | Model parameters defined for Logistic
+2026-05-20 11:53:02,794 | INFO | src.model_target | Model parameters defined for LogisticRegression: {'model__C': <scipy.stats._distn_infrastructure.rv_continuous_frozen object at 0x0000018D744A5810>, 'model__penalty': ['l2'], 'model__solver': ['lbfgs']}
+2026-05-20 11:53:06,301 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:11,011 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-20 12:00:11,013 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-20 12:00:11,014 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-20 12:00:11,015 | INFO | src.model_target | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-20 12:00:11,015 | INFO | src.model_target | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-20 12:00:11,025 | INFO | src.model_target | Task type: classification
+2026-05-20 12:00:11,026 | INFO | src.model_target | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-20 12:00:11,026 | INFO | src.model_target | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-20 12:00:11,026 | INFO | src.model_target | Pipeline defined for model LogisticRegression
+2026-05-20 12:00:11,026 | INFO | src.model_target | Model parameters defined for Logistic
+2026-05-20 12:00:11,027 | INFO | src.model_target | Model parameters defined for LogisticRegression: {'model__C': <scipy.stats._distn_infrastructure.rv_continuous_frozen object at 0x0000029B6969DBA0>, 'model__penalty': ['l2'], 'model__solver': ['lbfgs']}
+2026-05-20 12:00:14,513 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:14,528 | INFO | src.model_target | Fold 1 results for model Logistic: {'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:00:17,538 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:17,552 | INFO | src.model_target | Fold 2 results for model Logistic: {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:00:18,817 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:18,830 | INFO | src.model_target | Fold 3 results for model Logistic: {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:00:18,891 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:18,903 | INFO | src.model_target | Fold 4 results for model Logistic: {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:00:18,964 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:18,976 | INFO | src.model_target | Fold 5 results for model Logistic: {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}
+2026-05-20 12:00:18,976 | INFO | src.model_target | Cross-validation complete for model Logistic. Fold results: [{'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}]
+2026-05-20 12:00:19,062 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(24.658329458549105), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:19,084 | INFO | src.model_target | Best model selected on training data: Logistic
+2026-05-20 12:00:19,087 | INFO | src.model_target | Holdout test score: 1.0
+2026-05-20 12:00:19,096 | INFO | src.model_target | model_target complete. target=Survived
+2026-05-20 12:00:19,136 | INFO | src.llm.operations | Applying operation dropna with params {'axis': 0, 'subset': ['A']}
+2026-05-20 12:00:19,137 | INFO | src.llm.operations | dropna complete. axis=0 subset=['A'] shape_after=(2, 2)
+2026-05-20 12:00:19,138 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-20 12:00:19,139 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-20 12:00:19,140 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['A']}
+2026-05-20 12:00:19,140 | INFO | src.llm.operations | drop_column complete. dropped=['A'] shape_after=(2, 1)
+2026-05-20 12:00:19,141 | INFO | src.llm.operations | Applying operation replace_value with params {'column': 'A', 'old_value': 'old', 'new_value': 'changed'}
+2026-05-20 12:00:19,141 | INFO | src.llm.operations | replace_value complete. column=A old_value=old new_value=changed replacements=2
+2026-05-20 12:00:19,142 | INFO | src.llm.operations | Applying 2 operation(s) in sequence.
+2026-05-20 12:00:19,143 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-20 12:00:19,143 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-20 12:00:19,143 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['B']}
+2026-05-20 12:00:19,143 | INFO | src.llm.operations | drop_column complete. dropped=['B'] shape_after=(3, 1)
+2026-05-20 12:00:19,144 | INFO | src.llm.operations | Finished applying operations. Final shape=(3, 1)
+2026-05-20 12:00:19,145 | INFO | src.llm.operations | Applying operation get_first_value_in_col with params {'column': 'A', 'split_by': ','}
+2026-05-20 12:00:19,145 | INFO | src.llm.operations | get_first_value_in_col complete. col=A split_by=, shape_after=(3, 2)
+2026-05-20 12:00:19,146 | INFO | src.llm.operations | Applying operation split_alphanumeric with params {'column': 'A'}
+2026-05-20 12:00:19,147 | INFO | src.llm.operations | split_alphanumeric complete. col=A shape_after=(4, 3)
+2026-05-20 12:00:19,150 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-20 12:00:19,150 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-20 12:00:19,151 | INFO | src.model_target | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-20 12:00:19,151 | INFO | src.model_target | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-20 12:00:19,151 | INFO | src.model_target | Task type: classification
+2026-05-20 12:00:19,152 | INFO | src.model_target | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-20 12:00:19,152 | INFO | src.model_target | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-20 12:00:19,152 | INFO | src.model_target | Pipeline defined for model LogisticRegression
+2026-05-20 12:00:19,152 | INFO | src.model_target | Model parameters defined for Logistic
+2026-05-20 12:00:19,152 | INFO | src.model_target | Model parameters defined for LogisticRegression: {'model__C': <scipy.stats._distn_infrastructure.rv_continuous_frozen object at 0x0000029B6969DBA0>, 'model__penalty': ['l2'], 'model__solver': ['lbfgs']}
+2026-05-20 12:00:19,213 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:19,225 | INFO | src.model_target | Fold 1 results for model Logistic: {'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:00:19,284 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:19,298 | INFO | src.model_target | Fold 2 results for model Logistic: {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:00:19,357 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:19,370 | INFO | src.model_target | Fold 3 results for model Logistic: {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:00:19,429 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:19,441 | INFO | src.model_target | Fold 4 results for model Logistic: {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:00:19,500 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:19,512 | INFO | src.model_target | Fold 5 results for model Logistic: {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}
+2026-05-20 12:00:19,512 | INFO | src.model_target | Cross-validation complete for model Logistic. Fold results: [{'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}]
+2026-05-20 12:00:19,585 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(24.658329458549105), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:53,636 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-20 12:00:53,639 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-20 12:00:53,640 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-20 12:00:53,641 | INFO | src.model_target | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-20 12:00:53,641 | INFO | src.model_target | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-20 12:00:53,651 | INFO | src.model_target | Task type: classification
+2026-05-20 12:00:53,652 | INFO | src.model_target | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-20 12:00:53,652 | INFO | src.model_target | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-20 12:00:53,652 | INFO | src.model_target | Pipeline defined for model LogisticRegression
+2026-05-20 12:00:53,652 | INFO | src.model_target | Model parameters defined for Logistic
+2026-05-20 12:00:53,652 | INFO | src.model_target | Model parameters defined for LogisticRegression: {'model__C': <scipy.stats._distn_infrastructure.rv_continuous_frozen object at 0x000001BFF34516E0>, 'model__penalty': ['l2'], 'model__solver': ['lbfgs']}
+2026-05-20 12:00:57,143 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:00:57,157 | INFO | src.model_target | Fold 1 results for model Logistic: {'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:00,151 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:00,165 | INFO | src.model_target | Fold 2 results for model Logistic: {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:01,425 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:01,437 | INFO | src.model_target | Fold 3 results for model Logistic: {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:01,498 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:01,511 | INFO | src.model_target | Fold 4 results for model Logistic: {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:01,571 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:01,584 | INFO | src.model_target | Fold 5 results for model Logistic: {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}
+2026-05-20 12:01:01,584 | INFO | src.model_target | Cross-validation complete for model Logistic. Fold results: [{'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}]
+2026-05-20 12:01:01,660 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(24.658329458549105), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:01,669 | INFO | src.model_target | Best model selected on training data: Logistic
+2026-05-20 12:01:01,672 | INFO | src.model_target | Holdout test score: 1.0
+2026-05-20 12:01:01,682 | INFO | src.model_target | model_target complete. target=Survived
+2026-05-20 12:01:01,721 | INFO | src.llm.operations | Applying operation dropna with params {'axis': 0, 'subset': ['A']}
+2026-05-20 12:01:01,721 | INFO | src.llm.operations | dropna complete. axis=0 subset=['A'] shape_after=(2, 2)
+2026-05-20 12:01:01,723 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-20 12:01:01,723 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-20 12:01:01,724 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['A']}
+2026-05-20 12:01:01,725 | INFO | src.llm.operations | drop_column complete. dropped=['A'] shape_after=(2, 1)
+2026-05-20 12:01:01,726 | INFO | src.llm.operations | Applying operation replace_value with params {'column': 'A', 'old_value': 'old', 'new_value': 'changed'}
+2026-05-20 12:01:01,726 | INFO | src.llm.operations | replace_value complete. column=A old_value=old new_value=changed replacements=2
+2026-05-20 12:01:01,727 | INFO | src.llm.operations | Applying 2 operation(s) in sequence.
+2026-05-20 12:01:01,727 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-20 12:01:01,728 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-20 12:01:01,728 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['B']}
+2026-05-20 12:01:01,728 | INFO | src.llm.operations | drop_column complete. dropped=['B'] shape_after=(3, 1)
+2026-05-20 12:01:01,728 | INFO | src.llm.operations | Finished applying operations. Final shape=(3, 1)
+2026-05-20 12:01:01,729 | INFO | src.llm.operations | Applying operation get_first_value_in_col with params {'column': 'A', 'split_by': ','}
+2026-05-20 12:01:01,730 | INFO | src.llm.operations | get_first_value_in_col complete. col=A split_by=, shape_after=(3, 2)
+2026-05-20 12:01:01,731 | INFO | src.llm.operations | Applying operation split_alphanumeric with params {'column': 'A'}
+2026-05-20 12:01:01,732 | INFO | src.llm.operations | split_alphanumeric complete. col=A shape_after=(4, 3)
+2026-05-20 12:01:01,734 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-20 12:01:01,734 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-20 12:01:01,735 | INFO | src.model_target | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-20 12:01:01,735 | INFO | src.model_target | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-20 12:01:01,735 | INFO | src.model_target | Task type: classification
+2026-05-20 12:01:01,736 | INFO | src.model_target | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-20 12:01:01,736 | INFO | src.model_target | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-20 12:01:01,736 | INFO | src.model_target | Pipeline defined for model LogisticRegression
+2026-05-20 12:01:01,736 | INFO | src.model_target | Model parameters defined for Logistic
+2026-05-20 12:01:01,736 | INFO | src.model_target | Model parameters defined for LogisticRegression: {'model__C': <scipy.stats._distn_infrastructure.rv_continuous_frozen object at 0x000001BFF34516E0>, 'model__penalty': ['l2'], 'model__solver': ['lbfgs']}
+2026-05-20 12:01:01,797 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:01,809 | INFO | src.model_target | Fold 1 results for model Logistic: {'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:01,867 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:01,879 | INFO | src.model_target | Fold 2 results for model Logistic: {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:01,939 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:01,951 | INFO | src.model_target | Fold 3 results for model Logistic: {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:02,010 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:02,023 | INFO | src.model_target | Fold 4 results for model Logistic: {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:02,082 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:02,095 | INFO | src.model_target | Fold 5 results for model Logistic: {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}
+2026-05-20 12:01:02,095 | INFO | src.model_target | Cross-validation complete for model Logistic. Fold results: [{'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}]
+2026-05-20 12:01:02,170 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(24.658329458549105), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:35,224 | INFO | src.llm.llm_utils | Logging initialized. Main log file: C:\Users\Angelo\Documents\github\capstone_project\src\docs\logs\app.log
+2026-05-20 12:01:35,226 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-20 12:01:35,227 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-20 12:01:35,228 | INFO | src.model_target | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-20 12:01:35,228 | INFO | src.model_target | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-20 12:01:35,228 | INFO | src.model_target | Task type: classification
+2026-05-20 12:01:35,229 | INFO | src.model_target | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-20 12:01:35,229 | INFO | src.model_target | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-20 12:01:35,229 | INFO | src.model_target | Pipeline defined for model LogisticRegression
+2026-05-20 12:01:35,229 | INFO | src.model_target | Model parameters defined for Logistic
+2026-05-20 12:01:35,230 | INFO | src.model_target | Model parameters defined for LogisticRegression: {'model__C': <scipy.stats._distn_infrastructure.rv_continuous_frozen object at 0x000002C4942FDA70>, 'model__penalty': ['l2'], 'model__solver': ['lbfgs']}
+2026-05-20 12:01:38,711 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:38,725 | INFO | src.model_target | Fold 1 results for model Logistic: {'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:41,729 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:41,743 | INFO | src.model_target | Fold 2 results for model Logistic: {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:43,029 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,043 | INFO | src.model_target | Fold 3 results for model Logistic: {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:43,107 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,119 | INFO | src.model_target | Fold 4 results for model Logistic: {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:43,181 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,193 | INFO | src.model_target | Fold 5 results for model Logistic: {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}
+2026-05-20 12:01:43,193 | INFO | src.model_target | Cross-validation complete for model Logistic. Fold results: [{'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}]
+2026-05-20 12:01:43,271 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(24.658329458549105), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,271 | INFO | src.model_target | Model training and evaluation complete for Logistic. Scores:
+      Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0  Logistic     1             1.0  ...           1.000           1.0     1.000000
+1  Logistic     2             1.0  ...           0.700           1.0     1.000000
+2  Logistic     3             1.0  ...           0.875           1.0     1.000000
+3  Logistic     4             1.0  ...           1.000           1.0     1.000000
+4  Logistic     5             1.0  ...           1.000           1.0     0.666667
+
+[5 rows x 14 columns]
+2026-05-20 12:01:43,284 | INFO | src.model_target | Best model selected on training data: Logistic
+2026-05-20 12:01:43,287 | INFO | src.model_target | Holdout test score: 1.0
+2026-05-20 12:01:43,297 | INFO | src.model_target | model_target complete. target=Survived
+2026-05-20 12:01:43,336 | INFO | src.llm.operations | Applying operation dropna with params {'axis': 0, 'subset': ['A']}
+2026-05-20 12:01:43,337 | INFO | src.llm.operations | dropna complete. axis=0 subset=['A'] shape_after=(2, 2)
+2026-05-20 12:01:43,338 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-20 12:01:43,338 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-20 12:01:43,339 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['A']}
+2026-05-20 12:01:43,339 | INFO | src.llm.operations | drop_column complete. dropped=['A'] shape_after=(2, 1)
+2026-05-20 12:01:43,340 | INFO | src.llm.operations | Applying operation replace_value with params {'column': 'A', 'old_value': 'old', 'new_value': 'changed'}
+2026-05-20 12:01:43,341 | INFO | src.llm.operations | replace_value complete. column=A old_value=old new_value=changed replacements=2
+2026-05-20 12:01:43,342 | INFO | src.llm.operations | Applying 2 operation(s) in sequence.
+2026-05-20 12:01:43,342 | INFO | src.llm.operations | Applying operation fillna with params {'column': 'A', 'strategy': 'constant', 'value': 0}
+2026-05-20 12:01:43,342 | INFO | src.llm.operations | fillna complete. column=A strategy=constant value=0
+2026-05-20 12:01:43,342 | INFO | src.llm.operations | Applying operation drop_column with params {'columns': ['B']}
+2026-05-20 12:01:43,342 | INFO | src.llm.operations | drop_column complete. dropped=['B'] shape_after=(3, 1)
+2026-05-20 12:01:43,343 | INFO | src.llm.operations | Finished applying operations. Final shape=(3, 1)
+2026-05-20 12:01:43,344 | INFO | src.llm.operations | Applying operation get_first_value_in_col with params {'column': 'A', 'split_by': ','}
+2026-05-20 12:01:43,344 | INFO | src.llm.operations | get_first_value_in_col complete. col=A split_by=, shape_after=(3, 2)
+2026-05-20 12:01:43,346 | INFO | src.llm.operations | Applying operation split_alphanumeric with params {'column': 'A'}
+2026-05-20 12:01:43,346 | INFO | src.llm.operations | split_alphanumeric complete. col=A shape_after=(4, 3)
+2026-05-20 12:01:43,348 | INFO | src.llm.operations | Applying operation model_target with params {'column': 'Survived'}
+2026-05-20 12:01:43,349 | WARNING | src.llm.operations | Dropped 331 rows containing missing values
+2026-05-20 12:01:43,349 | INFO | src.model_target | Data split complete. train_shape=(69, 12) test_shape=(18, 12)
+2026-05-20 12:01:43,349 | INFO | src.model_target | Features defined: ['Age', 'Cabin', 'Embarked', 'Fare', 'Name', 'Parch', 'PassengerId', 'Pclass', 'Sex', 'SibSp', 'Ticket']
+2026-05-20 12:01:43,350 | INFO | src.model_target | Task type: classification
+2026-05-20 12:01:43,350 | INFO | src.model_target | column types defined. task_type=classification cat_features=['Cabin', 'Embarked', 'Name', 'Sex', 'Ticket'] num_features=['Age', 'Fare', 'Parch', 'PassengerId', 'Pclass', 'SibSp']
+2026-05-20 12:01:43,350 | INFO | src.model_target | Metrics: ['accuracy', 'roc_auc', 'average_precision', 'f1', 'precision', 'recall']
+2026-05-20 12:01:43,350 | INFO | src.model_target | Pipeline defined for model LogisticRegression
+2026-05-20 12:01:43,350 | INFO | src.model_target | Model parameters defined for Logistic
+2026-05-20 12:01:43,351 | INFO | src.model_target | Model parameters defined for LogisticRegression: {'model__C': <scipy.stats._distn_infrastructure.rv_continuous_frozen object at 0x000002C4942FDA70>, 'model__penalty': ['l2'], 'model__solver': ['lbfgs']}
+2026-05-20 12:01:43,420 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,432 | INFO | src.model_target | Fold 1 results for model Logistic: {'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:43,491 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,503 | INFO | src.model_target | Fold 2 results for model Logistic: {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:43,563 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,576 | INFO | src.model_target | Fold 3 results for model Logistic: {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:43,635 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,648 | INFO | src.model_target | Fold 4 results for model Logistic: {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}
+2026-05-20 12:01:43,707 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(506.1576888752306), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,719 | INFO | src.model_target | Fold 5 results for model Logistic: {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}
+2026-05-20 12:01:43,719 | INFO | src.model_target | Cross-validation complete for model Logistic. Fold results: [{'Model': 'Logistic', 'Fold': 1, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 2, 'train_accuracy': 1.0, 'test_accuracy': 0.7857142857142857, 'train_roc_auc': 1.0, 'test_roc_auc': 0.7857142857142857, 'train_average_precision': 1.0, 'test_average_precision': 0.7, 'train_f1': 1.0, 'test_f1': 0.8235294117647058, 'train_precision': 1.0, 'test_precision': 0.7, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 3, 'train_accuracy': 1.0, 'test_accuracy': 0.9285714285714286, 'train_roc_auc': 1.0, 'test_roc_auc': 0.9285714285714286, 'train_average_precision': 1.0, 'test_average_precision': 0.875, 'train_f1': 1.0, 'test_f1': 0.9333333333333333, 'train_precision': 1.0, 'test_precision': 0.875, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 4, 'train_accuracy': 1.0, 'test_accuracy': 1.0, 'train_roc_auc': 1.0, 'test_roc_auc': 1.0, 'train_average_precision': 1.0, 'test_average_precision': 1.0, 'train_f1': 1.0, 'test_f1': 1.0, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 1.0}, {'Model': 'Logistic', 'Fold': 5, 'train_accuracy': 1.0, 'test_accuracy': 0.8461538461538461, 'train_roc_auc': 1.0, 'test_roc_auc': 0.8333333333333333, 'train_average_precision': 1.0, 'test_average_precision': 0.8205128205128205, 'train_f1': 1.0, 'test_f1': 0.8, 'train_precision': 1.0, 'test_precision': 1.0, 'train_recall': 1.0, 'test_recall': 0.6666666666666666}]
+2026-05-20 12:01:43,802 | INFO | src.model_target | Best hyperparameters for model LogisticRegression: {'model__C': np.float64(24.658329458549105), 'model__penalty': 'l2', 'model__solver': 'lbfgs'}
+2026-05-20 12:01:43,803 | INFO | src.model_target | Model training and evaluation complete for Logistic. Scores:
+      Model  Fold  train_accuracy  ...  test_precision  train_recall  test_recall
+0  Logistic     1             1.0  ...           1.000           1.0     1.000000
+1  Logistic     2             1.0  ...           0.700           1.0     1.000000
+2  Logistic     3             1.0  ...           0.875           1.0     1.000000
+3  Logistic     4             1.0  ...           1.000           1.0     1.000000
+4  Logistic     5             1.0  ...           1.000           1.0     0.666667
+
+[5 rows x 14 columns]
+2026-05-20 12:01:43,823 | INFO | src.model_target | Best model selected on training data: Logistic
+2026-05-20 12:01:43,826 | INFO | src.model_target | Holdout test score: 1.0
+2026-05-20 12:01:43,836 | INFO | src.model_target | model_target complete. target=Survived

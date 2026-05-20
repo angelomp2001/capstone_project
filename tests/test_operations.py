@@ -76,4 +76,4 @@ def test_apply_operation_model_target():
     assert new_df.shape[0] > 0
     assert new_df.shape[1] > 0
 
-# test_apply_operation_model_target()
+test_apply_operation_model_target()

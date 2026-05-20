@@ -1,17 +1,44 @@
 import logging
+from pathlib import Path
 from typing import Any
 
 import mlflow
+import numpy as np
 import pandas as pd
 from scipy.stats import loguniform
 from sklearn.base import clone
 from sklearn.compose import ColumnTransformer
 from sklearn.experimental import enable_halving_search_cv
+from sklearn.metrics import accuracy_score, roc_auc_score, average_precision_score, f1_score, precision_score, recall_score, mean_squared_error, mean_absolute_error, r2_score
 from sklearn.model_selection import KFold, StratifiedKFold, HalvingRandomSearchCV, train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, PolynomialFeatures, StandardScaler
 
+from src.registry import MODEL_REGISTRY
+
 logger = logging.getLogger(__name__)
+
+# model target defaults
+TEST_SIZE = 0.2
+RANDOM_STATE = 42
+POLY_DEGREE = 2
+PRIMARY_METRIC = 'accuracy'
+CV_SPLITS = 5
+EVALUATION_METRICS = {
+    'classification': {
+        'accuracy': accuracy_score,
+        'roc_auc': roc_auc_score,
+        'average_precision': average_precision_score,
+        'f1': f1_score,
+        'precision': precision_score,
+        'recall': recall_score,
+    },
+    'regression': {
+        'neg_root_mean_squared_error': lambda y_true, y_pred: -np.sqrt(mean_squared_error(y_true, y_pred)),
+        'neg_mean_absolute_error': lambda y_true, y_pred: -mean_absolute_error(y_true, y_pred),
+        'r2': r2_score,
+    }
+}
 
 
 def data_splitter(
@@ -27,12 +54,15 @@ def data_splitter(
         random_state=random_state,
         stratify=stratify,
     )
+    logger.info("Data split complete. train_shape=%s test_shape=%s", train_df.shape, test_df.shape)
     return train_df, test_df
 
 
 def define_features(df: pd.DataFrame, target_col: str) -> list[str]:
     """Return a feature column list excluding the target."""
-    return df.columns.difference([target_col]).tolist()
+    features = df.columns.difference([target_col]).tolist()
+    logger.info("Features defined: %s", features)
+    return features
 
 def define_column_types(
     df: pd.DataFrame,
@@ -55,6 +85,7 @@ def define_column_types(
     categorical_features = df[features].select_dtypes(include=['object', 'category']).columns.tolist()
     numerical_features = df[features].select_dtypes(include=['float64', 'int64', 'float32', 'int32']).columns.tolist()
 
+    logger.info("column types defined. task_type=%s cat_features=%s num_features=%s", task_type, categorical_features, numerical_features)
     return task_type, categorical_features, numerical_features
 
 def feature_engineering_pipeline(
@@ -77,7 +108,7 @@ def feature_engineering_pipeline(
     def categorical_transformer():
         """Categorical transformer"""
         return Pipeline(steps=[
-            ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=False))
+            ('onehot', OneHotEncoder(handle_unknown='ignore', sparse_output=True))
         ])
 
     # tree-based models: numerical transformer
@@ -113,6 +144,7 @@ def feature_engineering_pipeline(
             ('model', model_class())
         ]
     )
+    logger.info("Pipeline defined for model %s", model_class.__name__)
     return pipeline
 
 def filter_param_grid(pipeline: Pipeline, raw_param_grid: dict) -> dict:
@@ -123,6 +155,8 @@ def filter_param_grid(pipeline: Pipeline, raw_param_grid: dict) -> dict:
         new_k = k.replace("preprocess__", "preprocessor__").replace("clf__", "model__")
         if new_k in valid_keys:
             model_param_grid[new_k] = v
+    
+    logger.info("Model parameters defined for %s: %s", pipeline.named_steps['model'].__class__.__name__, model_param_grid)
     return model_param_grid
 
 def tune_hyperparameters(
@@ -151,6 +185,10 @@ def tune_hyperparameters(
         error_score="raise",
     )
     search.fit(X_train, y_train)
+
+    logger.info("Best hyperparameters for model %s: %s", pipeline.named_steps['model'].__class__.__name__, search.best_params_)
+    if mlflow.active_run() is not None:
+        mlflow.log_params(search.best_params_)
     return search.best_estimator_
 
 def evaluate_metrics(
@@ -184,7 +222,10 @@ def evaluate_metrics(
             
         fold_result[f'train_{metric_name}'] = train_score
         fold_result[f'test_{metric_name}'] = test_score
-        
+    
+    logger.info("Fold %d results for model %s: %s", fold_idx, model_name, fold_result)
+    if mlflow.active_run() is not None:
+        mlflow.log_metrics({f"fold_{fold_idx}_{k}": v for k, v in fold_result.items() if k not in ["Model", "Fold"]})
     return fold_result
 
 def cross_validate_model(
@@ -216,9 +257,11 @@ def cross_validate_model(
             X_outer_val, y_outer_val, metrics, metric_funcs
         )
         fold_results.append(fold_result)
+
+    logger.info("Cross-validation complete for model %s. Fold results: %s", name, fold_results)
     return fold_results
 
-def train_model(
+def train_model_cv(
     df: pd.DataFrame, 
     features: list[str],
     target: str,
@@ -264,17 +307,9 @@ def train_model(
 
     # Initialize cross-validation splitter
     if task_type == "classification":
-        cv_splitter = StratifiedKFold(
-            n_splits=cv_splits,
-            shuffle=True,
-            random_state=random_state,
-        )
+        cv_splitter = StratifiedKFold(n_splits=cv_splits,shuffle=True,random_state=random_state)
     else:
-        cv_splitter = KFold(
-            n_splits=cv_splits,
-            shuffle=True,
-            random_state=random_state,
-        )
+        cv_splitter = KFold(n_splits=cv_splits,shuffle=True,random_state=random_state)
 
     raw_param_grid = param_grid or {}
     model_param_grid = filter_param_grid(pipeline, raw_param_grid)
@@ -300,6 +335,154 @@ def train_model(
         pipeline, model_param_grid, X_train, y_train,
         tuning_cv, primary_metric, random_state,
     )
-
+    
+    logger.info("Model training and evaluation complete for %s. Scores:\n%s", model_name, scores_df)
+    if mlflow.active_run() is not None:
+        mlflow.log_metric(f"final_model_{model_name}_{primary_metric}", scores_df[f'test_{primary_metric}'].mean())
     return scores_df, best_estimator
 
+def data_prep(
+    df: pd.DataFrame,
+    target: str
+):
+    # train–test split
+    df_train, df_test = data_splitter(df, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=df[target] if df[target].dtype == 'object' else None)
+
+    # define columns on df_train
+    features = define_features(df_train, target)
+    
+
+    # infer task type and feature categories on the training set only
+    task_type, cat_features, num_features = define_column_types(
+        df=df_train,
+        target=target,
+        features=features
+    )
+
+    # define metrics
+    metrics = list(EVALUATION_METRICS[task_type].keys())
+    logger.info("Metrics: %s", metrics)
+
+    return df_train, df_test, features, target, task_type, cat_features, num_features, metrics
+
+
+def run_model_selection(
+        df_train,
+        features,
+        target,
+        task_type,
+        cat_features,
+        num_features,
+        metrics
+):
+    
+    # train each model in a single outer loop and save its scores
+    for model_name, model_info in MODEL_REGISTRY[task_type].items():
+        pipeline = feature_engineering_pipeline(
+            numerical_features=num_features,
+            categorical_features=cat_features,
+            poly_degree=POLY_DEGREE,
+            model_class=model_info["class"],
+            model_type=model_info["type"]
+        )
+
+        model_param_grid = model_info.get("params", {})
+        logger.info("Model parameters defined for %s", model_name)
+
+
+        train_results = []
+        trained_models = {}
+        scores_df, trained_model = train_model_cv(
+                    df=df_train,
+                    features=features,
+                    target=target,
+                    model_name=model_name,
+                    pipeline=pipeline,
+                    param_grid=model_param_grid,
+                    cv_splits=CV_SPLITS,
+                    tuning_cv=CV_SPLITS,
+                    random_state=RANDOM_STATE,
+                    metrics=metrics,
+                    metric_funcs=EVALUATION_METRICS[task_type],
+                    primary_metric=PRIMARY_METRIC,
+                    task_type=task_type
+                )
+
+        # compute average scores across folds for the current model
+        avg_scores = (
+            scores_df.drop(columns=["Fold"])
+            .groupby("Model", as_index=False)
+            .mean()
+            .round(6)
+        )
+        # log avg cv scores to mlflow
+        if mlflow.active_run() is not None:
+            for metric_name in metrics:
+                mlflow.log_metric(
+                    f"avg_test_{model_name}_{metric_name}",
+                    float(avg_scores.at[0, f"test_{metric_name}"]),
+                )
+                mlflow.log_metric(
+                    f"avg_train_{model_name}_{metric_name}",
+                    float(avg_scores.at[0, f"train_{metric_name}"]),
+                )
+
+        # save cv scores to csv and log as artifact
+        report_dir = Path(f"reports/{model_name}")
+        report_dir.mkdir(parents=True, exist_ok=True)
+        saved_path = report_dir / "cv_metrics.csv"
+        avg_scores.to_csv(saved_path, index=False)
+        if mlflow.active_run() is not None:
+            mlflow.log_artifact(str(saved_path))        
+
+        train_results.append(avg_scores)
+        trained_models[model_name] = trained_model
+
+        scores = pd.concat(train_results, ignore_index=True) if train_results else pd.DataFrame()
+        if scores.empty:
+            logger.warning("No model scores were generated; skipping model selection.")
+            return df
+
+        best_model_name = (
+            scores.groupby("Model")[f'test_{PRIMARY_METRIC}']
+            .mean()
+            .sort_values(ascending=False)
+            .index[0]
+        )
+
+        best_model_on_train = trained_models[best_model_name]
+        logger.info("Best model selected on training data: %s", best_model_name)
+        if mlflow.active_run() is not None:
+            mlflow.sklearn.log_model(best_model_on_train, "best_model_train")
+
+        return best_model_on_train, best_model_name
+    
+
+def fit_final_model(
+    best_model_on_train,
+    df,
+    df_test,
+    features,
+    target,
+    task_type,
+):
+    # final untouched evaluation on holdout test set
+    eval_function = EVALUATION_METRICS[task_type][PRIMARY_METRIC]
+    best_model_test_score = eval_function(
+        df_test[target], best_model_on_train.predict(df_test[features])
+    )
+    logger.info("Holdout test score: %s", best_model_test_score)
+    if mlflow.active_run() is not None:
+        mlflow.log_metric(f"holdout_{PRIMARY_METRIC}", best_model_test_score)
+
+    # retrain the selected model on all available data after final evaluation
+    final_estimator = clone(best_model_on_train)
+    final_estimator.fit(df[features], df[target])
+    if mlflow.active_run() is not None:
+        mlflow.sklearn.log_model(final_estimator, "final_model")
+
+    df[f"{target}_hat"] = final_estimator.predict(df[features])
+
+    logger.info("model_target complete. target=%s", target)
+    
+    return df
