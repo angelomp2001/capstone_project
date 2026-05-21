@@ -54,14 +54,12 @@ def data_splitter(
         random_state=random_state,
         stratify=stratify,
     )
-    logger.info("Data split complete. train_shape=%s test_shape=%s", train_df.shape, test_df.shape)
     return train_df, test_df
 
 
 def define_features(df: pd.DataFrame, target_col: str) -> list[str]:
     """Return a feature column list excluding the target."""
     features = df.columns.difference([target_col]).tolist()
-    logger.info("Features defined: %s", features)
     return features
 
 def define_column_types(
@@ -79,13 +77,11 @@ def define_column_types(
             task_type = "classification" 
         else: 
             task_type = "regression"
-        logger.info("Task type: %s", task_type)
     
     # define features by type
     categorical_features = df[features].select_dtypes(include=['object', 'category']).columns.tolist()
     numerical_features = df[features].select_dtypes(include=['float64', 'int64', 'float32', 'int32']).columns.tolist()
 
-    logger.info("column types defined. task_type=%s cat_features=%s num_features=%s", task_type, categorical_features, numerical_features)
     return task_type, categorical_features, numerical_features
 
 def feature_engineering_pipeline(
@@ -144,7 +140,6 @@ def feature_engineering_pipeline(
             ('model', model_class())
         ]
     )
-    logger.info("Pipeline defined for model %s", model_class.__name__)
     return pipeline
 
 def filter_param_grid(pipeline: Pipeline, raw_param_grid: dict) -> dict:
@@ -156,7 +151,6 @@ def filter_param_grid(pipeline: Pipeline, raw_param_grid: dict) -> dict:
         if new_k in valid_keys:
             model_param_grid[new_k] = v
     
-    logger.info("Model parameters defined for %s: %s", pipeline.named_steps['model'].__class__.__name__, model_param_grid)
     return model_param_grid
 
 def tune_hyperparameters(
@@ -186,7 +180,6 @@ def tune_hyperparameters(
     )
     search.fit(X_train, y_train)
 
-    logger.info("Best hyperparameters for model %s: %s", pipeline.named_steps['model'].__class__.__name__, search.best_params_)
     if mlflow.active_run() is not None:
         mlflow.log_params(search.best_params_)
     return search.best_estimator_
@@ -223,7 +216,6 @@ def evaluate_metrics(
         fold_result[f'train_{metric_name}'] = train_score
         fold_result[f'test_{metric_name}'] = test_score
     
-    logger.info("Fold %d results for model %s: %s", fold_idx, model_name, fold_result)
     if mlflow.active_run() is not None:
         mlflow.log_metrics({f"fold_{fold_idx}_{k}": v for k, v in fold_result.items() if k not in ["Model", "Fold"]})
     return fold_result
@@ -251,14 +243,15 @@ def cross_validate_model(
             pipeline, model_param_grid, X_outer_train, y_outer_train, 
             tuning_cv, primary_metric, random_state
         )
-        
+        logger.info("Fold %d: Best hyperparameters for model %s: %s", fold_idx, name, model_best_estimator.get_params())
+
         fold_result = evaluate_metrics(
             model_best_estimator, name, fold_idx, X_outer_train, y_outer_train, 
             X_outer_val, y_outer_val, metrics, metric_funcs
         )
         fold_results.append(fold_result)
+        logger.info("Fold %d results for model %s: %s", fold_idx, name, fold_result)
 
-    logger.info("Cross-validation complete for model %s. Fold results: %s", name, fold_results)
     return fold_results
 
 def train_model_cv(
@@ -313,7 +306,7 @@ def train_model_cv(
 
     raw_param_grid = param_grid or {}
     model_param_grid = filter_param_grid(pipeline, raw_param_grid)
-
+    logger.info("Starting model training and evaluation for %s with %d CV splits and tuning CV=%d", model_name, cv_splits, tuning_cv)
     # Perform nested cross-validation: outer loop for evaluation, inner loop for tuning
     scores = cross_validate_model(
         model_name,
@@ -329,16 +322,17 @@ def train_model_cv(
         metric_funcs,
     )
     scores_df = pd.DataFrame(scores)
-
+    logger.info("Cross-validation completed for model %s. Scores: %s", model_name, scores_df)
+    if mlflow.active_run() is not None:
+        mlflow.log_metric(f"final_model_{model_name}_{primary_metric}", scores_df[f'test_{primary_metric}'].mean())
+    
     # Train final model on full training set with best hyperparameters
     best_estimator = tune_hyperparameters(
         pipeline, model_param_grid, X_train, y_train,
         tuning_cv, primary_metric, random_state,
     )
+    logger.info("Best hyperparameters for model %s on full training set: %s", model_name, best_estimator.get_params())
     
-    logger.info("Model training and evaluation complete for %s. Scores:\n%s", model_name, scores_df)
-    if mlflow.active_run() is not None:
-        mlflow.log_metric(f"final_model_{model_name}_{primary_metric}", scores_df[f'test_{primary_metric}'].mean())
     return scores_df, best_estimator
 
 def data_prep(
@@ -347,10 +341,10 @@ def data_prep(
 ):
     # train–test split
     df_train, df_test = data_splitter(df, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=df[target] if df[target].dtype == 'object' else None)
-
+    logger.info("Data split into train and test sets. Train size: %d, Test size: %d", len(df_train), len(df_test))
     # define columns on df_train
     features = define_features(df_train, target)
-    
+    logger.info("Features defined: %s", features)
 
     # infer task type and feature categories on the training set only
     task_type, cat_features, num_features = define_column_types(
@@ -358,7 +352,7 @@ def data_prep(
         target=target,
         features=features
     )
-
+    logger.info("Task type inferred: %s, Categorical features: %s, Numerical features: %s", task_type, cat_features, num_features)
     # define metrics
     metrics = list(EVALUATION_METRICS[task_type].keys())
     logger.info("Metrics: %s", metrics)
@@ -378,6 +372,7 @@ def run_model_selection(
     
     # train each model in a single outer loop and save its scores
     for model_name, model_info in MODEL_REGISTRY[task_type].items():
+        logger.info("For loop: %s", MODEL_REGISTRY[task_type].keys())
         pipeline = feature_engineering_pipeline(
             numerical_features=num_features,
             categorical_features=cat_features,
@@ -385,7 +380,9 @@ def run_model_selection(
             model_class=model_info["class"],
             model_type=model_info["type"]
         )
-
+        logger.info("Pipeline created for model %s: %s", model_name, pipeline)
+        
+        # filter param grid to valid pipeline keys
         model_param_grid = model_info.get("params", {})
         logger.info("Model parameters defined for %s", model_name)
 
@@ -407,7 +404,9 @@ def run_model_selection(
                     primary_metric=PRIMARY_METRIC,
                     task_type=task_type
                 )
-
+        trained_models[model_name] = trained_model
+        logger.info("Model %s trained with cross-validation. Scores: %s", model_name, scores_df)
+        
         # compute average scores across folds for the current model
         avg_scores = (
             scores_df.drop(columns=["Fold"])
@@ -415,6 +414,14 @@ def run_model_selection(
             .mean()
             .round(6)
         )
+        train_results.append(avg_scores)
+        scores = pd.concat(train_results, ignore_index=True) if train_results else pd.DataFrame()
+        if scores.empty:
+            logger.warning("No model scores were generated; skipping model selection.")
+            return df
+        
+        logger.info("Average CV scores for model %s: %s", model_name, avg_scores)
+
         # log avg cv scores to mlflow
         if mlflow.active_run() is not None:
             for metric_name in metrics:
@@ -432,30 +439,24 @@ def run_model_selection(
         report_dir.mkdir(parents=True, exist_ok=True)
         saved_path = report_dir / "cv_metrics.csv"
         avg_scores.to_csv(saved_path, index=False)
+        logger.info("CV scores for model %s saved to %s", model_name, saved_path)
         if mlflow.active_run() is not None:
             mlflow.log_artifact(str(saved_path))        
 
-        train_results.append(avg_scores)
-        trained_models[model_name] = trained_model
+        
+    # select best model based on primary metric
+    best_model_name = (
+        scores.groupby("Model")[f'test_{PRIMARY_METRIC}']
+        .mean()
+        .sort_values(ascending=False)
+        .index[0]
+    )
+    best_model_on_train = trained_models[best_model_name]
+    logger.info("Best model selected on training data: %s", best_model_name)
+    if mlflow.active_run() is not None:
+        mlflow.sklearn.log_model(best_model_on_train, "best_model_train")
 
-        scores = pd.concat(train_results, ignore_index=True) if train_results else pd.DataFrame()
-        if scores.empty:
-            logger.warning("No model scores were generated; skipping model selection.")
-            return df
-
-        best_model_name = (
-            scores.groupby("Model")[f'test_{PRIMARY_METRIC}']
-            .mean()
-            .sort_values(ascending=False)
-            .index[0]
-        )
-
-        best_model_on_train = trained_models[best_model_name]
-        logger.info("Best model selected on training data: %s", best_model_name)
-        if mlflow.active_run() is not None:
-            mlflow.sklearn.log_model(best_model_on_train, "best_model_train")
-
-        return best_model_on_train, best_model_name
+    return best_model_on_train, best_model_name
     
 
 def fit_final_model(
@@ -478,11 +479,12 @@ def fit_final_model(
     # retrain the selected model on all available data after final evaluation
     final_estimator = clone(best_model_on_train)
     final_estimator.fit(df[features], df[target])
+    logger.info("Final model retrained on full training data.")
     if mlflow.active_run() is not None:
         mlflow.sklearn.log_model(final_estimator, "final_model")
 
     df[f"{target}_hat"] = final_estimator.predict(df[features])
 
-    logger.info("model_target complete. target=%s", target)
+    logger.info("%s_hat appended to DataFrame", target)
     
     return df

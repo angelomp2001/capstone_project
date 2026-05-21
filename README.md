@@ -11,9 +11,10 @@ Right now the app supports these operations:
 - `rename_columns`
 - `change_data_type`
 - `extract_values`
+- `model_target`
 
 ## How to add an operation:
-- add method(df, params) to ApplyOperation class
+- Add method(df, params) -> pd.DataFrame: to ApplyOperation class
   - **IMPORTANT**: add docstring to auto gen prompt
 - add method to SUPPORTED_OPS tuple
 
@@ -41,7 +42,6 @@ Embarked: Port of embarkation
 Github has a copy of the API key to pass the CI/CD.
 
 ## Fastest Local Run For A Beginner
-
 If you have never run a Python app before, use these exact steps.
 
 1. Download this repository to your computer.

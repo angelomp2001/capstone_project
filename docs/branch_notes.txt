@@ -42,3 +42,9 @@ It seems like you started to ask a question, but it got cut off. Could you pleas
 2026-05-07 14:07:49,582 | ERROR | src.text_parser | LLM parsing failed: LLM output is not valid JSON
 2026-05-07 14:07:49,583 | INFO | __main__ | Parsed operations from instruction: [{'op': 'error', 'params': {'message': 'LLM parsing failed: LLM output is not valid JSON'}}]
 2026-05-07 14:07:49,584 | WARNING | __main__ | Instruction could not be applied. Message=LLM parsing failed: LLM output is not valid JSON
+
+5/20/2026
+model_target.py/run_model_selection():
+for model_name, model_info in MODEL_REGISTRY[task_type].items():
+-- MODEL_REGISTRY[task_type] = dict_keys(['Logistic', 'SVC', 'DecisionTree', 'RandomForest', 'GradientBoosting', 'XGBoost', 'LightGBM'])
+-- but only Logistic is actually going.  For loop doesn't loop through the rest.

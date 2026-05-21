@@ -13,7 +13,7 @@ import requests
 from openai import OpenAI
 
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 LOG_DIR = PROJECT_ROOT / "docs" / "logs"
 APP_LOG_FILE = LOG_DIR / "app.log"
 TRACE_LOG_FILE = LOG_DIR / "trace.log"
@@ -30,7 +30,7 @@ def setup_logging(log_level: int = logging.INFO) -> None:
 
     # formatters
     app_formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+        "%(asctime)s | %(levelname)s | %(name)s | %(funcName)s | %(message)s"
     )
     trace_formatter = logging.Formatter("%(asctime)s | %(message)s")
 
@@ -93,7 +93,7 @@ config = load_config(str(config_path)) if config_path.exists() else {}
 
 # Read configuration from environment variables (with defaults from config file)
 OLLAMA_URL = os.getenv("OLLAMA_URL", config.get("OLLAMA_URL", "https://api.tokenfactory.nebius.com/v1/"))
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", config.get("OLLAMA_MODEL", "meta-llama/Meta-Llama-3.1-8B-Instruct"))
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", config.get("OLLAMA_MODEL"))
 OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", config.get("OLLAMA_TIMEOUT", 120.0)))
 
 # set loggers
@@ -156,6 +156,11 @@ def call_llm(
     """
     if model is None:
         model = OLLAMA_MODEL
+
+    if not model:
+        raise RuntimeError(
+            "LLM model is not configured. Set OLLAMA_MODEL in configs/llm_utils.yml or via the OLLAMA_MODEL environment variable."
+        )
 
     NEBIUS_API_KEY = os.getenv("NEBIUS_API_KEY")
     

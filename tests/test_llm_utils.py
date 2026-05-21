@@ -10,7 +10,7 @@ try:
 except Exception:
     PROMPTS = {}
 
-@patch("src.llm_utils.OpenAI")
+@patch("src.llm.llm_utils.OpenAI")
 def test_call_llm(mock_openai):
     mock_client = MagicMock()
     mock_openai.return_value = mock_client
@@ -27,7 +27,7 @@ def test_call_llm(mock_openai):
     assert result == "Paris"
     mock_client.chat.completions.create.assert_called_once()
 
-@patch("src.llm_utils.call_llm")
+@patch("src.llm.llm_utils.call_llm")
 @pytest.mark.dependency(name="test_call_llm_for_json", scope="session")
 def test_call_llm_for_json(mock_call_llm):
     mock_call_llm.return_value = '{"status": "ok"}'

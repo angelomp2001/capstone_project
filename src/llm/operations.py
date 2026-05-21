@@ -292,7 +292,7 @@ class ApplyOperation:
         params: Dict[str, Any] # column
     ) -> pd.DataFrame:
         """
-        Model the target column.
+        Model/predict the target column.
 
         JSON format:
         {

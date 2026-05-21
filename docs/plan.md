@@ -81,6 +81,21 @@ predict target, mlflow (parameters, metrics, and model artifacts)
 | training | ❌ | ❌  | \[1️⃣\] | \[1️⃣\] | \[❌\] | \[1️⃣\] |
 | utils |  |  |  | \[   \] | \[   \] | \[   \] | \[   \] |
 
+operations.py/model_target():
+  data_prep()			
+    data_splitter		
+    define_features		
+    define_column_types		
+  run_model_selection()			
+    feature_engineering_pipeline		
+    train_model_cv		
+      filter_param_grid	
+      cross_validate_model	
+        tune_hyperparameters
+        evaluate_metrics
+      tune_hyperparameters	
+  fit_final_model()			
+
 # Version 2:
 
 
