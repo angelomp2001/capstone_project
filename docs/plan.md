@@ -103,64 +103,64 @@ operations.py/model_target():
 ### Evaluation Criteria Checklist
 
 **Data and Model Quality: (20 points)**
-- [ ] Data preprocessing is complete and well-documented (5 points)
-  - [ ] Missing values handled
-  - [ ] Categoricals encoded
-  - [ ] Features scaled
-  - [ ] No data leakage
-- [ ] At least 3 model configurations trained and compared (5 points)
-  - [ ] Configurations are meaningfully different
-- [ ] At least 3 evaluation metrics reported per model (4 points)
-  - [ ] Metrics appropriate to the task reported on held-out test data
-- [ ] Best model selection is justified (3 points)
-  - [ ] Clear reasoning for the selected model choice
-- [ ] Model achieves reasonable performance for the task (3 points)
-  - [ ] Performance is not trivially low; evidence of iteration to improve results
+- Data preprocessing is complete and well-documented (5 points)
+  - [M] Missing values handled
+  - [M] Categoricals encoded
+  - [1️⃣] Features scaled
+  - [1️⃣] No data leakage
+- At least 3 model configurations trained and compared (5 points)
+  - [1️⃣] Configurations are meaningfully different
+- At least 3 evaluation metrics reported per model (4 points)
+  - [1️⃣] Metrics appropriate to the task reported on held-out test data
+- Best model selection is justified (3 points)
+  - [1️⃣] Clear reasoning for the selected model choice
+- Model achieves reasonable performance for the task (3 points)
+  - [1️⃣] Performance is not trivially low; evidence of iteration to improve results
 
 **Experiment Tracking: (15 points)**
-- [ ] MLflow integrated into training script (4 points)
-  - [ ] Parameters, metrics, and model artifacts logged correctly
-- [ ] At least 5 experiment runs logged (4 points)
-  - [ ] Five distinct runs with different configurations visible in tracking
-- [ ] All hyperparameters and metrics logged (3 points)
-  - [ ] Nothing relevant missing from the logs
-- [ ] Experiment comparison script identifies best model (4 points)
+- MLflow integrated into training script (4 points)
+  - [1️⃣] Parameters, metrics, and model artifacts logged correctly
+- At least 5 experiment runs logged (4 points)
+  - [1️⃣] Five distinct runs with different configurations visible in tracking
+- All hyperparameters and metrics logged (3 points)
+  - [1️⃣] Nothing relevant missing from the logs
+- Experiment comparison script identifies best model (4 points)
   - [ ] Uses `mlflow.search_runs()` to query and rank experiments programmatically
 
 **LLM Interface: (30 points)**
-- [ ] LLM correctly parses natural language input into model features (8 points)
-  - [ ] Extracts feature values accurately from conversational text
-- [ ] Trained model is loaded and invoked with parsed features (6 points)
-  - [ ] Actual trained model produces the prediction (not a mock)
-- [ ] Response is clear, contextual, and includes the prediction (8 points)
+- LLM correctly parses natural language input into model features (8 points)
+  - [1️⃣] Extracts feature values accurately from conversational text
+- Trained model is loaded and invoked with parsed features (6 points)
+  - [1️⃣] Actual trained model produces the prediction (not a mock)
+- Response is clear, contextual, and includes the prediction (8 points)
   - [ ] LLM explains the result in domain context, not just a raw number
-- [ ] Edge cases handled gracefully (5 points)
+- Edge cases handled gracefully (5 points)
   - [ ] Missing features, ambiguous input, and out-of-scope queries are managed
-- [ ] Interface is functional and easy to use (3 points)
-  - [ ] User can interact with it without confusion (notebook, CLI, or web app)
+- Interface is functional and easy to use (3 points)
+  - [1️⃣] User can interact with it without confusion (notebook, CLI, or web app)
 
 **Testing: (15 points)**
-- [ ] At least 4 preprocessing unit tests (5 points)
+- At least 4 preprocessing unit tests (5 points)
   - [ ] Tests cover missing values, encoding, scaling, and immutability
-- [ ] At least 2 model validation tests (3 points)
+- At least 2 model validation tests (3 points)
   - [ ] Tests verify prediction shape/type and minimum performance
-- [ ] At least 2 interface tests (4 points)
+- At least 2 interface tests (4 points)
   - [ ] Tests verify input parsing accuracy and edge case handling
-- [ ] All tests pass (3 points)
+- All tests pass (3 points)
   - [ ] `pytest tests/ -v` shows zero failures
 
 **Documentation and Structure: (20 points)**
-- [ ] Clean, organized repository structure (4 points)
+- Clean, organized repository structure (4 points)
   - [ ] Logical folder layout, no unnecessary files committed
-- [ ] README is complete and clear (6 points)
+- README is complete and clear (6 points)
   - [ ] Covers project description, setup, usage, architecture, results, and reflection
-- [ ] YAML config file used for training parameters (3 points)
-  - [ ] No hardcoded hyperparameters in training script
-- [ ] Data and model files excluded from Git (3 points)
-  - [ ] Proper `.gitignore` or DVC setup
-- [ ] Requirements file with pinned versions (2 points)
-  - [ ] All dependencies listed and version-pinned
-- [ ] Demo included (recording or live) (2 points)
-  - [ ] Shows the application working end-to-end with at least one edge case
-- [ ] Dockerfile included (bonus) (up to 3 points)
-  - [ ] Working Dockerfile that builds and runs the application
+- YAML config file used for training parameters (3 points)
+  - [1️⃣] No hardcoded hyperparameters in training script
+- Data and model files excluded from Git (3 points)
+  - [1️⃣] Proper `.gitignore` or DVC setup
+- Requirements file with pinned versions (2 points)
+  - [1️⃣] All dependencies listed and version-pinned
+- Demo included (recording or live) (2 points)
+  - [1️⃣] Shows the application working end-to-end with at least one edge case
+- Dockerfile included (bonus) (up to 3 points)
+  - [1️⃣] Working Dockerfile that builds and runs the application

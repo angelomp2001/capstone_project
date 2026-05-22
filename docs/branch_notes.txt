@@ -52,4 +52,6 @@ for model_name, model_info in MODEL_REGISTRY[task_type].items():
 now it's just LightGBM in the log, even though there are scores for all models:
 - these are old logs
 - it's writing over last models, which might be why I only see LightGBM (the last model) now. 
+ ✅
+
  

@@ -3,7 +3,10 @@ import pandas as pd
 from typing import Dict, Any, List
 import re
 import inspect
+from pathlib import Path
+import mlflow
 from src.model_target import (
+    TEST_SIZE, POLY_DEGREE, RANDOM_STATE, CV_SPLITS,
     data_prep,
     run_model_selection,
     fit_final_model,
@@ -328,25 +331,52 @@ class ApplyOperation:
             target=target,
         )
 
-        best_model_on_train, best_model_name = run_model_selection(
-            df_train=df_train,
-            features=features,
-            target=target,
-            task_type=task_type,
-            cat_features=cat_features,
-            num_features=num_features,
-            metrics=metrics,
-        )
+        # Configure MLflow
+        project_root = Path(__file__).resolve().parent.parent.parent
+        db_path = project_root / "mlflow.db"
+        mlflow.set_tracking_uri(f"sqlite:///{db_path}")
 
-        df = fit_final_model(
-            best_model_on_train=best_model_on_train,
-            df=df,
-            df_test=df_test,
-            features=features,
-            target=target,
-            task_type=task_type,
-        )
-        return df
+        # Determine experiment name: Model_Target_Tests if testing, otherwise Model_Target_Experiment
+        import sys
+        if "pytest" in sys.modules or "unittest" in sys.modules:
+            experiment_name = "Model_Target_Tests"
+        else:
+            experiment_name = "Model_Target_Experiment"
+
+        mlflow.set_experiment(experiment_name)
+
+        with mlflow.start_run(run_name="best_model"):
+            # Log high-level setup parameters in the parent run
+            mlflow.log_params({
+                "target_column": target,
+                "cv_splits": CV_SPLITS,
+                "random_state": RANDOM_STATE,
+                "poly_degree": POLY_DEGREE,
+                "test_size": TEST_SIZE,
+                "task_type": task_type,
+            })
+
+            best_model_on_train, best_model_name = run_model_selection(
+                df_train=df_train,
+                features=features,
+                target=target,
+                task_type=task_type,
+                cat_features=cat_features,
+                num_features=num_features,
+                metrics=metrics,
+                experiment_name=experiment_name,
+            )
+
+            df = fit_final_model(
+                best_model_on_train=best_model_on_train,
+                df=df,
+                df_test=df_test,
+                features=features,
+                target=target,
+                task_type=task_type,
+            )
+            
+            return df
 
 def get_ops_description() -> str:
     """

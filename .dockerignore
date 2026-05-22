@@ -18,3 +18,4 @@ tests
 .DS_Store
 .env
 .env.local
+*.pyc

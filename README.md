@@ -41,58 +41,72 @@ Embarked: Port of embarkation
 ## github API key
 Github has a copy of the API key to pass the CI/CD.
 
-## Fastest Local Run For A Beginner
-If you have never run a Python app before, use these exact steps.
+## Fastest Local Run
+Option 1 — Run Locally (Recommended for Development)
+1. Clone the repository
+git clone <your-repo-url>
+cd capstone_project
+2. Install Poetry
 
-1. Download this repository to your computer.
-2. Open the project folder in File Explorer.
-3. Click the folder path bar, type `powershell`, and press Enter.
-4. In that PowerShell window, run:
+Install Poetry if you do not already have it:
 
+https://python-poetry.org/docs/#installation
+
+Verify installation:
+
+poetry --version
+3. Install dependencies
+poetry install
+
+This installs all dependencies defined in:
+
+pyproject.toml
+poetry.lock
+
+Poetry is the single source of truth for dependency versions.
+
+4. Run the app
+poetry run streamlit run app.py
+
+The app should open automatically in your browser.
+
+If not, visit:
+
+http://localhost:8501
+Option 2 — Run with Docker
+1. Install Docker Desktop
+
+Install:
+
+https://www.docker.com/products/docker-desktop/
+
+IMPORTANT:
+
+Docker Desktop must be running before executing Docker commands.
+Wait until Docker shows:
+Engine running
+2. Build the Docker image
+
+From the repository root:
+
+docker build --no-cache -t capstone-app .
+3. Run the container
+docker run -p 8501:8501 capstone-app
+4. Open the app
+
+Visit:
+
+http://localhost:8501
+
+### mlflow
+Launch web interface:
 ```powershell
-python -m venv .venv
+mlflow ui
 ```
+view web interface:
+http://127.0.0.1:5000
 
-6. Activate the virtual environment:
 
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-7. Install the app dependencies:
-
-```powershell
-pip install -r requirements.txt
-```
-
-8. Start the app:
-
-```powershell
-streamlit run app.py
-```
-
-9. Open your browser to [http://localhost:8501](http://localhost:8501).
-10. When you are done, go back to PowerShell and press `Ctrl+C` to stop the app.
-
-If PowerShell blocks the activate command, run this once in the same PowerShell window and then try step 6 again:
-
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass
-```
-
-## Proper Terminal Workflow
-
-This is the normal command-line way to run the project without Docker Desktop.
-
-```powershell
-cd C:\path\to\capstone_project
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-streamlit run app.py
-```
-
-After the app starts, open [http://localhost:8501](http://localhost:8501).
 
 ## Docker From The Terminal
 

@@ -1,0 +1,23 @@
+artifact_path: file:C:/Users/Angelo/Documents/github/capstone_project/mlruns/1/models/m-a67378498bd549ed944a9fce33464376/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.11
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.8.0
+    skops_trusted_types: null
+mlflow_version: 3.12.0
+model_id: m-a67378498bd549ed944a9fce33464376
+model_size_bytes: 6427
+model_uuid: m-a67378498bd549ed944a9fce33464376
+prompts: null
+run_id: cfb629278aad43c3850ac0d5d43d02c2
+utc_time_created: '2026-05-22 18:09:16.036931'

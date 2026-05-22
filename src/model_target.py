@@ -15,7 +15,6 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, PolynomialFeatures, StandardScaler
 
 from src.registry import MODEL_REGISTRY
-
 logger = logging.getLogger(__name__)
 
 # model target defaults
@@ -24,6 +23,7 @@ RANDOM_STATE = 42
 POLY_DEGREE = 2
 PRIMARY_METRIC = 'accuracy'
 CV_SPLITS = 5
+
 EVALUATION_METRICS = {
     'classification': {
         'accuracy': accuracy_score,
@@ -39,7 +39,6 @@ EVALUATION_METRICS = {
         'r2': r2_score,
     }
 }
-
 
 def data_splitter(
     df: pd.DataFrame,
@@ -180,8 +179,6 @@ def tune_hyperparameters(
     )
     search.fit(X_train, y_train)
 
-    if mlflow.active_run() is not None:
-        mlflow.log_params(search.best_params_)
     return search.best_estimator_
 
 def evaluate_metrics(
@@ -217,7 +214,7 @@ def evaluate_metrics(
         fold_result[f'test_{metric_name}'] = test_score
     
     if mlflow.active_run() is not None:
-        mlflow.log_metrics({f"fold_{fold_idx}_{k}": v for k, v in fold_result.items() if k not in ["Model", "Fold"]})
+        mlflow.log_metrics({f"fold_{fold_idx}_{model_name}_{k}": v for k, v in fold_result.items() if k not in ["Model", "Fold"]})
     return fold_result
 
 def cross_validate_model(
@@ -267,7 +264,8 @@ def train_model_cv(
     metrics: list[str],
     metric_funcs: dict,
     primary_metric: str,
-    task_type: str
+    task_type: str,
+    experiment_name: str
 ) -> tuple[pd.DataFrame, Any]:
     """
     Train a model with nested cross-validation and hyperparameter tuning.
@@ -325,14 +323,29 @@ def train_model_cv(
     logger.info("Cross-validation completed for model %s. Scores: %s", model_name, scores_df)
     if mlflow.active_run() is not None:
         mlflow.log_metric(f"final_model_{model_name}_{primary_metric}", scores_df[f'test_{primary_metric}'].mean())
-    
+        
     # Train final model on full training set with best hyperparameters
     best_estimator = tune_hyperparameters(
         pipeline, model_param_grid, X_train, y_train,
         tuning_cv, primary_metric, random_state,
     )
     logger.info("Best hyperparameters for model %s on full training set: %s", model_name, best_estimator.get_params())
+
+    # save best hyperparameters
+    best_hyperparams_path = Path("reports") / f'{model_name}' / f"best_hyperparameters_{model_name}.csv"
+    best_hyperparams_path.parent.mkdir(exist_ok=True)
+    pd.DataFrame([best_estimator.get_params().items()]).to_csv(best_hyperparams_path, index=False)
+    logger.info("Best hyperparameters for model %s saved to %s", model_name, best_hyperparams_path)
     
+    # Log best model hyperparameters
+    if mlflow.active_run() is not None:
+        with mlflow.start_run(run_name="best_hyperparameters", nested=True):
+            mlflow.log_params({
+                "model_name": model_name,
+                "best_hyperparameters": best_estimator.get_params(),
+            })
+            mlflow.log_artifact(best_hyperparams_path)
+
     return scores_df, best_estimator
 
 def data_prep(
@@ -367,8 +380,12 @@ def run_model_selection(
         task_type,
         cat_features,
         num_features,
-        metrics
+        metrics,
+        experiment_name
 ):
+    
+    best_estimators = {}
+    all_avg_scores = []
     
     # train each model in a single outer loop and save its scores
     for model_name, model_info in MODEL_REGISTRY[task_type].items():
@@ -387,7 +404,6 @@ def run_model_selection(
         logger.info("Model parameters defined for %s", model_name)
 
 
-        best_estimators = {}
         scores_df, best_estimator = train_model_cv(
                     df=df_train,
                     features=features,
@@ -401,7 +417,8 @@ def run_model_selection(
                     metrics=metrics,
                     metric_funcs=EVALUATION_METRICS[task_type],
                     primary_metric=PRIMARY_METRIC,
-                    task_type=task_type
+                    task_type=task_type,
+                    experiment_name=experiment_name
                 )
         best_estimators[model_name] = best_estimator
         logger.info("Model %s trained with cross-validation. Scores: %s", model_name, scores_df[scores_df['Model'] == model_name])
@@ -416,8 +433,9 @@ def run_model_selection(
             
         if avg_scores_df.empty:
             logger.warning("No model scores were generated; skipping model selection.")
-            return df
+            continue
 
+        all_avg_scores.append(avg_scores_df)
         logger.info("Average CV scores for model %s: %s", model_name, avg_scores_df[avg_scores_df['Model'] == model_name])
 
         # log avg cv scores to mlflow
@@ -436,25 +454,59 @@ def run_model_selection(
         report_dir = Path(f"reports/{model_name}")
         report_dir.mkdir(parents=True, exist_ok=True)
         saved_path = report_dir / "cv_metrics.csv"
-        scores_df.to_csv(saved_path, index=False, mode = 'w', header=not Path("reports/avg_cv_metrics.csv").exists())
+        scores_df.to_csv(saved_path, index=False)
         logger.info("CV scores for model %s saved to %s", model_name, saved_path)
         if mlflow.active_run() is not None:
             mlflow.log_artifact(str(saved_path))        
 
-        # save average scores for all models to csv and log as artifact
-        avg_scores_df.to_csv(f"reports/avg_cv_metrics.csv", index=False, mode = 'w', header=not Path("reports/avg_cv_metrics.csv").exists())
-        if mlflow.active_run() is not None:
-            mlflow.log_artifact("reports/avg_cv_metrics.csv")
+    if not all_avg_scores:
+        logger.warning("No model scores were generated; skipping model selection.")
+        return None, None
+
+    # Concatenate all average scores
+    total_avg_scores_df = pd.concat(all_avg_scores, ignore_index=True)
+
+    # save average scores for all models to csv and log as artifact
+    total_avg_scores_df.to_csv("reports/avg_cv_metrics.csv", index=False)
+    if mlflow.active_run() is not None:
+        mlflow.log_artifact("reports/avg_cv_metrics.csv")
 
     # select best model based on primary metric
-    best_model_name = (
-        avg_scores_df.set_index("Model")[f"test_{PRIMARY_METRIC}"]
-        .sort_values(ascending=False)
-        .index[0]
-    )
+    # Search runs using MLflow
+    experiment_id = mlflow.get_experiment_by_name(experiment_name).experiment_id
+    runs_df = mlflow.search_runs(experiment_ids=[experiment_id], filter_string="", output_format="pandas")
+    logger.info("Runs DataFrame columns: %s", runs_df.columns)
+    runs_df.to_csv("reports/runs.csv", index=False)
+    
+    # Select best model based on primary metric
+    try:
+        col_map = {f"metrics.avg_test_{m}_{PRIMARY_METRIC}": m for m in MODEL_REGISTRY[task_type]}
+        active_row = runs_df[runs_df["run_id"] == mlflow.active_run().info.run_id].iloc[0]
+        best_col = active_row[[c for c in col_map if c in runs_df.columns]].astype(float).idxmax()
+        best_model_name = col_map[best_col]
+    except Exception:
+        best_model_name = (
+            total_avg_scores_df.set_index("Model")[f"test_{PRIMARY_METRIC}"]
+            .sort_values(ascending=False)
+            .index[0]
+        )
     best_model_on_train = best_estimators[best_model_name]
     logger.info("Best model selected on training data: %s", best_model_name)
+    
     if mlflow.active_run() is not None:
+        # Log best model name as parameter and tag
+        mlflow.log_param("best_model_name", best_model_name)
+        mlflow.set_tag("best_model_name", best_model_name)
+        
+        # Log the best model's tuned hyperparameters
+        model_info = MODEL_REGISTRY[task_type][best_model_name]
+        raw_param_grid = model_info.get("params", {})
+        model_param_grid = filter_param_grid(best_model_on_train, raw_param_grid)
+        best_params = {k: best_model_on_train.get_params()[k] for k in model_param_grid.keys() if k in best_model_on_train.get_params()}
+        if best_params:
+            mlflow.log_params(best_params)
+
+        mlflow.sklearn.log_model(best_model_on_train, best_model_name)
         mlflow.sklearn.log_model(best_model_on_train, "best_model_train")
 
     return best_model_on_train, best_model_name
@@ -467,6 +519,7 @@ def fit_final_model(
     features,
     target,
     task_type,
+    best_model_name=None,
 ):
     # final untouched evaluation on holdout test set
     eval_function = EVALUATION_METRICS[task_type][PRIMARY_METRIC]
@@ -482,7 +535,9 @@ def fit_final_model(
     final_estimator.fit(df[features], df[target])
     logger.info("Final model retrained on full training data.")
     if mlflow.active_run() is not None:
-        mlflow.sklearn.log_model(final_estimator, "final_model")
+        mlflow.sklearn.log_model(final_estimator, "best_model_df")
+        if best_model_name:
+            mlflow.sklearn.log_model(final_estimator, f"final_model_{best_model_name}")
 
     df[f"{target}_hat"] = final_estimator.predict(df[features])
 
