@@ -125,7 +125,7 @@ operations.py/model_target():
 - All hyperparameters and metrics logged (3 points)
   - [1️⃣] Nothing relevant missing from the logs
 - Experiment comparison script identifies best model (4 points)
-  - [ ] Uses `mlflow.search_runs()` to query and rank experiments programmatically
+  - [1️⃣] Uses `mlflow.search_runs()` to query and rank experiments programmatically
 
 **LLM Interface: (30 points)**
 - LLM correctly parses natural language input into model features (8 points)
