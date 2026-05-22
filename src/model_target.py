@@ -387,9 +387,8 @@ def run_model_selection(
         logger.info("Model parameters defined for %s", model_name)
 
 
-        train_results = []
-        trained_models = {}
-        scores_df, trained_model = train_model_cv(
+        best_estimators = {}
+        scores_df, best_estimator = train_model_cv(
                     df=df_train,
                     features=features,
                     target=target,
@@ -404,54 +403,56 @@ def run_model_selection(
                     primary_metric=PRIMARY_METRIC,
                     task_type=task_type
                 )
-        trained_models[model_name] = trained_model
-        logger.info("Model %s trained with cross-validation. Scores: %s", model_name, scores_df)
+        best_estimators[model_name] = best_estimator
+        logger.info("Model %s trained with cross-validation. Scores: %s", model_name, scores_df[scores_df['Model'] == model_name])
         
         # compute average scores across folds for the current model
-        avg_scores = (
+        avg_scores_df = (
             scores_df.drop(columns=["Fold"])
             .groupby("Model", as_index=False)
             .mean()
             .round(6)
         )
-        train_results.append(avg_scores)
-        scores = pd.concat(train_results, ignore_index=True) if train_results else pd.DataFrame()
-        if scores.empty:
+            
+        if avg_scores_df.empty:
             logger.warning("No model scores were generated; skipping model selection.")
             return df
-        
-        logger.info("Average CV scores for model %s: %s", model_name, avg_scores)
+
+        logger.info("Average CV scores for model %s: %s", model_name, avg_scores_df[avg_scores_df['Model'] == model_name])
 
         # log avg cv scores to mlflow
         if mlflow.active_run() is not None:
             for metric_name in metrics:
                 mlflow.log_metric(
-                    f"avg_test_{model_name}_{metric_name}",
-                    float(avg_scores.at[0, f"test_{metric_name}"]),
+                f"avg_test_{model_name}_{metric_name}",
+                float(avg_scores_df.at[0, f"test_{metric_name}"]),
                 )
                 mlflow.log_metric(
-                    f"avg_train_{model_name}_{metric_name}",
-                    float(avg_scores.at[0, f"train_{metric_name}"]),
+                f"avg_train_{model_name}_{metric_name}",
+                float(avg_scores_df.at[0, f"train_{metric_name}"]),
                 )
 
-        # save cv scores to csv and log as artifact
+        # save cv fold scores to csv and log as artifact
         report_dir = Path(f"reports/{model_name}")
         report_dir.mkdir(parents=True, exist_ok=True)
         saved_path = report_dir / "cv_metrics.csv"
-        avg_scores.to_csv(saved_path, index=False)
+        scores_df.to_csv(saved_path, index=False, mode = 'w', header=not Path("reports/avg_cv_metrics.csv").exists())
         logger.info("CV scores for model %s saved to %s", model_name, saved_path)
         if mlflow.active_run() is not None:
             mlflow.log_artifact(str(saved_path))        
 
-        
+        # save average scores for all models to csv and log as artifact
+        avg_scores_df.to_csv(f"reports/avg_cv_metrics.csv", index=False, mode = 'w', header=not Path("reports/avg_cv_metrics.csv").exists())
+        if mlflow.active_run() is not None:
+            mlflow.log_artifact("reports/avg_cv_metrics.csv")
+
     # select best model based on primary metric
     best_model_name = (
-        scores.groupby("Model")[f'test_{PRIMARY_METRIC}']
-        .mean()
+        avg_scores_df.set_index("Model")[f"test_{PRIMARY_METRIC}"]
         .sort_values(ascending=False)
         .index[0]
     )
-    best_model_on_train = trained_models[best_model_name]
+    best_model_on_train = best_estimators[best_model_name]
     logger.info("Best model selected on training data: %s", best_model_name)
     if mlflow.active_run() is not None:
         mlflow.sklearn.log_model(best_model_on_train, "best_model_train")
