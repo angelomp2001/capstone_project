@@ -5,6 +5,7 @@ import re
 import inspect
 from pathlib import Path
 import mlflow
+# pyrefly: ignore [missing-import]
 from src.model_target import (
     TEST_SIZE, POLY_DEGREE, RANDOM_STATE, CV_SPLITS,
     data_prep,
@@ -292,27 +293,27 @@ class ApplyOperation:
     @staticmethod
     def model_target(
         df: pd.DataFrame,
-        params: Dict[str, Any], # column
+        params: Dict[str, Any], # column, model (optional)
         model: str | None = None
     ) -> pd.DataFrame:
         """
-        Model/predict the target column.
+        Model/predict the target column. Optionally select a specific model to use from the model registry.
 
         JSON format:
         {
           "op": "model_target",
           "params": {
-            "column": "<column name>"
+            "column": "<column name>",
+            "model": null or "<model name from model registry>"
           }
         }
         """
         target = params.get("column")
+        model = params.get("model", model)
         if not target:
             logger.warning("model_target skipped because no target column was provided")
             return df
 
-       
-       
         if target not in df.columns:
             logger.warning("model_target skipped because column does not exist: %s", target)
             return df
@@ -369,6 +370,10 @@ class ApplyOperation:
                 model=model
             )
 
+            if best_model_on_train is None:
+                logger.warning("No best model was trained or selected. Skipping final model fitting.")
+                return df
+
             df = fit_final_model(
                 best_model_on_train=best_model_on_train,
                 df=df,
@@ -376,6 +381,7 @@ class ApplyOperation:
                 features=features,
                 target=target,
                 task_type=task_type,
+                best_model_name=best_model_name
             )
             
             return df

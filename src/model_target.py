@@ -388,17 +388,18 @@ def run_model_selection(
     best_estimators = {}
     all_avg_scores = []
     
-    if model in MODEL_REGISTRY[task_type]:
-        # replace all model options with only the model the user specified
-        MODEL_REGISTRY[task_type] = {model: MODEL_REGISTRY[task_type][model]}
-        logger.info("Model selected by user: %s", model)
-    
-    else:
-        logger.info("Model %s not found in MODEL_REGISTRY[task_type]. Cancelling model selection.", model)
-        return None, None     
+    models_to_run = MODEL_REGISTRY[task_type]
+    if model is not None:
+        if model in models_to_run:
+            # use only the model the user specified
+            models_to_run = {model: models_to_run[model]}
+            logger.info("Model selected by user: %s", model)
+        else:
+            logger.info("Model %s not found in MODEL_REGISTRY[task_type]. Cancelling model selection.", model)
+            return None, None
         
     # train each model in a single outer loop and save its scores
-    for model_name, model_info in MODEL_REGISTRY[task_type].items():
+    for model_name, model_info in models_to_run.items():
         logger.info("For loop: %s", MODEL_REGISTRY[task_type].keys())
         pipeline = feature_engineering_pipeline(
             numerical_features=num_features,
@@ -490,7 +491,7 @@ def run_model_selection(
     
     # Select best model based on primary metric
     try:
-        col_map = {f"metrics.avg_test_{m}_{PRIMARY_METRIC}": m for m in MODEL_REGISTRY[task_type]}
+        col_map = {f"metrics.avg_test_{m}_{PRIMARY_METRIC}": m for m in models_to_run}
         active_row = runs_df[runs_df["run_id"] == mlflow.active_run().info.run_id].iloc[0]
         best_col = active_row[[c for c in col_map if c in runs_df.columns]].astype(float).idxmax()
         best_model_name = col_map[best_col]

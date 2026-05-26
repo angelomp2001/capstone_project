@@ -24,6 +24,23 @@ except Exception:
 
 
 
+def format_model_registry() -> str:
+    """
+    Format the MODEL_REGISTRY from src.registry into a readable string for the LLM prompt.
+    """
+    try:
+        from src.registry import MODEL_REGISTRY
+        lines = []
+        for task_type, models in MODEL_REGISTRY.items():
+            lines.append(f"{task_type}:")
+            for model_name in sorted(models.keys()):
+                lines.append(f"  - {model_name}")
+        return "\n".join(lines)
+    except Exception as e:
+        logger.error("Failed to format model registry: %s", e)
+        return ""
+
+
 def llm_parses_to_ops(
     user_text: str,
     df: pd.DataFrame,
@@ -69,7 +86,8 @@ def llm_parses_to_ops(
         columns=columns,
         ops_description=ops_description,
         user_text=user_text,
-        supported_ops=sorted(list(SUPPORTED_OPS))
+        supported_ops=sorted(list(SUPPORTED_OPS)),
+        model_registry=format_model_registry()
     )
 
     try:
