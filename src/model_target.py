@@ -88,7 +88,8 @@ def feature_engineering_pipeline(
     categorical_features: list[str],
     poly_degree: int,
     model_class: Any,
-    model_type: str
+    model_type: str,
+    default_params: dict | None = None
 ):
     """Builds a preprocessing pipeline and attaches a fresh estimator instance."""
 
@@ -133,10 +134,11 @@ def feature_engineering_pipeline(
         ])
 
     # Create pipeline
+    model_kwargs = default_params or {}
     pipeline = Pipeline(
         steps=[
             ('preprocessor', prep),
-            ('model', model_class())
+            ('model', model_class(**model_kwargs))
         ]
     )
     return pipeline
@@ -406,7 +408,8 @@ def run_model_selection(
             categorical_features=cat_features,
             poly_degree=POLY_DEGREE,
             model_class=model_info["class"],
-            model_type=model_info["type"]
+            model_type=model_info["type"],
+            default_params=model_info.get("default_params")
         )
         logger.info("Pipeline created for model %s: %s", model_name, pipeline)
         

@@ -94,6 +94,7 @@ MODEL_REGISTRY = {
         },
         "SVC": {
             "class": SVC, 
+            "default_params": {"probability": True},
             "params": {
                 "model__C": loguniform(1e-3, 1e3),
                 "model__gamma": ["scale", "auto"]
