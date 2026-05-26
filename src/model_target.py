@@ -381,12 +381,22 @@ def run_model_selection(
         cat_features,
         num_features,
         metrics,
-        experiment_name
+        experiment_name,
+        model: str = None
 ):
     
     best_estimators = {}
     all_avg_scores = []
     
+    if model in MODEL_REGISTRY[task_type]:
+        # replace all model options with only the model the user specified
+        MODEL_REGISTRY[task_type] = {model: MODEL_REGISTRY[task_type][model]}
+        logger.info("Model selected by user: %s", model)
+    
+    else:
+        logger.info("Model %s not found in MODEL_REGISTRY[task_type]. Cancelling model selection.", model)
+        return None, None     
+        
     # train each model in a single outer loop and save its scores
     for model_name, model_info in MODEL_REGISTRY[task_type].items():
         logger.info("For loop: %s", MODEL_REGISTRY[task_type].keys())
@@ -539,7 +549,7 @@ def fit_final_model(
         if best_model_name:
             mlflow.sklearn.log_model(final_estimator, f"final_model_{best_model_name}")
 
-    df[f"{target}_hat"] = final_estimator.predict(df[features])
+    df[f"{target}_hat"] = final_estimator.predict_proba(df[features])[:, 1]
 
     logger.info("%s_hat appended to DataFrame", target)
     

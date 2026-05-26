@@ -292,7 +292,8 @@ class ApplyOperation:
     @staticmethod
     def model_target(
         df: pd.DataFrame,
-        params: Dict[str, Any] # column
+        params: Dict[str, Any], # column
+        model: str | None = None
     ) -> pd.DataFrame:
         """
         Model/predict the target column.
@@ -365,6 +366,7 @@ class ApplyOperation:
                 num_features=num_features,
                 metrics=metrics,
                 experiment_name=experiment_name,
+                model=model
             )
 
             df = fit_final_model(

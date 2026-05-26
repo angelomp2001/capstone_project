@@ -11,6 +11,9 @@ text_parser:
 
     {ops_description}
 
+    Model options for predicting the target variable:
+    {model_registry}
+
     User instruction:
     """{user_text}"""
 
