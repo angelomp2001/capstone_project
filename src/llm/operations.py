@@ -79,7 +79,7 @@ class ApplyOperation:
         # apply element-wise function to all of column
         df[[f'{col}_first_value']] = df[col].apply(get_first_in_element)
         logger.info("get_first_value_in_col complete. col=%s split_by=%s shape_after=%s", col, split_by, df.shape)
-        return df[[f'{col}_first_value']]
+        return df[[f'{col}_first_value']], msg
     
     @staticmethod
     def split_alphanumeric(

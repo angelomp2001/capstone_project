@@ -540,21 +540,24 @@ def fit_final_model(
     task_type,
     best_model_name=None,
 ):
+
     # final untouched evaluation on holdout test set
     eval_function = EVALUATION_METRICS[task_type][PRIMARY_METRIC]
-    best_model_test_score = eval_function(
-        df_test[target], best_model_on_train.predict(df_test[features])
-    )
-    logger.info("Holdout test score: %s", best_model_test_score)
-    if mlflow.active_run() is not None:
-        mlflow.log_metric(f"holdout_{PRIMARY_METRIC}", best_model_test_score)
-
-
+    
     # retrain the selected model on all available data after final evaluation
     final_estimator = clone(best_model_on_train)
 
-    # if features is a list
+    # if features is a list, goal: model target on features
     if isinstance(features, list):
+        # get best model test score
+        best_model_test_score = eval_function(
+        df_test[target], best_model_on_train.predict(df_test[features])
+        )
+        logger.info("Holdout test score: %s", best_model_test_score)
+        if mlflow.active_run() is not None:
+            mlflow.log_metric(f"holdout_{PRIMARY_METRIC}", best_model_test_score)
+
+        # fit to whole df
         final_estimator.fit(df[features], df[target])
         logger.info("Final model retrained on full training data.")
         if mlflow.active_run() is not None:
@@ -562,6 +565,7 @@ def fit_final_model(
             if best_model_name:
                 mlflow.sklearn.log_model(final_estimator, f"final_model_{best_model_name}")
 
+        # apply to whole df
         df[f"{target}_hat"] = final_estimator.predict_proba(df[features])[:, 1]
 
         logger.info("%s_hat appended to DataFrame", target)
@@ -576,6 +580,8 @@ def fit_final_model(
             if best_model_name:
                 mlflow.sklearn.log_model(final_estimator, f"final_model_{best_model_name}")
 
-        target_hat = final_estimator.predict(df[features.keys()])
+        # user feature values in df form
+        input_values = pd.DataFrame(features)
+        target_hat = final_estimator.predict(df[input_values])
         return df, target_hat
 

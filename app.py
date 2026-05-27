@@ -110,13 +110,13 @@ def main():
             trace.info("USER INPUT text=%r", user_input)
 
             # Translate instruction into operations
-            ops = llm_parses_to_ops(user_input, st.session_state.df)
-            logger.info("Parsed operations from instruction: %s", ops)
+            ops_json = llm_parses_to_ops(user_input, st.session_state.df)
+            logger.info("Parsed operations from instruction: %s", ops_json)
 
-            if not ops or ops[0].get("op") == "error":
+            if not ops_json or ops_json[0].get("op") == "error":
                 msg = (
-                    ops[0]["params"]["message"]
-                    if ops
+                    ops_json[0]["params"]["message"]
+                    if ops_json
                     else "I couldn't map that request to one of the supported POC operations yet."
                 )
                 logger.warning("Instruction could not be applied. Message=%s", msg)
@@ -125,15 +125,15 @@ def main():
                 st.error(msg)
             else:
                 # Apply operations
-                new_df = apply_operations(st.session_state.df, ops)
+                new_df = apply_operations(st.session_state.df, ops_json)
 
                 # Update state
                 st.session_state.df = new_df
-                st.session_state.operations.extend(ops)
+                st.session_state.operations.extend(ops_json)
 
-                msg = f"I applied {len(ops)} operation(s):\n{ops}"
-                logger.info("Instruction applied successfully. Operations=%s new_shape=%s", ops, new_df.shape)
-                trace.info("USER INPUT SUCCESS ops=%r new_shape=%r", ops, new_df.shape)
+                msg = f"I applied {len(ops_json)} operation(s):\n{ops_json}"
+                logger.info("Instruction applied successfully. Operations=%s new_shape=%s", ops_json, new_df.shape)
+                trace.info("USER INPUT SUCCESS ops=%r new_shape=%r", ops_json, new_df.shape)
                 st.session_state.chat_history.append(("assistant", msg))
                 st.rerun()
 

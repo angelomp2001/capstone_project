@@ -292,18 +292,18 @@ def call_llm_for_json(
 
     # Try direct JSON parsing first
     try:
-        parsed = json.loads(text)
-        trace.info("LLM JSON PARSED direct=%r", parsed)
-        return parsed
+        parsed_json = json.loads(text)
+        trace.info("LLM JSON PARSED direct=%r", parsed_json)
+        return parsed_json
     except json.JSONDecodeError:
 
         # Some models wrap JSON in markdown fences; try to extract.
         stripped = _extract_json_from_text(text)
         try:
             # Final attempt to parse the extracted JSON substring
-            parsed = json.loads(stripped)
-            trace.info("LLM JSON PARSED extracted=%r", parsed)
-            return parsed
+            parsed_json = json.loads(stripped)
+            trace.info("LLM JSON PARSED extracted=%r", parsed_json)
+            return parsed_json
         except json.JSONDecodeError as e:
             # Log the raw output for debugging
             trace.info("LLM JSON PARSE ERROR raw=%r", text)
