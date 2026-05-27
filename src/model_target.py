@@ -56,9 +56,13 @@ def data_splitter(
     return train_df, test_df
 
 
-def define_features(df: pd.DataFrame, target_col: str) -> list[str]:
+def define_features(df: pd.DataFrame, target_col: str, features: list[str] = None) -> list[str]:
     """Return a feature column list excluding the target."""
-    features = df.columns.difference([target_col]).tolist()
+    if features is None:
+        features = df.columns.difference([target_col]).tolist()
+    else:
+        features = [f for f in features if f in df.columns]
+    
     return features
 
 def define_column_types(
@@ -352,13 +356,14 @@ def train_model_cv(
 
 def data_prep(
     df: pd.DataFrame,
-    target: str
+    target: str,
+    features: list[str] = None
 ):
     # train–test split
     df_train, df_test = data_splitter(df, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=df[target] if df[target].dtype == 'object' else None)
     logger.info("Data split into train and test sets. Train size: %d, Test size: %d", len(df_train), len(df_test))
     # define columns on df_train
-    features = define_features(df_train, target)
+    features = define_features(df_train, target, features)
     logger.info("Features defined: %s", features)
 
     # infer task type and feature categories on the training set only
@@ -530,7 +535,7 @@ def fit_final_model(
     best_model_on_train,
     df,
     df_test,
-    features,
+    features: list[str] | dict[str, Any],
     target,
     task_type,
     best_model_name=None,
@@ -544,17 +549,33 @@ def fit_final_model(
     if mlflow.active_run() is not None:
         mlflow.log_metric(f"holdout_{PRIMARY_METRIC}", best_model_test_score)
 
+
     # retrain the selected model on all available data after final evaluation
     final_estimator = clone(best_model_on_train)
-    final_estimator.fit(df[features], df[target])
-    logger.info("Final model retrained on full training data.")
-    if mlflow.active_run() is not None:
-        mlflow.sklearn.log_model(final_estimator, "best_model_df")
-        if best_model_name:
-            mlflow.sklearn.log_model(final_estimator, f"final_model_{best_model_name}")
 
-    df[f"{target}_hat"] = final_estimator.predict_proba(df[features])[:, 1]
+    # if features is a list
+    if isinstance(features, list):
+        final_estimator.fit(df[features], df[target])
+        logger.info("Final model retrained on full training data.")
+        if mlflow.active_run() is not None:
+            mlflow.sklearn.log_model(final_estimator, "best_model_df")
+            if best_model_name:
+                mlflow.sklearn.log_model(final_estimator, f"final_model_{best_model_name}")
 
-    logger.info("%s_hat appended to DataFrame", target)
-    
-    return df
+        df[f"{target}_hat"] = final_estimator.predict_proba(df[features])[:, 1]
+
+        logger.info("%s_hat appended to DataFrame", target)
+        return df
+
+    else:
+        # if features is a dict, fit and predict with dict values
+        final_estimator.fit(df[features.keys()], df[target])
+        logger.info("Final model retrained on full training data.")
+        if mlflow.active_run() is not None:
+            mlflow.sklearn.log_model(final_estimator, "best_model_df")
+            if best_model_name:
+                mlflow.sklearn.log_model(final_estimator, f"final_model_{best_model_name}")
+
+        target_hat = final_estimator.predict(df[features.keys()])
+        return df, target_hat
+

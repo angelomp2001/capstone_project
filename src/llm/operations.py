@@ -294,7 +294,6 @@ class ApplyOperation:
     def model_target(
         df: pd.DataFrame,
         params: Dict[str, Any], # column, model (optional)
-        model: str | None = None
     ) -> pd.DataFrame:
         """
         Model/predict the target column. Optionally select a specific model to use from the model registry.
@@ -303,13 +302,15 @@ class ApplyOperation:
         {
           "op": "model_target",
           "params": {
-            "column": "<column name>",
+            "target": "<column name>",
             "model": null or "<model name from model registry>"
+            "features": {<column_name>: <value>}
           }
         }
         """
-        target = params.get("column")
-        model = params.get("model", model)
+        model = params.get("model", None)
+        target = params.get("target")
+        features_dict = params.get("features", None)
         if not target:
             logger.warning("model_target skipped because no target column was provided")
             return df
@@ -318,6 +319,17 @@ class ApplyOperation:
             logger.warning("model_target skipped because column does not exist: %s", target)
             return df
 
+        # drop features not in df
+        feature_set, user_feature_set = set(df.columns), set(features_dict.keys())
+        dropped_features = user_feature_set - feature_set
+        
+        if dropped_features and len(dropped_features) < len(user_feature_set):
+            logger.warning("features dropped: %s", dropped_features)
+        
+        # drop features that are not in df
+        features_dict = {k: features_dict[k] for k in user_feature_set & feature_set}
+
+        # drop rows with missing values
         original_rows = len(df)
         df = df.dropna().copy()
         dropped_rows = original_rows - len(df)
@@ -328,9 +340,11 @@ class ApplyOperation:
             logger.warning("model_target skipped because dataframe is empty")
             return df
 
+        # prep data
         df_train, df_test, features, target, task_type, cat_features, num_features, metrics = data_prep(
             df=df,
             target=target,
+            features=features_dict.keys()
         )
 
         # Configure MLflow
@@ -374,17 +388,17 @@ class ApplyOperation:
                 logger.warning("No best model was trained or selected. Skipping final model fitting.")
                 return df
 
-            df = fit_final_model(
+            df, target_hat = fit_final_model(
                 best_model_on_train=best_model_on_train,
                 df=df,
                 df_test=df_test,
-                features=features,
+                features=features_dict,
                 target=target,
                 task_type=task_type,
                 best_model_name=best_model_name
             )
             
-            return df
+            return df if target_hat is None else df, target_hat
 
 def get_ops_description() -> str:
     """
@@ -441,7 +455,7 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
 
     if hasattr(ApplyOperation, op_type):
         method = getattr(ApplyOperation, op_type)
-        df = method(df, params) # all methods output a df
+        df, target_hat = method(df, params) # all methods output a df
     else:
         logger.warning(f"Method {op_type} not found in ApplyOperation")
 
@@ -452,7 +466,7 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
         df.columns.tolist(),
         df.head(3).to_dict(orient="records"),
     )
-    return df
+    return df, target_hat
 
 def apply_operations(df: pd.DataFrame, ops: List[Dict[str, Any]]) -> pd.DataFrame:
     """
