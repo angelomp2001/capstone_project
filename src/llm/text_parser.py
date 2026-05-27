@@ -95,12 +95,12 @@ def llm_parses_to_ops(
         trace.info("PARSER START text=%r columns=%r dtypes=%r", user_text, columns, dtypes)
         
         if is_llm_available():
-            result = call_llm_for_json(
+            parsed_json = call_llm_for_json(
                 system_prompt,
                 user_prompt,
                 temperature=temperature
             )
-            logger.info("LLM parser returned raw result: %s", result)
+            logger.info("LLM parser returned raw result: %s", parsed_json)
         else:
             msg = "LLM API is not available. Please configure it to parse instructions."
             logger.warning(msg)
@@ -112,10 +112,12 @@ def llm_parses_to_ops(
         return [{"op": "error", "params": {"message": msg}}]
 
     # Normalize: ensure we always have a list
-    if isinstance(result, dict):
-        result = [result]
-    if not isinstance(result, list):
-        return []
+    if isinstance(parsed_json, dict):
+        result = [parsed_json]
+    elif isinstance(parsed_json, list):
+        result = parsed_json
+    else:
+        result = []
 
     # Filter out malformed or unsupported ops
     cleaned_ops: List[Dict[str, Any]] = []

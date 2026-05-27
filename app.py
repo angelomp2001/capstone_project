@@ -125,13 +125,12 @@ def main():
                 st.error(msg)
             else:
                 # Apply operations
-                new_df = apply_operations(st.session_state.df, ops_json)
+                new_df, msg = apply_operations(st.session_state.df, ops_json)
 
                 # Update state
                 st.session_state.df = new_df
                 st.session_state.operations.extend(ops_json)
 
-                msg = f"I applied {len(ops_json)} operation(s):\n{ops_json}"
                 logger.info("Instruction applied successfully. Operations=%s new_shape=%s", ops_json, new_df.shape)
                 trace.info("USER INPUT SUCCESS ops=%r new_shape=%r", ops_json, new_df.shape)
                 st.session_state.chat_history.append(("assistant", msg))

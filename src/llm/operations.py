@@ -1,10 +1,11 @@
 import logging
 import pandas as pd
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Tuple
 import re
 import inspect
 from pathlib import Path
 import mlflow
+import sys
 # pyrefly: ignore [missing-import]
 from src.model_target import (
     TEST_SIZE, POLY_DEGREE, RANDOM_STATE, CV_SPLITS,
@@ -48,7 +49,7 @@ class ApplyOperation:
     def get_first_value_in_col(
         df: pd.DataFrame,
         params: Dict[str, Any] # col, split_by
-    ):
+    ) -> Tuple[pd.DataFrame, str]:
         """
         Splits a column by a delimiter and returns only the first part of each element.
         
@@ -78,6 +79,8 @@ class ApplyOperation:
 
         # apply element-wise function to all of column
         df[[f'{col}_first_value']] = df[col].apply(get_first_in_element)
+        
+        msg = f'I split {col} by {split_by}. Final shape={df.shape}'
         logger.info("get_first_value_in_col complete. col=%s split_by=%s shape_after=%s", col, split_by, df.shape)
         return df[[f'{col}_first_value']], msg
     
@@ -85,7 +88,7 @@ class ApplyOperation:
     def split_alphanumeric(
         df: pd.DataFrame,   
         params: Dict[str, Any] # col
-    ):
+    ) -> Tuple[pd.DataFrame, str]:
         """
         Splits a column into two new columns based on alphanumeric values.
         
@@ -125,14 +128,16 @@ class ApplyOperation:
 
         # apply element-wise function to all of cabin column
         df[[f'{col}_left', f'{col}_right']] = df[col].apply(splitter)
+        msg = f'I split by alphanumeric: {col}_left, {col}_right. shape after: {df.shape}'
+        
         logger.info("split_alphanumeric complete. col=%s shape_after=%s", col, df.shape)
-        return df
+        return df, msg
 
     @staticmethod
     def dropna(
         df: pd.DataFrame,
         params: Dict[str, Any] # axis, subset (optional)
-    ) -> pd.DataFrame:
+    ) -> Tuple[pd.DataFrame, str]:
         """
         Drop rows or columns with missing values.
         
@@ -158,14 +163,16 @@ class ApplyOperation:
                 subset = None
 
         df = df.dropna(axis=axis, subset=subset)
+        msg = f'I dropped NA. axis: {axis}, subset: {subset}, shape after: {df.shape}'
+
         logger.info("dropna complete. axis=%s subset=%s shape_after=%s", axis, subset, df.shape)
-        return df
+        return df, msg
 
     @staticmethod
     def fillna(
         df: pd.DataFrame,
         params: Dict[str, Any] # column, strategy, value (optional)
-    ) -> pd.DataFrame:
+    ) -> Tuple[pd.DataFrame, str]:
         """
         Fill missing values in a single column.
         
@@ -185,10 +192,11 @@ class ApplyOperation:
         value = params.get("value", None)
 
         if column not in df.columns:
-            # Invalid column: ignore for POC
+            # Invalid column
+            msg = f"{column} does not exit, so I couldn't drop it."
             logger.warning("fillna skipped because column does not exist: %s", column)
             trace.info("APPLY fillna skipped missing_column=%r", column)
-            return df
+            return df, msg
 
         if strategy == "mean":
             df[column] = df[column].fillna(df[column].mean())
@@ -202,14 +210,16 @@ class ApplyOperation:
             if value is None:
                 value = 0
             df[column] = df[column].fillna(value)
+        
+        msg = f"fillna complete. column={column}, strategy={strategy}, value={value}"
         logger.info("fillna complete. column=%s strategy=%s value=%s", column, strategy, value)
-        return df
+        return df, msg
 
     @staticmethod
     def drop_column(
         df: pd.DataFrame,
         params: Dict[str, Any] # columns (list), column (string, optional)
-    ) -> pd.DataFrame:
+    ) -> Tuple[pd.DataFrame, str]:
         """
         Drop one or more columns.
         
@@ -234,8 +244,10 @@ class ApplyOperation:
         columns = [c for c in columns if c in df.columns]
         if columns:
             df = df.drop(columns=columns)
+        msg = f"I dropped the columns {columns}.  The new df shape is {df.shape}"
+        
         logger.info("drop_column complete. dropped=%s shape_after=%s", columns, df.shape)
-        return df
+        return df, msg
 
     # Alias drop_columns to drop_column to maintain backward compatibility with old op names
     # drop_columns = drop_column
@@ -244,7 +256,7 @@ class ApplyOperation:
     def replace_value(
         df: pd.DataFrame,
         params: Dict[str, Any] # column, old_value, new_value
-    ) -> pd.DataFrame:
+    ) -> Tuple[pd.DataFrame, str]:
         """
         Replace one existing value with a new value in a single column.
         
@@ -265,8 +277,9 @@ class ApplyOperation:
 
         # check if column exists
         if column not in df.columns:
+            msg = f"{column} does not exist"
             logger.warning("replace_value skipped because column does not exist: %s", column)
-            return df
+            return df, msg
 
         # count occurrences
         replacement_count = int((df[column].astype(str) == str(old_value)).sum())
@@ -288,13 +301,14 @@ class ApplyOperation:
             new_value,
             replacement_count,
         )
-        return df
+        msg = f"In {column}, I replaced all {old_value} values with {new_value}."
+        return df, msg
 
     @staticmethod
     def model_target(
         df: pd.DataFrame,
-        params: Dict[str, Any], # column, model (optional)
-    ) -> pd.DataFrame:
+        params: Dict[str, Any], # target, model (optional), features (optional)
+    ) -> Tuple[pd.DataFrame, str]:
         """
         Model/predict the target column. Optionally select a specific model to use from the model registry.
 
@@ -312,22 +326,30 @@ class ApplyOperation:
         target = params.get("target")
         features_dict = params.get("features", None)
         if not target:
+            msg = "I need a target column to work with"
             logger.warning("model_target skipped because no target column was provided")
-            return df
+            return df, msg
 
         if target not in df.columns:
+            msg = f"{target} does not exist."
             logger.warning("model_target skipped because column does not exist: %s", target)
-            return df
+            return df, msg
 
-        # drop features not in df
-        feature_set, user_feature_set = set(df.columns), set(features_dict.keys())
-        dropped_features = user_feature_set - feature_set
-        
-        if dropped_features and len(dropped_features) < len(user_feature_set):
-            logger.warning("features dropped: %s", dropped_features)
-        
-        # drop features that are not in df
-        features_dict = {k: features_dict[k] for k in user_feature_set & feature_set}
+        if not isinstance(features_dict, dict):
+            features_dict = None
+
+        if features_dict:
+            # drop features not in df
+            feature_set, user_feature_set = set(df.columns), set(features_dict.keys())
+            dropped_features = user_feature_set - feature_set
+            
+            if dropped_features and len(dropped_features) < len(user_feature_set):
+                logger.warning("features dropped: %s", dropped_features)
+            
+            # keep only features that are in df
+            features_dict = {k: features_dict[k] for k in user_feature_set & feature_set}
+            if not features_dict:
+                features_dict = None
 
         # drop rows with missing values
         original_rows = len(df)
@@ -337,14 +359,15 @@ class ApplyOperation:
             logger.warning("Dropped %s rows containing missing values", dropped_rows)
 
         if df.empty:
+            msg = "I don't see a df."
             logger.warning("model_target skipped because dataframe is empty")
-            return df
+            return df, msg
 
         # prep data
         df_train, df_test, features, target, task_type, cat_features, num_features, metrics = data_prep(
             df=df,
             target=target,
-            features=features_dict.keys()
+            features=list(features_dict.keys()) if features_dict else None
         )
 
         # Configure MLflow
@@ -353,7 +376,6 @@ class ApplyOperation:
         mlflow.set_tracking_uri(f"sqlite:///{db_path}")
 
         # Determine experiment name: Model_Target_Tests if testing, otherwise Model_Target_Experiment
-        import sys
         if "pytest" in sys.modules or "unittest" in sys.modules:
             experiment_name = "Model_Target_Tests"
         else:
@@ -361,44 +383,62 @@ class ApplyOperation:
 
         mlflow.set_experiment(experiment_name)
 
-        with mlflow.start_run(run_name="best_model"):
-            # Log high-level setup parameters in the parent run
-            mlflow.log_params({
-                "target_column": target,
-                "cv_splits": CV_SPLITS,
-                "random_state": RANDOM_STATE,
-                "poly_degree": POLY_DEGREE,
-                "test_size": TEST_SIZE,
-                "task_type": task_type,
-            })
+        try:
+            with mlflow.start_run(run_name="best_model"):
+                # Log high-level setup parameters in the parent run
+                mlflow.log_params({
+                    "target_column": target,
+                    "cv_splits": CV_SPLITS,
+                    "random_state": RANDOM_STATE,
+                    "poly_degree": POLY_DEGREE,
+                    "test_size": TEST_SIZE,
+                    "task_type": task_type,
+                })
 
-            best_model_on_train, best_model_name = run_model_selection(
-                df_train=df_train,
-                features=features,
-                target=target,
-                task_type=task_type,
-                cat_features=cat_features,
-                num_features=num_features,
-                metrics=metrics,
-                experiment_name=experiment_name,
-                model=model
-            )
+                best_model_on_train, best_model_name = run_model_selection(
+                    df_train=df_train,
+                    features=features,
+                    target=target,
+                    task_type=task_type,
+                    cat_features=cat_features,
+                    num_features=num_features,
+                    metrics=metrics,
+                    experiment_name=experiment_name,
+                    model=model
+                )
 
-            if best_model_on_train is None:
-                logger.warning("No best model was trained or selected. Skipping final model fitting.")
-                return df
+                if best_model_on_train is None:
+                    msg = "The run_model_selection function didn't output a best_model_on_train variable."
+                    logger.warning("No best model was trained or selected. Skipping final model fitting.")
+                    return df, msg
 
-            df, target_hat = fit_final_model(
-                best_model_on_train=best_model_on_train,
-                df=df,
-                df_test=df_test,
-                features=features_dict,
-                target=target,
-                task_type=task_type,
-                best_model_name=best_model_name
-            )
-            
-            return df if target_hat is None else df, target_hat
+                df, target_hat = fit_final_model(
+                    best_model_on_train=best_model_on_train,
+                    df=df,
+                    df_test=df_test,
+                    features=features_dict if features_dict else features,
+                    target=target,
+                    task_type=task_type,
+                    best_model_name=best_model_name
+                )
+                
+                if target_hat is not None:
+                    import numpy as np
+                    if isinstance(target_hat, (list, np.ndarray)) and len(target_hat) > 0:
+                        val = target_hat[0]
+                    elif hasattr(target_hat, "iloc") and len(target_hat) > 0:
+                        val = target_hat.iloc[0]
+                    else:
+                        val = target_hat
+                    msg = f"Based on your inputs, the predicted target value is {val}"
+                else:
+                    msg = f"I finished modeling {target}"
+                
+                return df, msg
+        except Exception as e:
+            msg = f"Model target execution failed: {str(e)}"
+            logger.exception("Error during model_target execution")
+            return df, msg
 
 def get_ops_description() -> str:
     """
@@ -416,7 +456,7 @@ def get_ops_description() -> str:
             lines.append("")
     return "\\n".join(lines)
 
-def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
+def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> Tuple[pd.DataFrame, str]:
     """
     Apply a single operation to a DataFrame.
 
@@ -446,16 +486,17 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
     )
 
     if op_type not in SUPPORTED_OPS:
-        # Unsupported operation: no-op (for robustness in POC)
+        # Unsupported operation
+        msg = f"The operation I tried isn't supported. These are my options: {SUPPORTED_OPS}"
         logger.warning(f"Unsupported op from LLM: {op_type}")
         trace.info("APPLY UNSUPPORTED op=%r", op_type)
-        return df
+        return df, msg
 
     df = df.copy()
 
     if hasattr(ApplyOperation, op_type):
         method = getattr(ApplyOperation, op_type)
-        df, target_hat = method(df, params) # all methods output a df
+        df, msg = method(df, params) # all methods output df, msg
     else:
         logger.warning(f"Method {op_type} not found in ApplyOperation")
 
@@ -466,9 +507,9 @@ def apply_operation(df: pd.DataFrame, op: Dict[str, Any]) -> pd.DataFrame:
         df.columns.tolist(),
         df.head(3).to_dict(orient="records"),
     )
-    return df, target_hat
+    return df, msg
 
-def apply_operations(df: pd.DataFrame, ops: List[Dict[str, Any]]) -> pd.DataFrame:
+def apply_operations(df: pd.DataFrame, ops: List[Dict[str, Any]]) -> Tuple[pd.DataFrame, str]:
     """
     Apply a sequence of operations to a DataFrame.
 
@@ -485,9 +526,10 @@ def apply_operations(df: pd.DataFrame, ops: List[Dict[str, Any]]) -> pd.DataFram
     pd.DataFrame
         New DataFrame after all operations have been applied in order.
     """
-    result = df.copy()
+    df_copy = df.copy()
     logger.info("Applying %s operation(s) in sequence.", len(ops))
+    msg = "No operations applied."
     for op in ops:
-        result = apply_operation(result, op)
-    logger.info("Finished applying operations. Final shape=%s", result.shape)
-    return result
+        df_copy, msg = apply_operation(df_copy, op)
+    logger.info(f"{msg}")
+    return df_copy, msg

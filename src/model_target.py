@@ -21,7 +21,11 @@ logger = logging.getLogger(__name__)
 TEST_SIZE = 0.2
 RANDOM_STATE = 42
 POLY_DEGREE = 2
-PRIMARY_METRIC = 'accuracy'
+PRIMARY_METRIC = {
+    "classification": "accuracy",
+    "regression": "r2"
+}
+
 CV_SPLITS = 5
 
 EVALUATION_METRICS = {
@@ -391,7 +395,7 @@ def run_model_selection(
         experiment_name,
         model: str = None
 ):
-    
+    primary_metric = PRIMARY_METRIC[task_type]
     best_estimators = {}
     all_avg_scores = []
     
@@ -435,7 +439,7 @@ def run_model_selection(
                     random_state=RANDOM_STATE,
                     metrics=metrics,
                     metric_funcs=EVALUATION_METRICS[task_type],
-                    primary_metric=PRIMARY_METRIC,
+                    primary_metric=primary_metric,
                     task_type=task_type,
                     experiment_name=experiment_name
                 )
@@ -499,13 +503,13 @@ def run_model_selection(
     
     # Select best model based on primary metric
     try:
-        col_map = {f"metrics.avg_test_{m}_{PRIMARY_METRIC}": m for m in models_to_run}
+        col_map = {f"metrics.avg_test_{m}_{primary_metric}": m for m in models_to_run}
         active_row = runs_df[runs_df["run_id"] == mlflow.active_run().info.run_id].iloc[0]
         best_col = active_row[[c for c in col_map if c in runs_df.columns]].astype(float).idxmax()
         best_model_name = col_map[best_col]
     except Exception:
         best_model_name = (
-            total_avg_scores_df.set_index("Model")[f"test_{PRIMARY_METRIC}"]
+            total_avg_scores_df.set_index("Model")[f"test_{primary_metric}"]
             .sort_values(ascending=False)
             .index[0]
         )
@@ -542,20 +546,23 @@ def fit_final_model(
 ):
 
     # final untouched evaluation on holdout test set
-    eval_function = EVALUATION_METRICS[task_type][PRIMARY_METRIC]
+    eval_function = EVALUATION_METRICS[task_type][PRIMARY_METRIC[task_type]]
     
     # retrain the selected model on all available data after final evaluation
     final_estimator = clone(best_model_on_train)
 
-    # if features is a list, goal: model target on features
-    if isinstance(features, list):
+    # if features is a list or None, goal: model target on features
+    if isinstance(features, list) or features is None:
+        if features is None:
+            features = df.columns.difference([target]).tolist()
+
         # get best model test score
         best_model_test_score = eval_function(
-        df_test[target], best_model_on_train.predict(df_test[features])
+            df_test[target], best_model_on_train.predict(df_test[features])
         )
         logger.info("Holdout test score: %s", best_model_test_score)
         if mlflow.active_run() is not None:
-            mlflow.log_metric(f"holdout_{PRIMARY_METRIC}", best_model_test_score)
+            mlflow.log_metric(f"holdout_{PRIMARY_METRIC[task_type]}", best_model_test_score)
 
         # fit to whole df
         final_estimator.fit(df[features], df[target])
@@ -566,14 +573,21 @@ def fit_final_model(
                 mlflow.sklearn.log_model(final_estimator, f"final_model_{best_model_name}")
 
         # apply to whole df
-        df[f"{target}_hat"] = final_estimator.predict_proba(df[features])[:, 1]
+        if task_type == "classification" and hasattr(final_estimator, "predict_proba"):
+            try:
+                df[f"{target}_hat"] = final_estimator.predict_proba(df[features])[:, 1]
+            except Exception:
+                df[f"{target}_hat"] = final_estimator.predict(df[features])
+        else:
+            df[f"{target}_hat"] = final_estimator.predict(df[features])
 
         logger.info("%s_hat appended to DataFrame", target)
-        return df
+        return df, None
 
     else:
         # if features is a dict, fit and predict with dict values
-        final_estimator.fit(df[features.keys()], df[target])
+        feature_cols = list(features.keys())
+        final_estimator.fit(df[feature_cols], df[target])
         logger.info("Final model retrained on full training data.")
         if mlflow.active_run() is not None:
             mlflow.sklearn.log_model(final_estimator, "best_model_df")
@@ -581,7 +595,7 @@ def fit_final_model(
                 mlflow.sklearn.log_model(final_estimator, f"final_model_{best_model_name}")
 
         # user feature values in df form
-        input_values = pd.DataFrame(features)
-        target_hat = final_estimator.predict(df[input_values])
+        input_values = pd.DataFrame([features])[feature_cols]
+        target_hat = final_estimator.predict(input_values)
         return df, target_hat
 

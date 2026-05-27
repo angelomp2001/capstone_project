@@ -283,7 +283,7 @@ def call_llm_for_json(
     RuntimeError
         If the underlying LLM call fails.
     """
-    text = call_llm(
+    llm_response = call_llm(
         system_prompt=system_prompt,
         user_prompt=user_prompt,
         model=model,
@@ -292,13 +292,13 @@ def call_llm_for_json(
 
     # Try direct JSON parsing first
     try:
-        parsed_json = json.loads(text)
+        parsed_json = json.loads(llm_response)
         trace.info("LLM JSON PARSED direct=%r", parsed_json)
         return parsed_json
     except json.JSONDecodeError:
 
         # Some models wrap JSON in markdown fences; try to extract.
-        stripped = _extract_json_from_text(text)
+        stripped = _extract_json_from_text(llm_response)
         try:
             # Final attempt to parse the extracted JSON substring
             parsed_json = json.loads(stripped)
@@ -306,8 +306,8 @@ def call_llm_for_json(
             return parsed_json
         except json.JSONDecodeError as e:
             # Log the raw output for debugging
-            trace.info("LLM JSON PARSE ERROR raw=%r", text)
-            logger.error("RAW LLM OUTPUT:\n%s", text)
+            trace.info("LLM JSON PARSE ERROR raw=%r", llm_response)
+            logger.error("RAW LLM OUTPUT:\n%s", llm_response)
             raise ValueError("LLM output is not valid JSON") from e
 
 

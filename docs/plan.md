@@ -135,7 +135,7 @@ operations.py/model_target():
 - Response is clear, contextual, and includes the prediction (8 points)
   - [ ] LLM explains the result in domain context, not just a raw number
 - Edge cases handled gracefully (5 points)
-  - [ ] Missing features, ambiguous input, and out-of-scope queries are managed
+  - [1️⃣] Missing features, ambiguous input, and out-of-scope queries are managed
 - Interface is functional and easy to use (3 points)
   - [1️⃣] User can interact with it without confusion (notebook, CLI, or web app)
 
