@@ -151,9 +151,9 @@ operations.py/model_target():
 
 **Documentation and Structure: (20 points)**
 - Clean, organized repository structure (4 points)
-  - [ ] Logical folder layout, no unnecessary files committed
+  - [1️⃣] Logical folder layout, no unnecessary files committed
 - README is complete and clear (6 points)
-  - [ ] Covers project description, setup, usage, architecture, results, and reflection
+  - [1️⃣] Covers project description, setup, usage, architecture, results, and reflection
 - YAML config file used for training parameters (3 points)
   - [1️⃣] No hardcoded hyperparameters in training script
 - Data and model files excluded from Git (3 points)

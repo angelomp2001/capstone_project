@@ -6,3 +6,5 @@ __pycache__/
 venv/
 capstone_project/
 .envdata/raw/*
+docs/plan.md
+docs/branch_notes

@@ -13,6 +13,9 @@ Right now the app supports these operations:
 - `model_target`
 
 ## Architecture
+### data
+A default data set is used for the app. Details are below. 
+
 ### src
 
 The project originally included generating a sample df and then modeling it - hence they are in the root src folder.  Since the model registry was sophisticated, I kept it as its own py file.  
@@ -27,10 +30,20 @@ MLflow is used to track model information.
 Docker is used to containerize the application for others to run. 
 Poetry is used for dependency management. 
 
+### docs
+There are two kinds of log files (see details below).
+
+### reports
+There are cross-validation metrics and hyper-parameter details for each model, and then a summary CSV file for each model.
+
+### test
+tests/ mirror src/ and includes the unit test for each module. 
+
 ## How to add an operation:
 - Add method(df, params) -> pd.DataFrame: to ApplyOperation class
   - **IMPORTANT**: add docstring to auto gen prompt
 - add method to SUPPORTED_OPS tuple
+
 
 # default data set
 https://www.kaggle.com/datasets/pranjalyadav92905/titanic-eda-data
