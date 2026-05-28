@@ -1,0 +1,8 @@
+Model,train_accuracy,test_accuracy,train_roc_auc,test_roc_auc,train_average_precision,test_average_precision,train_f1,test_f1,train_precision,test_precision,train_recall,test_recall
+Logistic,1.0,0.912088,1.0,0.909524,1.0,0.879103,1.0,0.911373,1.0,0.915,1.0,0.933333
+SVC,0.521558,0.476923,0.514286,0.483333,0.50042,0.484829,0.14,0.111111,0.107692,0.083333,0.2,0.166667
+DecisionTree,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+RandomForest,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+GradientBoosting,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+XGBoost,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+LightGBM,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0

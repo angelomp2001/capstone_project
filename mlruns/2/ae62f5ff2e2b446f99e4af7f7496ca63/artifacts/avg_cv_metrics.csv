@@ -1,0 +1,2 @@
+Model,train_accuracy,test_accuracy,train_roc_auc,test_roc_auc,train_average_precision,test_average_precision,train_f1,test_f1,train_precision,test_precision,train_recall,test_recall
+Logistic,0.528961,0.432967,0.525529,0.438095,0.510869,0.472661,0.34579,0.214118,0.670513,0.165035,0.422487,0.304762

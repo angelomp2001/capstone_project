@@ -133,7 +133,7 @@ operations.py/model_target():
 - Trained model is loaded and invoked with parsed features (6 points)
   - [1️⃣] Actual trained model produces the prediction (not a mock)
 - Response is clear, contextual, and includes the prediction (8 points)
-  - [ ] LLM explains the result in domain context, not just a raw number
+  - [1️⃣] LLM explains the result in domain context, not just a raw number
 - Edge cases handled gracefully (5 points)
   - [1️⃣] Missing features, ambiguous input, and out-of-scope queries are managed
 - Interface is functional and easy to use (3 points)

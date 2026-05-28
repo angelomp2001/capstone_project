@@ -228,7 +228,7 @@ def evaluate_metrics(
     return fold_result
 
 def cross_validate_model(
-    name: str,
+    model_name: str,
     pipeline: Pipeline,
     model_param_grid: dict,
     X_train: pd.DataFrame,
@@ -250,14 +250,14 @@ def cross_validate_model(
             pipeline, model_param_grid, X_outer_train, y_outer_train, 
             tuning_cv, primary_metric, random_state
         )
-        logger.info("Fold %d: Best hyperparameters for model %s: %s", fold_idx, name, model_best_estimator.get_params())
+        logger.info("Fold %d: Best hyperparameters for model %s: %s", fold_idx, model_name, model_best_estimator.get_params())
 
         fold_result = evaluate_metrics(
-            model_best_estimator, name, fold_idx, X_outer_train, y_outer_train, 
+            model_best_estimator, model_name, fold_idx, X_outer_train, y_outer_train, 
             X_outer_val, y_outer_val, metrics, metric_funcs
         )
         fold_results.append(fold_result)
-        logger.info("Fold %d results for model %s: %s", fold_idx, name, fold_result)
+        logger.info("Fold %d results for model %s: %s", fold_idx, model_name, fold_result)
 
     return fold_results
 

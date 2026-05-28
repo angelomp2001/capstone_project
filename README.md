@@ -13,6 +13,9 @@ Right now the app supports these operations:
 - `extract_values`
 - `model_target`
 
+## Architecture
+
+
 ## How to add an operation:
 - Add method(df, params) -> pd.DataFrame: to ApplyOperation class
   - **IMPORTANT**: add docstring to auto gen prompt
@@ -44,8 +47,10 @@ Github has a copy of the API key to pass the CI/CD.
 ## Fastest Local Run
 Option 1 — Run Locally (Recommended for Development)
 1. Clone the repository
+```
 git clone <your-repo-url>
 cd capstone_project
+```
 2. Install Poetry
 
 Install Poetry if you do not already have it:
@@ -53,11 +58,13 @@ Install Poetry if you do not already have it:
 https://python-poetry.org/docs/#installation
 
 Verify installation:
-
+```
 poetry --version
+```
 3. Install dependencies
+```
 poetry install
-
+```
 This installs all dependencies defined in:
 
 pyproject.toml
@@ -66,13 +73,15 @@ poetry.lock
 Poetry is the single source of truth for dependency versions.
 
 4. Run the app
+```
 poetry run streamlit run app.py
-
+```
 The app should open automatically in your browser.
 
 If not, visit:
 
 http://localhost:8501
+
 Option 2 — Run with Docker
 1. Install Docker Desktop
 
@@ -88,10 +97,13 @@ Engine running
 2. Build the Docker image
 
 From the repository root:
-
+```
 docker build --no-cache -t capstone-app .
+```
 3. Run the container
+```
 docker run -p 8501:8501 capstone-app
+```
 4. Open the app
 
 Visit:
@@ -128,7 +140,7 @@ Then open [http://localhost:8501](http://localhost:8501).
 
 ## How To Read Logs
 
-The app now writes logs to plain text files in [docs/logs](/C:/Users/Angelo/Documents/github/capstone_project/docs/logs).
+The app writes logs to plain text files in [docs/logs](/C:/Users/Angelo/Documents/github/capstone_project/docs/logs).
 
 Important files:
 
@@ -180,9 +192,3 @@ You can run the same local validation yourself:
 ```powershell
 python scripts\validate_ci.py
 ```
-
-## Notes
-
-- Ollama is optional for this POC.
-- If Ollama is unavailable, the built-in parser handles simple instructions.
-- This is still a POC, so unsupported prompts can happen. The new logs are there to make those failures visible and easier to reason about.
