@@ -8,7 +8,7 @@ import pandas as pd
 from src.llm.llm_utils import (
     is_llm_available, 
     call_llm_for_json, 
-    load_config, 
+    load_config_yml, 
     get_project_root
 )
 from src.llm.operations import SUPPORTED_OPS, get_ops_description
@@ -18,7 +18,7 @@ trace = logging.getLogger("trace")
 
 try:
     prompts_path = get_project_root() / "configs" / "llm_prompts.yml"
-    PROMPTS = load_config(str(prompts_path))
+    PROMPTS = load_config_yml(str(prompts_path))
 except Exception:
     PROMPTS = {}
 

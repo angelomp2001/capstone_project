@@ -37,6 +37,18 @@ text_parser:
       ]
     No additional text or comments.
 
+operations:
+  system_prompt: |
+    You are a data scientist.  Your job is to interpret results.  
+  user_prompt: |
+    Given:
+    - Model: {model_name}
+    - Data: {df_head}
+    - user feature inputs:  {feature_values}
+    - predicted target and value: {target}, {target_hat}
+      
+    State the target value and what it means.
+    
 test_run:
   system_prompt: "You are a helpful assistant."
   user_prompt: "Say the word 'success' and nothing else."
@@ -48,3 +60,4 @@ tests:
   call_llm_for_json:
     system_prompt: "You are a json bot."
     user_prompt: "Return some JSON"
+

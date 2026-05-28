@@ -1,5 +1,6 @@
 import pandas as pd
 import pytest
+from unittest.mock import patch
 # pyrefly: ignore [missing-import]
 from src.llm.operations import apply_operation, apply_operations
 from app import create_initial_df
@@ -90,7 +91,8 @@ def test_apply_operation_model_target_no_target():
     assert "I need a target column to work with" in msg
     assert "Survived_hat" not in new_df.columns
 
-def test_apply_operation_model_target_classification_features():
+@patch("src.llm.operations.call_llm", return_value="The predicted Survived value is 0. This means the passenger did not survive.")
+def test_apply_operation_model_target_classification_features(mock_llm):
     df = create_initial_df()
     op = {
         "op": "model_target",
@@ -101,9 +103,11 @@ def test_apply_operation_model_target_classification_features():
     }
     new_df, msg = apply_operation(df, op)
     assert new_df.shape[0] > 0
-    assert "Based on your inputs, the predicted target value is" in msg
+    mock_llm.assert_called_once()
+    assert msg == "The predicted Survived value is 0. This means the passenger did not survive."
 
-def test_apply_operation_model_target_regression_features():
+@patch("src.llm.operations.call_llm", return_value="The predicted Age value is 28.5. This is the estimated age of the passenger.")
+def test_apply_operation_model_target_regression_features(mock_llm):
     df = create_initial_df()
     op = {
         "op": "model_target",
@@ -114,4 +118,26 @@ def test_apply_operation_model_target_regression_features():
     }
     new_df, msg = apply_operation(df, op)
     assert new_df.shape[0] > 0
-    assert "Based on your inputs, the predicted target value is" in msg
+    mock_llm.assert_called_once()
+    assert msg == "The predicted Age value is 28.5. This is the estimated age of the passenger."
+
+@patch("src.llm.operations.call_llm", return_value="The predicted Age value is 28.5. This is the estimated age of the passenger.")
+def test_apply_operation_model_target_classification_features(mock_llm):
+    df = create_initial_df()
+    op = {
+        "op": "model_target",
+        "params": {
+            "target": "Survived",
+            "features": {"Pclass": 3, "SibSp": 1, "Parch": 0, "Fare": 7.25},
+            # maybe "explain": True or False depending on your design
+        }
+    }
+    new_df, msg = apply_operation(df, op)
+    assert new_df.shape[0] > 0
+
+    # Example if you want optional explanation:
+    # If explain=False (default), then:
+    mock_llm.assert_called_once()
+    # mock_llm.assert_not_called()
+    # and msg might be something like:
+    # assert msg == "I finished modeling Age"

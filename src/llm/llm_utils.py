@@ -74,7 +74,7 @@ def get_log_locations() -> Dict[str, str]:
     }
 
 
-def load_config(config_path: str) -> Dict[str, Any]:
+def load_config_yml(config_path: str) -> Dict[str, Any]:
     """Load a YAML configuration file."""
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
@@ -89,7 +89,7 @@ def get_project_root() -> Path:
 # -----------------------------------------------------------------------------
 
 config_path = PROJECT_ROOT / "configs" / "llm_utils.yml"
-config = load_config(str(config_path)) if config_path.exists() else {}
+config = load_config_yml(str(config_path)) if config_path.exists() else {}
 
 # Read configuration from environment variables (with defaults from config file)
 OLLAMA_URL = os.getenv("OLLAMA_URL", config.get("OLLAMA_URL", "https://api.tokenfactory.nebius.com/v1/"))

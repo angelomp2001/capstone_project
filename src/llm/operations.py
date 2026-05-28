@@ -1,5 +1,6 @@
 import logging
 import pandas as pd
+import numpy as np
 from typing import Dict, Any, List, Tuple
 import re
 import inspect
@@ -7,6 +8,7 @@ from pathlib import Path
 import mlflow
 import sys
 # pyrefly: ignore [missing-import]
+from src.llm.llm_utils import load_config_yml, get_project_root, call_llm
 from src.model_target import (
     TEST_SIZE, POLY_DEGREE, RANDOM_STATE, CV_SPLITS,
     data_prep,
@@ -423,14 +425,32 @@ class ApplyOperation:
                 )
                 
                 if target_hat is not None:
-                    import numpy as np
                     if isinstance(target_hat, (list, np.ndarray)) and len(target_hat) > 0:
                         val = target_hat[0]
                     elif hasattr(target_hat, "iloc") and len(target_hat) > 0:
                         val = target_hat.iloc[0]
                     else:
                         val = target_hat
-                    msg = f"Based on your inputs, the predicted target value is {val}"
+
+                    # get llm interpretation of val
+                    prompts_path = get_project_root() / "configs" / "llm_prompts.yml"
+                    PROMPTS = load_config_yml(str(prompts_path))
+                    system_prompt = PROMPTS["operations"]["system_prompt"]
+                    user_prompt_template = PROMPTS["operations"]["user_prompt"]
+                    user_prompt = user_prompt_template.format(
+                        model_name=best_model_name,
+                        df_head=df.head(5).to_string(),
+                        feature_values=features_dict,
+                        target=target,
+                        target_hat=val,
+                    )
+                    msg = call_llm(
+                        system_prompt=system_prompt,
+                        user_prompt=user_prompt,
+                        temperature=0.0
+                    )
+                    trace.info("LLM INTERPRETATION model=%r target=%r val=%r", best_model_name, target, val)
+
                 else:
                     msg = f"I finished modeling {target}"
                 
