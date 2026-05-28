@@ -141,13 +141,13 @@ operations.py/model_target():
 
 **Testing: (15 points)**
 - At least 4 preprocessing unit tests (5 points)
-  - [ ] Tests cover missing values, encoding, scaling, and immutability
+  - [1️⃣] Tests cover missing values, encoding, scaling, and immutability
 - At least 2 model validation tests (3 points)
-  - [ ] Tests verify prediction shape/type and minimum performance
+  - [1️⃣] Tests verify prediction shape/type and minimum performance
 - At least 2 interface tests (4 points)
-  - [ ] Tests verify input parsing accuracy and edge case handling
+  - [1️⃣] Tests verify input parsing accuracy and edge case handling
 - All tests pass (3 points)
-  - [ ] `pytest tests/ -v` shows zero failures
+  - [1️⃣] `pytest tests/ -v` shows zero failures
 
 **Documentation and Structure: (20 points)**
 - Clean, organized repository structure (4 points)

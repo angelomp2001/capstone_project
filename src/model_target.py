@@ -15,18 +15,21 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, PolynomialFeatures, StandardScaler
 
 from src.registry import MODEL_REGISTRY
+from src.llm.llm_utils import load_config_yml, get_project_root
 logger = logging.getLogger(__name__)
 
-# model target defaults
-TEST_SIZE = 0.2
-RANDOM_STATE = 42
-POLY_DEGREE = 2
-PRIMARY_METRIC = {
+# Load model target config
+config_path = get_project_root() / "configs" / "model_target.yml"
+config = load_config_yml(str(config_path)) if config_path.exists() else {}
+
+TEST_SIZE = config.get("TEST_SIZE", 0.2)
+RANDOM_STATE = config.get("RANDOM_STATE", 42)
+POLY_DEGREE = config.get("POLY_DEGREE", 2)
+PRIMARY_METRIC = config.get("PRIMARY_METRIC", {
     "classification": "accuracy",
     "regression": "r2"
-}
-
-CV_SPLITS = 5
+})
+CV_SPLITS = config.get("CV_SPLITS", 5)
 
 EVALUATION_METRICS = {
     'classification': {

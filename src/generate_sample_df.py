@@ -1,14 +1,10 @@
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
-from pathlib import Path
-import yaml
+from src.llm.llm_utils import load_config_yml, get_project_root
 
-config_path = Path(__file__).resolve().parents[1] / "configs" / "generate_sample_df.yml"
-config = {}
-if config_path.exists():
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f) or {}
+config_path = get_project_root() / "configs" / "generate_sample_df.yml"
+config = load_config_yml(str(config_path)) if config_path.exists() else {}
 
 n_rows = config.get("n_rows", 1000)
 seed = config.get("seed", 12345)

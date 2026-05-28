@@ -1,6 +1,5 @@
 # Capstone Project POC
-
-This project is a small Streamlit app for experimenting with AI-assisted data cleaning. It shows a sample table, lets you type a cleaning instruction in plain English, translates that instruction into one or more data operations, and then applies those operations to the table.
+This project is a small Streamlit app for experimenting with AI-assisted data cleaning and analysis. It shows a sample table, lets you type a cleaning instruction in plain English, translates that instruction into one or more data operations, and then applies those operations to the table. The user can also ask to model a target variable and submit feature values to get a prediction with an interpretation.
 
 Right now the app supports these operations:
 
@@ -14,7 +13,19 @@ Right now the app supports these operations:
 - `model_target`
 
 ## Architecture
+### src
 
+The project originally included generating a sample df and then modeling it - hence they are in the root src folder.  Since the model registry was sophisticated, I kept it as its own py file.  
+
+Files associated with the llm (call, parse to operations, the operations themselves) are grouped in the src/llm folder as llm_utils, operations, and text_parser, respectively.  This keeps file associted with the llm in one place, and each file only has one job.
+
+### tools
+DVC is used to track the data
+Github Actions is used to auto test code as I go. 
+Streamlit is used to host the ui.
+MLflow is used to track model information. 
+Docker is used to containerize the application for others to run. 
+Poetry is used for dependency management. 
 
 ## How to add an operation:
 - Add method(df, params) -> pd.DataFrame: to ApplyOperation class

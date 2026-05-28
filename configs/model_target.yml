@@ -1,0 +1,7 @@
+TEST_SIZE: 0.2
+RANDOM_STATE: 42
+POLY_DEGREE: 2
+PRIMARY_METRIC:
+  classification: "accuracy"
+  regression: "r2"
+CV_SPLITS: 5
