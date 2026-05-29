@@ -11,10 +11,10 @@ from src.llm.text_parser import llm_parses_to_ops
 def test_llm_parses_to_ops():
     df = generate_sample_df(n_rows=10)
     # Introduce missing data to make the user text logical
-    df.loc[0, "uniform"] = np.nan
+    df.loc[0, "Survived"] = np.nan
     
     ops = llm_parses_to_ops(
-        user_text="fill missing uniforms with median", 
+        user_text="fill missing Survived with median", 
         df=df,
         temperature=0.0
         )
