@@ -2,7 +2,7 @@ import os
 from unittest.mock import patch, MagicMock
 import pytest
 # pyrefly: ignore [missing-import]
-from src.llm.llm_utils import call_llm, call_llm_for_json, load_config_yml, get_project_root
+from src.llm.llm_utils import call_llm, call_llm_for_json, load_config_yml, get_project_root, is_llm_available
 
 try:
     prompts_path = get_project_root() / "configs" / "llm_prompts.yml"
@@ -27,9 +27,14 @@ def test_call_llm(mock_openai):
     assert result == "Paris"
     mock_client.chat.completions.create.assert_called_once()
 
-@patch("src.llm.llm_utils.call_llm")
-@pytest.mark.dependency(name="test_call_llm_for_json", scope="session")
-def test_call_llm_for_json(mock_call_llm):
+@patch("src.llm.text_parser.call_llm_for_json")
+@patch("src.llm.text_parser.is_llm_available", return_value=True)
+def test_llm_parses_to_ops(mock_is_available, mock_call_llm_for_json):
+    # Make the LLM "return" exactly what you expect
+    mock_call_llm_for_json.return_value = {
+        "op": "fillna",
+        "params": {"column": "uniform", "strategy": "median"}
+    }
     mock_call_llm.return_value = '{"status": "ok"}'
     
     result = call_llm_for_json(
@@ -38,3 +43,9 @@ def test_call_llm_for_json(mock_call_llm):
     )
     
     assert result == {"status": "ok"}
+
+@patch("src.llm.llm_utils.call_llm")
+def test_is_llm_available(mock_call_llm):
+    mock_call_llm.return_value = "Paris"
+    assert is_llm_available()
+    mock_call_llm.assert_not_called()
