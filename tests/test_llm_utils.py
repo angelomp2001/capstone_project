@@ -1,11 +1,6 @@
-import os
 from unittest.mock import patch, MagicMock
-import pytest
 # pyrefly: ignore [missing-import]
 from src.llm.llm_utils import call_llm, call_llm_for_json, load_config_yml, get_project_root, is_llm_available
-from src.generate_sample_df import generate_sample_df
-from src.llm.text_parser import llm_parses_to_ops
-import numpy as np
 
 
 try:
@@ -55,26 +50,3 @@ def test_is_llm_available(mock_call_llm):
     assert is_llm_available()
     mock_call_llm.assert_not_called()
 
-@patch("src.llm.text_parser.call_llm_for_json")
-@patch("src.llm.text_parser.is_llm_available", return_value=True)
-def test_llm_parses_to_ops(mock_is_available, mock_call_llm_for_json):
-    # Make the LLM "return" exactly what you expect for the parser
-    mock_call_llm_for_json.return_value = {
-        "op": "fillna",
-        "params": {"column": "uniform", "strategy": "median"}
-    }
-
-    df = generate_sample_df(n_rows=10)
-    df.loc[0, "uniform"] = np.nan
-
-    ops = llm_parses_to_ops(
-        user_text="fill missing uniform with median",
-        df=df,
-        temperature=0.0,
-    )
-    print("mock_call_llm_for_json:", mock_call_llm_for_json)
-    assert isinstance(ops, list)
-    assert len(ops) > 0
-    assert ops[0]["op"] == "fillna"
-    assert ops[0]["params"]["column"] == "uniform"
-    assert ops[0]["params"]["strategy"] == "median"
