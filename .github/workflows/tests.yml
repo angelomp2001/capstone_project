@@ -28,7 +28,7 @@ jobs:
       - name: Run tests with pytest
         env:
           NEBIUS_API_KEY: ${{ secrets.NEBIUS_API_KEY }}
-        run: pytest tests/
+        run: poetry run pytest
 
   docker-build:
     name: Build Docker Image
