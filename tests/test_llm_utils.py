@@ -35,7 +35,7 @@ def test_llm_parses_to_ops(mock_is_available, mock_call_llm_for_json):
         "op": "fillna",
         "params": {"column": "uniform", "strategy": "median"}
     }
-    mock_call_llm.return_value = '{"status": "ok"}'
+    mock_call_llm_for_json.return_value = '{"status": "ok"}'
     
     result = call_llm_for_json(
         system_prompt=PROMPTS.get("tests", {}).get("call_llm_for_json", {}).get("system_prompt", "You are a json bot."),
