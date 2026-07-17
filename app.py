@@ -71,7 +71,7 @@ def main():
     #     )
 
     # --- Data Preview --------------------------------------------------------
-    st.subheader("Sample Data (first 15 rows)") # ui component
+    st.subheader("Sample Data (first 8 rows)") # ui component
     preview_df = st.session_state.df.head(8).copy()
     st.dataframe(preview_df, use_container_width=True) # width='stretch' ui component
 

@@ -47,7 +47,7 @@ class ApplyOperation:
     def _return_n_elements(element, n_returns):
         return pd.Series([element] * n_returns)
 
-    @staticmethod
+    @staticmethod # get_first_value_in_col
     def get_first_value_in_col(
         df: pd.DataFrame,
         params: Dict[str, Any] # col, split_by
@@ -86,7 +86,7 @@ class ApplyOperation:
         logger.info("get_first_value_in_col complete. col=%s split_by=%s shape_after=%s", col, split_by, df.shape)
         return df[[f'{col}_first_value']], msg
     
-    @staticmethod
+    @staticmethod # split_alphanumeric
     def split_alphanumeric(
         df: pd.DataFrame,   
         params: Dict[str, Any] # col
@@ -135,7 +135,7 @@ class ApplyOperation:
         logger.info("split_alphanumeric complete. col=%s shape_after=%s", col, df.shape)
         return df, msg
 
-    @staticmethod
+    @staticmethod # dropna
     def dropna(
         df: pd.DataFrame,
         params: Dict[str, Any] # axis, subset (optional)
@@ -170,7 +170,7 @@ class ApplyOperation:
         logger.info("dropna complete. axis=%s subset=%s shape_after=%s", axis, subset, df.shape)
         return df, msg
 
-    @staticmethod
+    @staticmethod # fillna
     def fillna(
         df: pd.DataFrame,
         params: Dict[str, Any] # column, strategy, value (optional)
@@ -217,7 +217,7 @@ class ApplyOperation:
         logger.info("fillna complete. column=%s strategy=%s value=%s", column, strategy, value)
         return df, msg
 
-    @staticmethod
+    @staticmethod # drop_column
     def drop_column(
         df: pd.DataFrame,
         params: Dict[str, Any] # columns (list), column (string, optional)
@@ -254,7 +254,7 @@ class ApplyOperation:
     # Alias drop_columns to drop_column to maintain backward compatibility with old op names
     # drop_columns = drop_column
 
-    @staticmethod
+    @staticmethod # replace_value
     def replace_value(
         df: pd.DataFrame,
         params: Dict[str, Any] # column, old_value, new_value
@@ -306,7 +306,7 @@ class ApplyOperation:
         msg = f"In {column}, I replaced all {old_value} values with {new_value}."
         return df, msg
 
-    @staticmethod
+    @staticmethod # model_target
     def model_target(
         df: pd.DataFrame,
         params: Dict[str, Any], # target, model (optional), features (optional)

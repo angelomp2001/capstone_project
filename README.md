@@ -3,14 +3,13 @@ This project is a small Streamlit app for experimenting with AI-assisted data cl
 
 Right now the app supports these operations:
 
-- `dropna`
-- `fillna`
-- `drop_columns`
-- `replace_value`
-- `rename_columns`
-- `change_data_type`
-- `extract_values`
-- `model_target`
+- `get_first_value_in_col': Splits a column by a delimiter and returns only the first part of each element.`
+- `split_alphanumeric: Splits a column into two new columns based on alphanumeric values.`
+- `dropna: Drop rows or columns with missing values.`
+- `fillna: Fill missing values in a single column.`
+- `drop_column: Drop one or more columns.`
+- `replace_value: Replace one existing value with a new value in a single column.`
+- `model_target: Model/predict the target column. Optionally provide feature values to use for prediction or select a specific model to use from the model registry.`
 
 ## Architecture
 ### data
